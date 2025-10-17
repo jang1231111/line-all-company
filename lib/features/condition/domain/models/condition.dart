@@ -1,27 +1,10 @@
-class Condition {
-  final String? period;
-  final String? type;
-  final String? section;
-  final String? searchQuery;
-  final String? sido;
-  final String? sigungu;
-  final String? eupmyeondong;
-  final String? beopjeongdong;
-  final List<String> surcharges;
+import 'package:freezed_annotation/freezed_annotation.dart';
+part 'condition.freezed.dart';
+part 'condition.g.dart';
 
-  const Condition({
-    this.period,
-    this.type,
-    this.section,
-    this.searchQuery,
-    this.sido,
-    this.sigungu,
-    this.eupmyeondong,
-    this.beopjeongdong,
-    this.surcharges = const [],
-  });
-
-  Condition copyWith({
+@freezed
+abstract class Condition with _$Condition {
+  const factory Condition({
     String? period,
     String? type,
     String? section,
@@ -30,18 +13,8 @@ class Condition {
     String? sigungu,
     String? eupmyeondong,
     String? beopjeongdong,
-    List<String>? surcharges,
-  }) {
-    return Condition(
-      period: period ?? this.period,
-      type: type ?? this.type,
-      section: section ?? this.section,
-      searchQuery: searchQuery ?? this.searchQuery,
-      sido: sido ?? this.sido,
-      sigungu: sigungu ?? this.sigungu,
-      eupmyeondong: eupmyeondong ?? this.eupmyeondong,
-      beopjeongdong: beopjeongdong ?? this.beopjeongdong,
-      surcharges: surcharges ?? this.surcharges,
-    );
-  }
+    @Default([]) List<String> surcharges,
+  }) = _Condition;
+
+  factory Condition.fromJson(Map<String, dynamic> json) => _$ConditionFromJson(json);
 }

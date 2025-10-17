@@ -4,101 +4,119 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../common/theme/theme.dart';
 import '../../../../common/widgets/dropdown_field.dart';
 import '../../domain/models/condition.dart';
-import '../providers/condition_notifier.dart';
+import '../viewmodel/condition_viewmodel.dart';
 
-class ConditionFormWidget extends ConsumerWidget {
+class ConditionFormWidget extends ConsumerStatefulWidget {
   const ConditionFormWidget({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final condition = ref.watch(conditionProvider);
-    final saving = ref.watch(conditionSavingProvider);
+  ConsumerState<ConditionFormWidget> createState() => _ConditionFormWidgetState();
+}
 
-    // center content with max width to mimic desktop layout in screenshot
+class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _periodController;
+
+  @override
+  void initState() {
+    super.initState();
+    final condition = ref.read(conditionViewModelProvider);
+    _periodController = TextEditingController(text: condition.period ?? '');
+  }
+
+  @override
+  void dispose() {
+    _periodController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final condition = ref.watch(conditionViewModelProvider);
+    final viewModel = ref.read(conditionViewModelProvider.notifier);
+    final saving = false;
+
     return Center(
       child: ConstrainedBox(
-        // don't force tall maxHeight; limit width instead so widget height = content
         constraints: const BoxConstraints(maxWidth: 1100),
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // 내용만큼만 높이 차지하게 함
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Left: main form (content-sized card)
-            Card(
-              color: const Color(0xFFEAF5FF), // light blue panel
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min, // content 높이만 차지하도록
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // extracted header
-                    _Header(
-                      title: '운임 계산 조건 설정',
-                      onReset: () => ref.read(conditionProvider.notifier).state = const Condition(),
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Period
-                    TextFormField(
-                      initialValue: condition.period ?? '',
-                      decoration: fieldDecoration(
-                        context,
-                        hint: '기간',
-                        icon: Icons.calendar_today,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Card(
+                color: const Color(0xFFEAF5FF),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _Header(
+                        title: '운임 계산 조건 설정',
+                        onReset: () {
+                          viewModel.update(const Condition());
+                          _periodController.clear();
+                        },
                       ),
-                      onChanged: (v) =>
-                          ref.read(conditionProvider.notifier).state = condition
-                              .copyWith(period: v),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // extracted type/section row
-                    const _TypeSectionRow(),
-                    const SizedBox(height: 12),
-
-                    // Search box styled like screenshot
-                    _SearchBox(
-                      initialValue: condition.searchQuery ?? '',
-                      onChanged: (v) =>
-                          ref.read(conditionProvider.notifier).state = condition
-                              .copyWith(searchQuery: v),
-                      onSearch: () {},
-                    ),
-                    const SizedBox(height: 12),
-
-                    // extracted region selectors
-                    const _RegionSelectors(),
-                    const SizedBox(height: 12),
-
-                    // extracted action buttons
-                    _ActionButtons(
-                      saving: saving,
-                      onSave: () async {
-                        ref.read(conditionSavingProvider.notifier).state = true;
-                        final repo = ref.read(conditionRepositoryProvider);
-                        final messenger = ScaffoldMessenger.of(context);
-                        await repo.saveCondition(ref.read(conditionProvider));
-                        ref.read(conditionSavingProvider.notifier).state =
-                            false;
-                        messenger.showSnackBar(
-                          const SnackBar(content: Text('저장되었습니다')),
-                        );
-                      },
-                      onReset: () =>
-                          ref.read(conditionProvider.notifier).state =
-                              const Condition(),
-                    ),
-                  ],
+                      const SizedBox(height: 14),
+                      // Period
+                      TextFormField(
+                        controller: _periodController,
+                        decoration: fieldDecoration(
+                          context,
+                          hint: '기간',
+                          icon: Icons.calendar_today,
+                        ),
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return '기간을 입력하세요';
+                          }
+                          if (v.length < 2) {
+                            return '기간이 너무 짧습니다';
+                          }
+                          return null;
+                        },
+                        onChanged: (v) => viewModel.update(condition.copyWith(period: v)),
+                      ),
+                      const SizedBox(height: 12),
+                      const _TypeSectionRow(),
+                      const SizedBox(height: 12),
+                      _SearchBox(
+                        initialValue: condition.searchQuery ?? '',
+                        onChanged: (v) => viewModel.update(condition.copyWith(searchQuery: v)),
+                        onSearch: () {},
+                      ),
+                      const SizedBox(height: 12),
+                      const _RegionSelectors(),
+                      const SizedBox(height: 12),
+                      _ActionButtons(
+                        saving: saving,
+                        onSave: () async {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            await viewModel.save();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('저장되었습니다')),
+                            );
+                          }
+                        },
+                        onReset: () {
+                          viewModel.update(const Condition());
+                          _periodController.clear();
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ), // end left card
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -250,7 +268,8 @@ class _TypeSectionRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final condition = ref.watch(conditionProvider);
+    final condition = ref.watch(conditionViewModelProvider);
+    final viewModel = ref.read(conditionViewModelProvider.notifier);
     return Row(
       children: [
         Expanded(
@@ -259,7 +278,7 @@ class _TypeSectionRow extends ConsumerWidget {
             items: ['안전운송운임', '안전위탁운임', '기타'],
             hint: '유형',
             icon: Icons.category,
-            onChanged: (v) => ref.read(conditionProvider.notifier).state = condition.copyWith(type: v),
+            onChanged: (v) => viewModel.update(condition.copyWith(type: v)),
           ),
         ),
         const SizedBox(width: 12),
@@ -269,7 +288,7 @@ class _TypeSectionRow extends ConsumerWidget {
             items: ['인천항기점(왕복)', '서울-부산', '기타'],
             hint: '구간',
             icon: Icons.place,
-            onChanged: (v) => ref.read(conditionProvider.notifier).state = condition.copyWith(section: v),
+            onChanged: (v) => viewModel.update(condition.copyWith(section: v)),
           ),
         ),
       ],
@@ -283,7 +302,8 @@ class _RegionSelectors extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final condition = ref.watch(conditionProvider);
+    final condition = ref.watch(conditionViewModelProvider);
+    final viewModel = ref.read(conditionViewModelProvider.notifier);
     return Column(
       children: [
         Row(
@@ -294,7 +314,7 @@ class _RegionSelectors extends ConsumerWidget {
                 items: ['전체', '서울특별시', '인천광역시', '부산광역시'],
                 hint: '시도',
                 icon: Icons.map,
-                onChanged: (v) => ref.read(conditionProvider.notifier).state = condition.copyWith(sido: v),
+                onChanged: (v) => viewModel.update(condition.copyWith(sido: v)),
               ),
             ),
             const SizedBox(width: 12),
@@ -304,7 +324,7 @@ class _RegionSelectors extends ConsumerWidget {
                 items: ['전체', '강남구', '서구', '남구'],
                 hint: '시군구',
                 icon: Icons.location_city,
-                onChanged: (v) => ref.read(conditionProvider.notifier).state = condition.copyWith(sigungu: v),
+                onChanged: (v) => viewModel.update(condition.copyWith(sigungu: v)),
               ),
             ),
           ],
@@ -318,7 +338,7 @@ class _RegionSelectors extends ConsumerWidget {
                 items: ['전체', '역삼동', '연수동'],
                 hint: '읍면동',
                 icon: Icons.home_work,
-                onChanged: (v) => ref.read(conditionProvider.notifier).state = condition.copyWith(eupmyeondong: v),
+                onChanged: (v) => viewModel.update(condition.copyWith(eupmyeondong: v)),
               ),
             ),
             const SizedBox(width: 12),
@@ -328,7 +348,7 @@ class _RegionSelectors extends ConsumerWidget {
                 items: ['전체', '역삼1동', '역삼2동'],
                 hint: '법정동',
                 icon: Icons.account_balance,
-                onChanged: (v) => ref.read(conditionProvider.notifier).state = condition.copyWith(beopjeongdong: v),
+                onChanged: (v) => viewModel.update(condition.copyWith(beopjeongdong: v)),
               ),
             ),
           ],
