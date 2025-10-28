@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DropdownField extends StatelessWidget {
+  final FocusNode? focusNode;
   final String? initialValue;
   final List<String> items;
   final String hint;
@@ -14,6 +15,7 @@ class DropdownField extends StatelessWidget {
 
   const DropdownField({
     super.key,
+    this.focusNode,
     required this.items,
     required this.hint,
     this.initialValue,
@@ -27,51 +29,100 @@ class DropdownField extends StatelessWidget {
   });
 
   InputDecoration _decoration() => InputDecoration(
-    hintText: hint,
-    filled: true,
-    fillColor: enabled ? Colors.white : Colors.grey.shade100,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-    prefixIcon: icon != null
-        ? Icon(icon, size: 20, color: Colors.blueGrey)
-        : null,
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide.none,
-    ),
-  );
+        hintText: hint,
+        filled: true,
+        fillColor: enabled ? Colors.white : Colors.grey.shade100,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.blue.shade100),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.blue.shade100),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.blue.shade300, width: 1.5),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      isExpanded: isExpanded,
-      initialValue: items.firstWhere(
-        (opt) => opt == initialValue,
-        orElse: () => items.first,
+    final isDisabled = !enabled;
+    return Container(
+      decoration: BoxDecoration(
+        color: isDisabled ? Colors.grey.shade100 : Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDisabled ? Colors.grey.shade300 : Colors.blue.shade100,
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueGrey.withOpacity(0.06),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
-      decoration: _decoration(),
-      items: items
-          .map(
-            (e) => DropdownMenuItem(
-              value: e,
-              child: Text(e, style: style),
+      child: DropdownButtonFormField<String>(
+        focusNode: focusNode,
+        isExpanded: isExpanded,
+        value: items.contains(initialValue) ? initialValue : items.first,
+        decoration: _decoration().copyWith(
+          fillColor: isDisabled ? Colors.grey.shade100 : Colors.white,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: isDisabled ? Colors.grey.shade300 : Colors.blue.shade100,
+              width: 1.2,
             ),
-          )
-          .toList(),
-      onChanged: enabled
-          ? (v) {
-              final selected = items.firstWhere(
-                (opt) => opt == v,
-                orElse: () => items.first,
-              );
-              onChanged?.call(selected);
-            }
-          : null,
-      validator: validator,
-      onSaved: onSaved,
-      style: style,
-      disabledHint: initialValue != null
-          ? Text(initialValue!, style: style?.copyWith(color: Colors.grey))
-          : null,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: isDisabled ? Colors.grey.shade300 : Colors.blue.shade300,
+              width: 1.5,
+            ),
+          ),
+        ),
+        items: items
+            .map(
+              (e) => DropdownMenuItem(
+                value: e,
+                child: Text(
+                  e,
+                  style: style ??
+                      TextStyle(
+                        fontSize: 14,
+                        color: isDisabled ? Colors.grey : Colors.black,
+                      ),
+                ),
+              ),
+            )
+            .toList(),
+        onChanged: enabled
+            ? (v) {
+                final selected = items.firstWhere(
+                  (opt) => opt == v,
+                  orElse: () => items.first,
+                );
+                onChanged?.call(selected);
+              }
+            : null,
+        validator: validator,
+        onSaved: onSaved,
+        style: style ??
+            TextStyle(
+              fontSize: 14,
+              color: isDisabled ? Colors.grey : Colors.black,
+            ),
+        disabledHint: initialValue != null
+            ? Text(initialValue!, style: style?.copyWith(color: Colors.grey))
+            : null,
+        icon: const Icon(Icons.keyboard_arrow_down),
+      ),
     );
   }
 }

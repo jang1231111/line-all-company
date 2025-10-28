@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:line_all/features/condition/presentation/data/surcharge_calculator.dart';
 part 'condition.freezed.dart';
-part 'condition.g.dart';
 
 @freezed
 abstract class Condition with _$Condition {
@@ -13,8 +13,12 @@ abstract class Condition with _$Condition {
     String? sigungu,
     String? eupmyeondong,
     String? beopjeongdong,
-    @Default([]) List<String> surcharges,
+    String? mode,
+    @Default([]) List<String> surcharges, // 체크박스 id 리스트
+    String? dangerType, // 위험물 드롭다운 value
+    String? weightType, // 중량물 드롭다운 value
+    String? specialType, // 활대품 드롭다운 value
+    String? cancellationFee, // 취소료 드롭다운 value
+    SurchargeResult? surchargeResult, // 할증 계산 결과 추가
   }) = _Condition;
-
-  factory Condition.fromJson(Map<String, dynamic> json) => _$ConditionFromJson(json);
 }

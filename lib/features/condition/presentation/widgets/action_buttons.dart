@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class ActionButtons extends StatelessWidget {
   final bool saving;
-  final Future<void> Function() onSave;
+  final Future<void> Function() search;
   final VoidCallback onReset;
 
   const ActionButtons({
     required this.saving,
-    required this.onSave,
+    required this.search,
     required this.onReset,
     super.key,
   });
@@ -25,8 +25,8 @@ class ActionButtons extends StatelessWidget {
             ),
             textStyle: const TextStyle(fontSize: 14),
           ),
-          onPressed: saving ? null : () => onSave(),
-          icon: const Icon(Icons.save),
+          onPressed: saving ? null : () => search(),
+          icon: const Icon(Icons.search),
           label: Text(saving ? '검색 중...' : '검색'),
         ),
         const SizedBox(width: 12),

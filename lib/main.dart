@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: '안전운임제 계산기',
       theme: appTheme(),
-      home: const ConditionFormPage(),
+      home: ConditionFormPage(),
     );
   }
 }

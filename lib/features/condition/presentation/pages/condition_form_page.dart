@@ -1,14 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:line_all/features/condition/presentation/widgets/fare_result_table.dart';
 
 import '../widgets/condition_form_widget.dart';
-import '../widgets/condition_surcharge_panel.dart';
-// import '../../data/repositories/in_memory_condition_repository.dart';
-// import '../providers/condition_notifier.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ConditionFormPage extends ConsumerWidget {
-  const ConditionFormPage({super.key});
+  ConditionFormPage({super.key});
+
+  // 예시: 임시 데이터
+  final List<Map<String, dynamic>> dummyResults = [
+    {
+      '항구': '부산북항',
+      '지역(시도)': '강원도',
+      '지역(시군구)': '강릉시',
+      '지역(읍면동)': '경포동',
+      '거리(KM)': 369,
+      '20FT(원)': '764,800',
+      '40FT(원)': '866,400',
+    },
+    {
+      '항구': '부산북항',
+      '지역(시도)': '강원도',
+      '지역(시군구)': '동해시',
+      '지역(읍면동)': '북삼동',
+      '거리(KM)': 317,
+      '20FT(원)': '692,400',
+      '40FT(원)': '775,400',
+    },
+    {
+      '항구': '부산북항',
+      '지역(시도)': '강원도',
+      '지역(시군구)': '원주시',
+      '지역(읍면동)': '문막읍',
+      '거리(KM)': 348,
+      '20FT(원)': '736,800',
+      '40FT(원)': '830,800',
+    },
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,7 +52,9 @@ class ConditionFormPage extends ConsumerWidget {
             toolbarHeight: 72.h,
             titleSpacing: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16.r)),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(16.r),
+              ),
             ),
             flexibleSpace: Container(
               decoration: const BoxDecoration(
@@ -32,7 +63,9 @@ class ConditionFormPage extends ConsumerWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(16),
+                ),
               ),
             ),
             title: Row(
@@ -40,7 +73,10 @@ class ConditionFormPage extends ConsumerWidget {
                 SizedBox(width: 12.w),
                 Container(
                   padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.12), borderRadius: BorderRadius.circular(8.r)),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
                   child: const Icon(Icons.local_shipping, color: Colors.white),
                 ),
                 SizedBox(width: 12.w),
@@ -48,16 +84,32 @@ class ConditionFormPage extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('운임 계산기', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: Colors.white)),
+                    Text(
+                      '운임 계산기',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
                     SizedBox(height: 2.h),
-                    Text('신속하고 정확한 운임 산출', style: TextStyle(fontSize: 12.sp, color: Colors.white70)),
+                    Text(
+                      '신속하고 정확한 운임 산출',
+                      style: TextStyle(fontSize: 12.sp, color: Colors.white70),
+                    ),
                   ],
                 ),
               ],
             ),
             actions: [
-              IconButton(icon: const Icon(Icons.help_outline, color: Colors.white), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.settings, color: Colors.white), onPressed: () {}),
+              IconButton(
+                icon: const Icon(Icons.help_outline, color: Colors.white),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(Icons.settings, color: Colors.white),
+                onPressed: () {},
+              ),
               SizedBox(width: 8.w),
             ],
           ),
@@ -67,16 +119,22 @@ class ConditionFormPage extends ConsumerWidget {
               if (constraints.maxWidth > 720.w) {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Expanded(child: ConditionFormWidget()),
                     SizedBox(width: 16),
-                    SizedBox(width: 380, child: ConditionSurchargePanel()),
+                    // SizedBox(width: 380, child: ConditionSurchargePanel()),
+                    FareResultTable(results: dummyResults),
                   ],
                 );
               } else {
                 return ListView(
                   padding: EdgeInsets.all(16.w),
-                  children: const [ConditionFormWidget(), SizedBox(height: 12), ConditionSurchargePanel()],
+                  children: [
+                    ConditionFormWidget(),
+                    SizedBox(height: 12),
+                    // ConditionSurchargePanel(),
+                    FareResultTable(results: dummyResults),
+                  ],
                 );
               }
             },

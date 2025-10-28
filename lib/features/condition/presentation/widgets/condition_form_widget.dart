@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:line_all/features/condition/presentation/widgets/action_buttons.dart';
 import 'package:line_all/features/condition/presentation/widgets/header.dart';
 import 'package:line_all/features/condition/presentation/widgets/period_dropdown_row.dart';
 import 'package:line_all/features/condition/presentation/widgets/region_selectors.dart';
 import 'package:line_all/features/condition/presentation/widgets/search_box.dart';
-import 'package:line_all/features/condition/presentation/widgets/type_section_row.dart';
 
 import '../../domain/models/condition.dart';
-import '../data/region_loader.dart';
 import '../viewmodel/condition_viewmodel.dart';
-
-final regionHierarchyProvider = FutureProvider<RegionHierarchy>((ref) async {
-  return await loadRegionHierarchy();
-});
+import 'condition_surcharge_dialog.dart';
 
 class ConditionFormWidget extends ConsumerStatefulWidget {
   const ConditionFormWidget({super.key});
@@ -25,6 +19,15 @@ class ConditionFormWidget extends ConsumerStatefulWidget {
 
 class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
   final _formKey = GlobalKey<FormState>();
+  final _periodFocusNode = FocusNode();
+  final _typeFocusNode = FocusNode();
+  final _sectionFocusNode = FocusNode();
+
+  // 각 입력란의 GlobalKey
+  final _periodKey = GlobalKey();
+  final _typeKey = GlobalKey();
+  final _sectionKey = GlobalKey();
+
   late final TextEditingController _periodController;
 
   @override
@@ -36,15 +39,31 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
 
   @override
   void dispose() {
+    _periodFocusNode.dispose();
+    _typeFocusNode.dispose();
+    _sectionFocusNode.dispose();
     _periodController.dispose();
     super.dispose();
+  }
+
+  // 스크롤 및 포커스 + 메시지
+  Future<void> _focusAndScroll(GlobalKey key, FocusNode focusNode, String message) async {
+    focusNode.requestFocus();
+    await Scrollable.ensureVisible(
+      key.currentContext!,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOut,
+      alignment: 0.2, // 위에서 약간 띄워서 보이게
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final condition = ref.watch(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
-    final saving = false;
 
     return Center(
       child: ConstrainedBox(
@@ -55,59 +74,93 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Card(
-                color: const Color(0xFFEAF5FF),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF6FAFF),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: Colors.blue.shade100, width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blueGrey.withOpacity(0.06),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                elevation: 0,
                 margin: EdgeInsets.zero,
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Header(
-                        title: '운임 계산 조건 설정',
-                        onReset: () {
-                          viewModel.update(const Condition());
-                          _periodController.clear();
-                        },
-                      ),
-                      const SizedBox(height: 14),
-                      // Period
-                      PeriodDropdownRow(),
-                      const SizedBox(height: 12),
-                      const TypeSectionRow(),
-                      const SizedBox(height: 12),
-                      SearchBox(
-                        initialValue: condition.searchQuery ?? '',
-                        onChanged: (v) => viewModel.update(
-                          condition.copyWith(searchQuery: v),
+                padding: const EdgeInsets.all(22),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Header(
+                      title: '운임 계산 조건 설정',
+                      leadingIcon: Icons.receipt_long,
+                      onReset: () {
+                        viewModel.update(const Condition());
+                        _periodController.clear();
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    // Period
+                    PeriodDropdownRow(
+                      key: _periodKey,
+                      periodFocusNode: _periodFocusNode,
+                      typeFocusNode: _typeFocusNode,
+                      sectionFocusNode: _sectionFocusNode,
+                      typeKey: _typeKey,
+                      sectionKey: _sectionKey,
+                    ),
+                    const SizedBox(height: 12),
+                    SearchBox(
+                      initialValue: condition.searchQuery ?? '',
+                      onChanged: (v) =>
+                          viewModel.update(condition.copyWith(searchQuery: v)),
+                      onSearch: () {},
+                    ),
+                    const SizedBox(height: 12),
+                    const RegionSelectors(),
+                    const SizedBox(height: 18),
+                    // 검색 버튼 추가
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF154E9C),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          elevation: 0,
                         ),
-                        onSearch: () {},
-                      ),
-                      const SizedBox(height: 12),
-                      const RegionSelectors(),
-                      const SizedBox(height: 12),
-                      ActionButtons(
-                        saving: saving,
-                        onSave: () async {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            //     await viewModel.save();
-                            //     ScaffoldMessenger.of(context).showSnackBar(
-                            // const SnackBar(content: Text('저장되었습니다')),
-                            //     );
+                        onPressed: () async {
+                          if (condition.period == null || condition.period!.isEmpty) {
+                            await _focusAndScroll(_periodKey, _periodFocusNode, '기간을 선택해주세요.');
+                            return;
                           }
+                          if (condition.type == null || condition.type!.isEmpty) {
+                            await _focusAndScroll(_typeKey, _typeFocusNode, '유형을 선택해주세요.');
+                            return;
+                          }
+                          if (condition.section == null || condition.section!.isEmpty) {
+                            await _focusAndScroll(_sectionKey, _sectionFocusNode, '구간을 선택해주세요.');
+                            return;
+                          }
+                          showDialog(
+                            context: context,
+                            builder: (context) => const ConditionSurchargeDialog(),
+                          );
                         },
-                        onReset: () {
-                          viewModel.update(const Condition());
-                          _periodController.clear();
-                        },
+                        icon: const Icon(Icons.search),
+                        label: const Text('검색'),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],

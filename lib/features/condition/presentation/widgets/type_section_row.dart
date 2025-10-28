@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_all/common/widgets/dropdown_field.dart';
-import 'package:line_all/features/condition/presentation/data/condition_optilons.dart';
+import 'package:line_all/features/condition/presentation/data/condition_options.dart';
 import 'package:line_all/features/condition/presentation/viewmodel/condition_viewmodel.dart';
 
 class TypeSectionRow extends ConsumerWidget {

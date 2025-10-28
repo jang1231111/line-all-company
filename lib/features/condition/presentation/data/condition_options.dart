@@ -5,43 +5,45 @@ class DropdownOption {
   final String value;
   final String label;
   final bool disabled;
-  final double? rate;
 
   const DropdownOption({
     required this.value,
     required this.label,
     this.disabled = false,
-    this.rate,
-  });
-}
-
-/// 체크박스 옵션 클래스
-class CheckboxOption {
-  final String id;
-  final String label;
-  final double? rate;
-  final bool isFixed;
-  final bool isDivider;
-
-  const CheckboxOption({
-    required this.id,
-    required this.label,
-    this.rate,
-    this.isFixed = false,
-    this.isDivider = false,
   });
 }
 
 // 드롭다운 옵션들
 const periodOptions = [
   DropdownOption(value: '', label: '필수 선택'),
-  DropdownOption(value: '2022-07-01~2022-12-31', label: '2022년 07월 (07월 01일 ~ 12월 31일)'),
-  DropdownOption(value: '2022-04-01~2022-06-30', label: '2022년 04월 (04월 01일 ~ 06월 30일)'),
-  DropdownOption(value: '2022-02-18~2022-03-31', label: '2022년 02월 (02월 18일 ~ 03월 31일)'),
-  DropdownOption(value: '2021-12-01~2022-02-17', label: '2021년 12월 (12월 01일 ~ 02월 17일)'),
-  DropdownOption(value: '2021-09-01~2021-11-30', label: '2021년 09월 (09월 01일 ~ 11월 30일)'),
-  DropdownOption(value: '2021-06-01~2021-08-31', label: '2021년 06월 (06월 01일 ~ 08월 31일)'),
-  DropdownOption(value: '2021-01-01~2021-05-31', label: '2021년 01월 (01월 01일 ~ 05월 31일)'),
+  DropdownOption(
+    value: '2022-07-01~2022-12-31',
+    label: '2022년 07월 (07월 01일 ~ 12월 31일)',
+  ),
+  DropdownOption(
+    value: '2022-04-01~2022-06-30',
+    label: '2022년 04월 (04월 01일 ~ 06월 30일)',
+  ),
+  DropdownOption(
+    value: '2022-02-18~2022-03-31',
+    label: '2022년 02월 (02월 18일 ~ 03월 31일)',
+  ),
+  DropdownOption(
+    value: '2021-12-01~2022-02-17',
+    label: '2021년 12월 (12월 01일 ~ 02월 17일)',
+  ),
+  DropdownOption(
+    value: '2021-09-01~2021-11-30',
+    label: '2021년 09월 (09월 01일 ~ 11월 30일)',
+  ),
+  DropdownOption(
+    value: '2021-06-01~2021-08-31',
+    label: '2021년 06월 (06월 01일 ~ 08월 31일)',
+  ),
+  DropdownOption(
+    value: '2021-01-01~2021-05-31',
+    label: '2021년 01월 (01월 01일 ~ 05월 31일)',
+  ),
 ];
 
 const typeOptions = [
@@ -73,23 +75,18 @@ const sectionOptions = [
   DropdownOption(value: 'distance-incheon', label: '거리(KM)별-인천지역(왕복)'),
   DropdownOption(value: 'distance-pyeongtaek', label: '거리(KM)별-평택지역(왕복)'),
   DropdownOption(value: '', label: '(편도)', disabled: true),
-  DropdownOption(value: 'busan-north-oneway', label: '부산북항기점(편도, 공컨테이너 장치장: 의왕ICD)'),
-  DropdownOption(value: 'busan-new-oneway', label: '부산신항기점(편도, 공컨테이너 장치장: 의왕ICD)'),
-  DropdownOption(value: 'gwangyang-oneway', label: '광양항기점(편도, 공컨테이너 장치장: 의왕ICD)'),
-];
-
-// 필요시 다른 옵션들도 동일하게 추가
-
-// 체크박스 옵션 예시
-const checkboxOptions = [
-  CheckboxOption(id: 'tank', label: '탱크 30%', rate: 0.3),
-  CheckboxOption(id: 'refrigerated', label: '냉동‧냉장 30%', rate: 0.3),
-  CheckboxOption(id: 'dump', label: '덤프 25%', rate: 0.25),
-  CheckboxOption(id: 'flexibag', label: '플렉시백 20%', rate: 0.2),
-  CheckboxOption(id: 'bulk', label: '험로 및 오지 20%', rate: 0.2),
-  CheckboxOption(id: 'holiday', label: '일요일 및 공휴일 20%', rate: 0.2),
-  CheckboxOption(id: 'night', label: '심야(22:00~06:00) 20%', rate: 0.2),
-  CheckboxOption(id: 'divider2', label: 'divider', isDivider: true),
+  DropdownOption(
+    value: 'busan-north-oneway',
+    label: '부산북항기점(편도, 공컨테이너 장치장: 의왕ICD)',
+  ),
+  DropdownOption(
+    value: 'busan-new-oneway',
+    label: '부산신항기점(편도, 공컨테이너 장치장: 의왕ICD)',
+  ),
+  DropdownOption(
+    value: 'gwangyang-oneway',
+    label: '광양항기점(편도, 공컨테이너 장치장: 의왕ICD)',
+  ),
 ];
 
 /// 시도 리스트 (destination_hierarchy.json 참고)
