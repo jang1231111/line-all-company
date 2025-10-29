@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_all/common/widgets/dropdown_field.dart';
 import 'package:line_all/features/condition/presentation/data/condition_options.dart';
-import 'package:line_all/features/condition/presentation/viewmodel/condition_viewmodel.dart';
+import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
 
 class PeriodDropdownRow extends ConsumerWidget {
   final FocusNode? periodFocusNode;
@@ -56,27 +56,27 @@ class PeriodDropdownRow extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
           // 유형 드롭다운
-          DropdownField(
-            key: typeKey,
-            focusNode: typeFocusNode,
-            initialValue: typeOptions
-                .firstWhere(
-                  (opt) => opt.value == condition.type,
-                  orElse: () => typeOptions.first,
-                )
-                .label,
-            items: typeOptions.map((opt) => opt.label).toList(),
-            hint: '유형 선택',
-            icon: null,
-            onChanged: (v) {
-              final selected = typeOptions.firstWhere(
-                (opt) => opt.label == v,
-                orElse: () => typeOptions.first,
-              );
-              viewModel.update(condition.copyWith(type: selected.value));
-            },
-          ),
-          const SizedBox(height: 10),
+          // DropdownField(
+          //   key: typeKey,
+          //   focusNode: typeFocusNode,
+          //   initialValue: typeOptions
+          //       .firstWhere(
+          //         (opt) => opt.value == condition.type,
+          //         orElse: () => typeOptions.first,
+          //       )
+          //       .label,
+          //   items: typeOptions.map((opt) => opt.label).toList(),
+          //   hint: '유형 선택',
+          //   icon: null,
+          //   onChanged: (v) {
+          //     final selected = typeOptions.firstWhere(
+          //       (opt) => opt.label == v,
+          //       orElse: () => typeOptions.first,
+          //     );
+          //     viewModel.update(condition.copyWith(type: selected.value));
+          //   },
+          // ),
+          // const SizedBox(height: 10),
           // 구간 드롭다운
           DropdownField(
             key: sectionKey,

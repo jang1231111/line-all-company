@@ -1,7 +1,7 @@
-import '../models/condition.dart';
+import 'package:line_all/features/condition/domain/models/fare_result.dart';
 
 abstract class ConditionRepository {
-    Future<List<dynamic>> search({
+  Future<List<FareResult>> search({
     String? period,
     String? section,
     String? sido,
@@ -13,6 +13,4 @@ abstract class ConditionRepository {
     int? unnotice,
     String? mode,
   });
-  // Future<void> saveCondition(Condition condition);
-  // Future<Condition?> loadLastCondition();
 }

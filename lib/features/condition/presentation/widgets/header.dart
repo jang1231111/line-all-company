@@ -27,7 +27,7 @@ class Header extends StatelessWidget {
               title,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 18,
+                fontSize: 22,
                 color: Colors.black87,
               ),
             ),
@@ -65,7 +65,7 @@ class Header extends StatelessWidget {
                       const Text(
                         '초기화',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 20,
                           color: Color(0xFF154E9C),
                           fontWeight: FontWeight.w500,
                         ),

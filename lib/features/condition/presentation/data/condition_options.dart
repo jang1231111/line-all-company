@@ -15,7 +15,7 @@ class DropdownOption {
 
 // 드롭다운 옵션들
 const periodOptions = [
-  DropdownOption(value: '', label: '필수 선택'),
+  DropdownOption(value: '', label: '기간 (필수 선택)'),
   DropdownOption(
     value: '2022-07-01~2022-12-31',
     label: '2022년 07월 (07월 01일 ~ 12월 31일)',
@@ -54,7 +54,7 @@ const typeOptions = [
 ];
 
 const sectionOptions = [
-  DropdownOption(value: '', label: '필수 선택'),
+  DropdownOption(value: '', label: '구간 (필수 선택)'),
   DropdownOption(value: '', label: '(왕복-기점별)', disabled: true),
   DropdownOption(value: 'busan-north', label: '부산북항기점(왕복)'),
   DropdownOption(value: 'busan-new', label: '부산신항기점(왕복)'),

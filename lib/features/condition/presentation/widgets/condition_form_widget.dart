@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
 import 'package:line_all/features/condition/presentation/widgets/header.dart';
 import 'package:line_all/features/condition/presentation/widgets/period_dropdown_row.dart';
 import 'package:line_all/features/condition/presentation/widgets/region_selectors.dart';
 import 'package:line_all/features/condition/presentation/widgets/search_box.dart';
 
 import '../../domain/models/condition.dart';
-import '../viewmodel/condition_viewmodel.dart';
 import 'condition_surcharge_dialog.dart';
 
 class ConditionFormWidget extends ConsumerStatefulWidget {
@@ -47,17 +47,21 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
   }
 
   // 스크롤 및 포커스 + 메시지
-  Future<void> _focusAndScroll(GlobalKey key, FocusNode focusNode, String message) async {
+  Future<void> _focusAndScroll(
+    GlobalKey key,
+    FocusNode focusNode,
+    String message,
+  ) async {
     focusNode.requestFocus();
     await Scrollable.ensureVisible(
       key.currentContext!,
-      duration: const Duration(milliseconds: 350),
+      duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
       alignment: 0.2, // 위에서 약간 띄워서 보이게
     );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -88,7 +92,7 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                   ],
                 ),
                 margin: EdgeInsets.zero,
-                padding: const EdgeInsets.all(22),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,13 +115,16 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       typeKey: _typeKey,
                       sectionKey: _sectionKey,
                     ),
-                    const SizedBox(height: 12),
                     SearchBox(
                       initialValue: condition.searchQuery ?? '',
                       onChanged: (v) =>
                           viewModel.update(condition.copyWith(searchQuery: v)),
                       onSearch: () {},
+                      onRegionSearch: () {
+                        // 지역 검색 다이얼로그 띄우기
+                      },
                     ),
+
                     const SizedBox(height: 12),
                     const RegionSelectors(),
                     const SizedBox(height: 18),
@@ -139,21 +146,37 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                           elevation: 0,
                         ),
                         onPressed: () async {
-                          if (condition.period == null || condition.period!.isEmpty) {
-                            await _focusAndScroll(_periodKey, _periodFocusNode, '기간을 선택해주세요.');
+                          if (condition.period == null ||
+                              condition.period!.isEmpty) {
+                            await _focusAndScroll(
+                              _periodKey,
+                              _periodFocusNode,
+                              '기간을 선택해주세요.',
+                            );
                             return;
                           }
-                          if (condition.type == null || condition.type!.isEmpty) {
-                            await _focusAndScroll(_typeKey, _typeFocusNode, '유형을 선택해주세요.');
-                            return;
-                          }
-                          if (condition.section == null || condition.section!.isEmpty) {
-                            await _focusAndScroll(_sectionKey, _sectionFocusNode, '구간을 선택해주세요.');
+                          // if (condition.type == null ||
+                          //     condition.type!.isEmpty) {
+                          //   await _focusAndScroll(
+                          //     _typeKey,
+                          //     _typeFocusNode,
+                          //     '유형을 선택해주세요.',
+                          //   );
+                          //   return;
+                          // }
+                          if (condition.section == null ||
+                              condition.section!.isEmpty) {
+                            await _focusAndScroll(
+                              _sectionKey,
+                              _sectionFocusNode,
+                              '구간을 선택해주세요.',
+                            );
                             return;
                           }
                           showDialog(
                             context: context,
-                            builder: (context) => const ConditionSurchargeDialog(),
+                            builder: (context) =>
+                                const ConditionSurchargeDialog(),
                           );
                         },
                         icon: const Icon(Icons.search),

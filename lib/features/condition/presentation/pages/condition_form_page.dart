@@ -6,38 +6,7 @@ import '../widgets/condition_form_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ConditionFormPage extends ConsumerWidget {
-  ConditionFormPage({super.key});
-
-  // 예시: 임시 데이터
-  final List<Map<String, dynamic>> dummyResults = [
-    {
-      '항구': '부산북항',
-      '지역(시도)': '강원도',
-      '지역(시군구)': '강릉시',
-      '지역(읍면동)': '경포동',
-      '거리(KM)': 369,
-      '20FT(원)': '764,800',
-      '40FT(원)': '866,400',
-    },
-    {
-      '항구': '부산북항',
-      '지역(시도)': '강원도',
-      '지역(시군구)': '동해시',
-      '지역(읍면동)': '북삼동',
-      '거리(KM)': 317,
-      '20FT(원)': '692,400',
-      '40FT(원)': '775,400',
-    },
-    {
-      '항구': '부산북항',
-      '지역(시도)': '강원도',
-      '지역(시군구)': '원주시',
-      '지역(읍면동)': '문막읍',
-      '거리(KM)': 348,
-      '20FT(원)': '736,800',
-      '40FT(원)': '830,800',
-    },
-  ];
+  const ConditionFormPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -85,7 +54,7 @@ class ConditionFormPage extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '운임 계산기',
+                      '안전 위탁 운임-차주용',
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w700,
@@ -123,17 +92,25 @@ class ConditionFormPage extends ConsumerWidget {
                     Expanded(child: ConditionFormWidget()),
                     SizedBox(width: 16),
                     // SizedBox(width: 380, child: ConditionSurchargePanel()),
-                    FareResultTable(results: dummyResults),
+                    Expanded(child: FareResultTable()),
                   ],
                 );
               } else {
-                return ListView(
-                  padding: EdgeInsets.all(16.w),
+                return Column(
                   children: [
-                    ConditionFormWidget(),
-                    SizedBox(height: 12),
-                    // ConditionSurchargePanel(),
-                    FareResultTable(results: dummyResults),
+                    Expanded(
+                      child: ListView(
+                        padding: EdgeInsets.all(3.w),
+                        children: [
+                          ConditionFormWidget(),
+                          SizedBox(height: 12),
+                          // ConditionSurchargePanel(),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: FareResultTable(),
+                    ),
                   ],
                 );
               }

@@ -6,13 +6,10 @@ import '../../data/repositories/condition_api_repository.dart';
 import '../../domain/models/condition.dart';
 import '../../domain/repositories/condition_repository.dart';
 
-/// Simple provider for the Condition object. UI can read/write with .state.
-final conditionProvider = StateNotifierProvider<ConditionViewModel, Condition>(
-  (ref) => ConditionViewModel(ref.watch(conditionRepositoryProvider)),
-);
-
-/// Saving flag while persisting state.
-final conditionSavingProvider = StateProvider<bool>((ref) => false);
+final conditionViewModelProvider =
+    StateNotifierProvider<ConditionViewModel, Condition>(
+      (ref) => ConditionViewModel(ref.watch(conditionRepositoryProvider), ref),
+    );
 
 // 실제 환경에 따라 아래 중 하나를 override 하여 사용
 final conditionRepositoryProvider = Provider<ConditionRepository>((ref) {

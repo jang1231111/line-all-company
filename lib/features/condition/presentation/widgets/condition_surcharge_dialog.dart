@@ -24,7 +24,7 @@ class _ConditionSurchargeDialogState
   @override
   void initState() {
     super.initState();
-    final condition = ref.read(conditionProvider);
+    final condition = ref.read(conditionViewModelProvider);
     surcharges = List<String>.from(condition.surcharges);
     dangerType = condition.dangerType;
     weightType = condition.weightType;
@@ -34,8 +34,10 @@ class _ConditionSurchargeDialogState
 
   @override
   Widget build(BuildContext context) {
-    final condition = ref.read(conditionProvider);
-    final viewModel = ref.read(conditionProvider.notifier);
+    final condition = ref.read(conditionViewModelProvider);
+    final viewModel = ref.read(conditionViewModelProvider.notifier);
+
+    print(viewModel.state);
 
     // 할증률 계산은 임시 값으로
     final surchargeResult = calculateSurcharge(
@@ -543,18 +545,16 @@ class _ConditionSurchargeDialogState
                                       onPressed: () async {
                                         // 여기서만 실제 저장!
                                         viewModel.update(
-                                          ref
-                                              .read(conditionProvider)
-                                              .copyWith(
-                                                surcharges: surcharges,
-                                                dangerType: dangerType,
-                                                weightType: weightType,
-                                                specialType: specialType,
-                                                cancellationFee:
-                                                    cancellationFee,
-                                              ),
+                                          condition.copyWith(
+                                            surcharges: surcharges,
+                                            dangerType: dangerType,
+                                            weightType: weightType,
+                                            specialType: specialType,
+                                            cancellationFee: cancellationFee,
+                                          ),
                                         );
                                         viewModel.updateSurcharge();
+                                        await viewModel.search();
                                         Navigator.of(
                                           context,
                                         ).pop(); // 확인 다이얼로그 닫기

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_all/common/widgets/dropdown_field.dart';
-import 'package:line_all/features/condition/presentation/viewmodel/condition_viewmodel.dart';
+import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
 
 import '../providers/region_provider.dart';
 
@@ -96,13 +96,11 @@ class RegionSelectors extends ConsumerWidget {
                             viewModel.update(
                               condition.copyWith(
                                 sido: v,
-                                mode: 'sido',
                                 sigungu: null,
                                 eupmyeondong: null,
                                 beopjeongdong: null,
                               ),
                             );
-                            await viewModel.search();
                           },
                         ),
                       ),
@@ -119,12 +117,10 @@ class RegionSelectors extends ConsumerWidget {
                                   viewModel.update(
                                     condition.copyWith(
                                       sigungu: v,
-                                      mode: 'sigungu',
                                       eupmyeondong: null,
                                       beopjeongdong: null,
                                     ),
                                   );
-                                  await viewModel.search();
                                 }
                               : null,
                         ),
@@ -148,11 +144,9 @@ class RegionSelectors extends ConsumerWidget {
                                   viewModel.update(
                                     condition.copyWith(
                                       eupmyeondong: v,
-                                      mode: 'eupmyeondong',
-                                      beopjeongdong: '법정동(행정동) 선택',
+                                      beopjeongdong: null,
                                     ),
                                   );
-                                  await viewModel.search();
                                 }
                               : null,
                         ),
@@ -182,10 +176,8 @@ class RegionSelectors extends ConsumerWidget {
                                     condition.copyWith(
                                       beopjeongdong: v,
                                       eupmyeondong: newEupmyeondong,
-                                      mode: 'beopjeongdong',
                                     ),
                                   );
-                                  await viewModel.search();
                                 }
                               : null,
                         ),
