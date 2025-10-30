@@ -109,7 +109,10 @@ class ConditionFormPage extends ConsumerWidget {
                       ),
                     ),
                     Expanded(
-                      child: FareResultTable(),
+                      child: Padding(
+                        padding: EdgeInsets.all(3.w),
+                        child: FareResultTable(),
+                      ),
                     ),
                   ],
                 );

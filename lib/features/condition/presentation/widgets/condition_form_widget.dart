@@ -125,7 +125,7 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       },
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     const RegionSelectors(),
                     const SizedBox(height: 18),
                     // 검색 버튼 추가
