@@ -52,9 +52,9 @@ SurchargeResult calculateSurcharge({
     }
   }
 
-  addDropdownRate(dangerTypeOptions, dangerType);
+  // addDropdownRate(dangerTypeOptions, dangerType);
   addDropdownRate(weightTypeOptions, weightType);
-  addDropdownRate(specialTypeOptions, specialType);
+  // addDropdownRate(specialTypeOptions, specialType);
 
   // 취소수수료(고정금액)만 별도로 추출
   double cancellationFeeAmount = 1.0;

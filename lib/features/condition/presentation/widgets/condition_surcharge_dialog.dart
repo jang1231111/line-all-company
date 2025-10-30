@@ -214,47 +214,47 @@ class _ConditionSurchargeDialogState
                         );
                       }),
 
-                      const SizedBox(height: 10),
+                      // const SizedBox(height: 10),
 
                       // 드롭다운 4개 (세로 배치)
-                      Text(
-                        '위험물 종류',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.orange[800],
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      DropdownButtonFormField<String>(
-                        isExpanded: true,
-                        value: dangerType ?? '',
-                        decoration: fieldDecoration(
-                          context,
-                          hint: '위험물 종류',
-                          icon: Icons.warning_amber_rounded,
-                          fillColor: (dangerType != null && dangerType != '')
-                              ? const Color(0xFFFFF9C4) // 연한 오렌지
-                              : Colors.white,
-                          borderColor: Colors.orange.shade100,
-                        ),
-                        items: dangerTypeOptions
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e.value,
-                                child: Text(
-                                  e.label,
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (v) {
-                          setState(() {
-                            dangerType = v;
-                          });
-                        },
-                      ),
+                      // Text(
+                      //   '위험물 종류',
+                      //   style: TextStyle(
+                      //     fontSize: 13,
+                      //     color: Colors.orange[800],
+                      //     fontWeight: FontWeight.bold,
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 4),
+                      // DropdownButtonFormField<String>(
+                      //   isExpanded: true,
+                      //   value: dangerType ?? '',
+                      //   decoration: fieldDecoration(
+                      //     context,
+                      //     hint: '위험물 종류',
+                      //     icon: Icons.warning_amber_rounded,
+                      //     fillColor: (dangerType != null && dangerType != '')
+                      //         ? const Color(0xFFFFF9C4) // 연한 오렌지
+                      //         : Colors.white,
+                      //     borderColor: Colors.orange.shade100,
+                      //   ),
+                      //   items: dangerTypeOptions
+                      //       .map(
+                      //         (e) => DropdownMenuItem(
+                      //           value: e.value,
+                      //           child: Text(
+                      //             e.label,
+                      //             style: const TextStyle(fontSize: 13),
+                      //           ),
+                      //         ),
+                      //       )
+                      //       .toList(),
+                      //   onChanged: (v) {
+                      //     setState(() {
+                      //       dangerType = v;
+                      //     });
+                      //   },
+                      // ),
                       const SizedBox(height: 12),
                       Text(
                         '중량물 할증',
@@ -294,45 +294,45 @@ class _ConditionSurchargeDialogState
                           });
                         },
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        '활대품 할증',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.orange[800],
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      DropdownButtonFormField<String>(
-                        isExpanded: true,
-                        value: specialType ?? '',
-                        decoration: fieldDecoration(
-                          context,
-                          hint: '활대품 할증',
-                          icon: Icons.extension,
-                          fillColor: (specialType != null && specialType != '')
-                              ? const Color(0xFFFFF9C4)
-                              : Colors.white,
-                          borderColor: Colors.orange.shade100,
-                        ),
-                        items: specialTypeOptions
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e.value,
-                                child: Text(
-                                  e.label,
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (v) {
-                          setState(() {
-                            specialType = v;
-                          });
-                        },
-                      ),
+                      // const SizedBox(height: 12),
+                      // Text(
+                      //   '활대품 할증',
+                      //   style: TextStyle(
+                      //     fontSize: 13,
+                      //     color: Colors.orange[800],
+                      //     fontWeight: FontWeight.bold,
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 4),
+                      // DropdownButtonFormField<String>(
+                      //   isExpanded: true,
+                      //   value: specialType ?? '',
+                      //   decoration: fieldDecoration(
+                      //     context,
+                      //     hint: '활대품 할증',
+                      //     icon: Icons.extension,
+                      //     fillColor: (specialType != null && specialType != '')
+                      //         ? const Color(0xFFFFF9C4)
+                      //         : Colors.white,
+                      //     borderColor: Colors.orange.shade100,
+                      //   ),
+                      //   items: specialTypeOptions
+                      //       .map(
+                      //         (e) => DropdownMenuItem(
+                      //           value: e.value,
+                      //           child: Text(
+                      //             e.label,
+                      //             style: const TextStyle(fontSize: 13),
+                      //           ),
+                      //         ),
+                      //       )
+                      //       .toList(),
+                      //   onChanged: (v) {
+                      //     setState(() {
+                      //       specialType = v;
+                      //     });
+                      //   },
+                      // ),
                       const SizedBox(height: 12),
                       Text(
                         '배차 취소료',

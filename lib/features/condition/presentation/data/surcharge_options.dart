@@ -28,6 +28,23 @@ class CheckboxOption {
   });
 }
 
+// 체크박스 옵션들 (할증률 포함)
+const surchargeCheckboxOptions = [
+  // CheckboxOption(id: 'tank', label: '탱크 30%', rate: 0.3),
+  CheckboxOption(id: 'refrigerated', label: '냉동‧냉장‧탱크 30%', rate: 0.3),
+  // CheckboxOption(id: 'dump', label: '덤프 25%', rate: 0.25),
+  // CheckboxOption(id: 'container45ft', label: '45FT 컨테이너 12.5%', rate: 0.125),
+  // CheckboxOption(id: 'divider', label: 'divider', isDivider: true),
+  // CheckboxOption(id: 'weekday', label: '주간통행제한지역 30%', rate: 0.3),
+  // CheckboxOption(id: 'bulk', label: '험로 및 오지 20%', rate: 0.2),
+  CheckboxOption(id: 'holiday', label: '일요일 및 공휴일 20%', rate: 0.2),
+  CheckboxOption(id: 'night', label: '심야(22:00~06:00) 20%', rate: 0.2),
+  CheckboxOption(id: 'flexibag', label: '플렉시백 20%', rate: 0.2),
+  CheckboxOption(id: 'danger-30', label: '위험물,유해화학물질 30%', rate: 0.3),
+  // CheckboxOption(id: 'xray', label: '검색대(X-ray) 통과 96,000원', rate: 96000, isFixed: true),
+  // CheckboxOption(id: 'divider2', label: 'divider', isDivider: true),
+];
+
 // 중량물 할증 드롭다운
 const weightTypeOptions = [
   SurchargeDropdownOption(value: '', label: '중량물 할증'),
@@ -43,44 +60,44 @@ const weightTypeOptions = [
 ];
 
 // 위험물 종류 드롭다운
-const dangerTypeOptions = [
-  SurchargeDropdownOption(value: '', label: '위험물 종류'),
-  SurchargeDropdownOption(value: 'danger-30', label: '위험물,유독물,유해화학물질 30%', rate: 0.3),
-  SurchargeDropdownOption(value: 'explosive-100', label: '화약류 100%', rate: 1.0),
-  SurchargeDropdownOption(value: 'radioactive-200', label: '방사성물질 200%', rate: 2.0),
-];
+// const dangerTypeOptions = [
+//   SurchargeDropdownOption(value: '', label: '위험물 종류'),
+//   SurchargeDropdownOption(
+//     value: 'danger-30',
+//     label: '위험물,유독물,유해화학물질 30%',
+//     rate: 0.3,
+//   ),
+//   SurchargeDropdownOption(value: 'explosive-100', label: '화약류 100%', rate: 1.0),
+//   SurchargeDropdownOption(
+//     value: 'radioactive-200',
+//     label: '방사성물질 200%',
+//     rate: 2.0,
+//   ),
+// ];
 
 // 활대품 할증 드롭다운
-const specialTypeOptions = [
-  SurchargeDropdownOption(value: '', label: '활대품 할증'),
-  SurchargeDropdownOption(value: 'over10cm', label: '10cm 초과 10%', rate: 0.1),
-  SurchargeDropdownOption(value: 'over20cm', label: '20cm 초과 20%', rate: 0.2),
-  SurchargeDropdownOption(value: 'over30cm', label: '30cm 초과 30%', rate: 0.3),
-  SurchargeDropdownOption(value: 'over40cm', label: '40cm 초과 40%', rate: 0.4),
-  SurchargeDropdownOption(value: 'over50cm', label: '50cm 초과 50%', rate: 0.5),
-];
+// const specialTypeOptions = [
+//   SurchargeDropdownOption(value: '', label: '활대품 할증'),
+//   SurchargeDropdownOption(value: 'over10cm', label: '10cm 초과 10%', rate: 0.1),
+//   SurchargeDropdownOption(value: 'over20cm', label: '20cm 초과 20%', rate: 0.2),
+//   SurchargeDropdownOption(value: 'over30cm', label: '30cm 초과 30%', rate: 0.3),
+//   SurchargeDropdownOption(value: 'over40cm', label: '40cm 초과 40%', rate: 0.4),
+//   SurchargeDropdownOption(value: 'over50cm', label: '50cm 초과 50%', rate: 0.5),
+// ];
 
 // 배차 취소료 드롭다운
 const cancellationFeeOptions = [
   SurchargeDropdownOption(value: '', label: '배차 취소료'),
-  SurchargeDropdownOption(value: 'waiting1h', label: '상차 현장 대기 1시간 50%', rate: 0.5),
+  SurchargeDropdownOption(
+    value: 'waiting1h',
+    label: '상차 현장 대기 1시간 50%',
+    rate: 0.5,
+  ),
   SurchargeDropdownOption(value: 'moving', label: '상차 후 이동중 70%', rate: 0.7),
   SurchargeDropdownOption(value: 'arrived', label: '행선지 도착 후 100%', rate: 1.0),
-  SurchargeDropdownOption(value: 'completed', label: '작업 완료 후 이동중 회차 및 재작업 200%', rate: 2.0),
-];
-
-// 체크박스 옵션들 (할증률 포함)
-const surchargeCheckboxOptions = [
-  CheckboxOption(id: 'tank', label: '탱크 30%', rate: 0.3),
-  CheckboxOption(id: 'refrigerated', label: '냉동‧냉장 30%', rate: 0.3),
-  CheckboxOption(id: 'dump', label: '덤프 25%', rate: 0.25),
-  CheckboxOption(id: 'flexibag', label: '플렉시백 20%', rate: 0.2),
-  // CheckboxOption(id: 'container45ft', label: '45FT 컨테이너 12.5%', rate: 0.125),
-  // CheckboxOption(id: 'divider', label: 'divider', isDivider: true),
-  // CheckboxOption(id: 'weekday', label: '주간통행제한지역 30%', rate: 0.3),
-  CheckboxOption(id: 'bulk', label: '험로 및 오지 20%', rate: 0.2),
-  CheckboxOption(id: 'holiday', label: '일요일 및 공휴일 20%', rate: 0.2),
-  CheckboxOption(id: 'night', label: '심야(22:00~06:00) 20%', rate: 0.2),
-  // CheckboxOption(id: 'xray', label: '검색대(X-ray) 통과 96,000원', rate: 96000, isFixed: true),
-  CheckboxOption(id: 'divider2', label: 'divider', isDivider: true),
+  SurchargeDropdownOption(
+    value: 'completed',
+    label: '작업 완료 후 이동중 회차 및 재작업 200%',
+    rate: 2.0,
+  ),
 ];
