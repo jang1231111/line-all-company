@@ -15,7 +15,7 @@ class FareResultTable extends ConsumerWidget {
     final condition = ref.watch(conditionViewModelProvider);
     final surchargeRate = condition.surchargeResult?.rate ?? 0.0;
     final cancellationFeeAmount =
-        condition.surchargeResult?.cancellationFeeAmount ?? 0.0;
+        condition.surchargeResult?.cancellationFeeAmount ?? 1.0;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),

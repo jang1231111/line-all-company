@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:line_all/features/condition/presentation/data/surcharge_calculator.dart';
 import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
+import 'package:line_all/features/condition/presentation/providers/fare_result_provider.dart';
 import 'package:line_all/features/condition/presentation/widgets/header.dart';
 import 'package:line_all/features/condition/presentation/widgets/period_dropdown_row.dart';
 import 'package:line_all/features/condition/presentation/widgets/region_selectors.dart';
 import 'package:line_all/features/condition/presentation/widgets/search_box.dart';
 
 import '../../domain/models/condition.dart';
-import 'condition_surcharge_dialog.dart';
 
 class ConditionFormWidget extends ConsumerStatefulWidget {
   const ConditionFormWidget({super.key});
@@ -28,13 +29,9 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
   final _typeKey = GlobalKey();
   final _sectionKey = GlobalKey();
 
-  late final TextEditingController _periodController;
-
   @override
   void initState() {
     super.initState();
-    final condition = ref.read(conditionViewModelProvider);
-    _periodController = TextEditingController(text: condition.period ?? '');
   }
 
   @override
@@ -42,7 +39,6 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
     _periodFocusNode.dispose();
     _typeFocusNode.dispose();
     _sectionFocusNode.dispose();
-    _periodController.dispose();
     super.dispose();
   }
 
@@ -101,8 +97,7 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       title: '운임 계산 조건 설정',
                       leadingIcon: Icons.receipt_long,
                       onReset: () {
-                        viewModel.update(const Condition());
-                        _periodController.clear();
+                        viewModel.update(Condition());
                       },
                     ),
                     const SizedBox(height: 14),
