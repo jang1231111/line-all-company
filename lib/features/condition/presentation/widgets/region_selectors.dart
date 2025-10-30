@@ -95,7 +95,7 @@ class RegionSelectors extends ConsumerWidget {
                           onChanged: (v) async {
                             viewModel.update(
                               condition.copyWith(
-                                sido: v,
+                                sido: v == '시도 선택' ? null : v,
                                 sigungu: null,
                                 eupmyeondong: null,
                                 beopjeongdong: null,
@@ -116,7 +116,7 @@ class RegionSelectors extends ConsumerWidget {
                               ? (v) async {
                                   viewModel.update(
                                     condition.copyWith(
-                                      sigungu: v,
+                                      sigungu: v == '시군구 선택' ? null : v,
                                       eupmyeondong: null,
                                       beopjeongdong: null,
                                     ),
@@ -143,7 +143,7 @@ class RegionSelectors extends ConsumerWidget {
                               ? (v) async {
                                   viewModel.update(
                                     condition.copyWith(
-                                      eupmyeondong: v,
+                                      eupmyeondong: v == '읍면동 선택' ? null : v,
                                       beopjeongdong: null,
                                     ),
                                   );
@@ -164,20 +164,26 @@ class RegionSelectors extends ConsumerWidget {
                           enabled: isSigunguSelected,
                           onChanged: isSigunguSelected
                               ? (v) async {
-                                  String? newEupmyeondong =
-                                      condition.eupmyeondong;
-                                  final match = RegExp(
-                                    r'\(([^)]+)\)',
-                                  ).firstMatch(v ?? '');
-                                  if (match != null) {
-                                    newEupmyeondong = match.group(1);
+                                  if (v == '법정동(행정동) 선택') {
+                                    viewModel.update(
+                                      condition.copyWith(
+                                        beopjeongdong: null,
+                                        // eupmyeondong은 기존값 유지
+                                      ),
+                                    );
+                                  } else {
+                                    String? newEupmyeondong = condition.eupmyeondong;
+                                    final match = RegExp(r'\(([^)]+)\)').firstMatch(v ?? '');
+                                    if (match != null) {
+                                      newEupmyeondong = match.group(1);
+                                    }
+                                    viewModel.update(
+                                      condition.copyWith(
+                                        beopjeongdong: v,
+                                        eupmyeondong: newEupmyeondong,
+                                      ),
+                                    );
                                   }
-                                  viewModel.update(
-                                    condition.copyWith(
-                                      beopjeongdong: v,
-                                      eupmyeondong: newEupmyeondong,
-                                    ),
-                                  );
                                 }
                               : null,
                         ),

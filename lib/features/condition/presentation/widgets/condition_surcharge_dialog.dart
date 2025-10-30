@@ -552,7 +552,7 @@ class _ConditionSurchargeDialogState
                                           ),
                                         );
                                         viewModel.updateSurcharge();
-                                        await viewModel.search();
+
                                         Navigator.of(
                                           context,
                                         ).pop(); // 확인 다이얼로그 닫기

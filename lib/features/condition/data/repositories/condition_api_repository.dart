@@ -28,7 +28,7 @@ class ConditionApiRepository implements ConditionRepository {
             responseBody: true,
             error: true,
             compact: false, // 줄바꿈 포함
-            maxWidth: 100, // 한 줄 최대 길이
+            maxWidth: 70, // 한 줄 최대 길이
           ),
         );
 

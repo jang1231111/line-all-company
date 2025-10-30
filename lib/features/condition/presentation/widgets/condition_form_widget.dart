@@ -173,11 +173,7 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                             );
                             return;
                           }
-                          showDialog(
-                            context: context,
-                            builder: (context) =>
-                                const ConditionSurchargeDialog(),
-                          );
+                          await viewModel.search();
                         },
                         icon: const Icon(Icons.search),
                         label: const Text('검색'),
