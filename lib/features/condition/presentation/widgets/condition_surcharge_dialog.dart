@@ -37,8 +37,6 @@ class _ConditionSurchargeDialogState
     final condition = ref.read(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
 
-    print(viewModel.state);
-
     // 할증률 계산은 임시 값으로
     final surchargeResult = calculateSurcharge(
       selectedCheckboxIds: surcharges,

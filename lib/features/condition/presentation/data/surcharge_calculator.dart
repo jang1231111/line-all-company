@@ -3,12 +3,12 @@ import 'surcharge_options.dart';
 /// 할증률 계산 결과 모델
 class SurchargeResult {
   final double rate; // 예: 0.55 (55%)
-  final double fixedAmount; // 고정금액 할증 (있다면)
+  final double cancellationFeeAmount; // 배차 취소료
   final List<String> labels; // 적용된 항목 라벨
 
   SurchargeResult({
     required this.rate,
-    required this.fixedAmount,
+    required this.cancellationFeeAmount,
     required this.labels,
   });
 }
@@ -19,25 +19,20 @@ SurchargeResult calculateSurcharge({
   String? dangerType,
   String? weightType,
   String? specialType,
-  String? cancellationFee, // <- 파라미터는 남겨둬도 무방
+  String? cancellationFee,
 }) {
   final rates = <double>[];
-  double fixedAmount = 0;
   final labels = <String>[];
 
-  // 체크박스 할증률
+  // 체크박스 할증률 (고정금액 무시)
   for (final id in selectedCheckboxIds) {
     final opt = surchargeCheckboxOptions.firstWhere(
       (o) => o.id == id,
       orElse: () => CheckboxOption(id: '', label: ''),
     );
     if (opt.id.isNotEmpty) {
-      if (opt.rate != null) {
-        if (opt.isFixed) {
-          fixedAmount += opt.rate!;
-        } else {
-          rates.add(opt.rate!);
-        }
+      if (opt.rate != null && !opt.isFixed) {
+        rates.add(opt.rate!);
       }
       labels.add(opt.label);
     }
@@ -60,7 +55,19 @@ SurchargeResult calculateSurcharge({
   addDropdownRate(dangerTypeOptions, dangerType);
   addDropdownRate(weightTypeOptions, weightType);
   addDropdownRate(specialTypeOptions, specialType);
-  // addDropdownRate(cancellationFeeOptions, cancellationFee); // <- 제외
+
+  // 취소수수료(고정금액)만 별도로 추출
+  double cancellationFeeAmount = 1.0;
+  if (cancellationFee != null && cancellationFee.isNotEmpty) {
+    final opt = cancellationFeeOptions.firstWhere(
+      (o) => o.value == cancellationFee,
+      orElse: () => SurchargeDropdownOption(value: '', label: ''),
+    );
+    if (opt.value.isNotEmpty && opt.rate != null) {
+      cancellationFeeAmount = opt.rate!;
+      labels.add(opt.label);
+    }
+  }
 
   // 할증률 계산 (가장 높은 할증률 100% + 나머지 50%)
   double finalRate = 0;
@@ -72,5 +79,9 @@ SurchargeResult calculateSurcharge({
     finalRate = double.parse(finalRate.toStringAsFixed(6)); // 소수점 6자리
   }
 
-  return SurchargeResult(rate: finalRate, fixedAmount: fixedAmount, labels: labels);
+  return SurchargeResult(
+    rate: finalRate,
+    cancellationFeeAmount: cancellationFeeAmount,
+    labels: labels,
+  );
 }

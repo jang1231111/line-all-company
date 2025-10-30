@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../providers/fare_result_provider.dart';
+import '../providers/condition_provider.dart'; // 추가
 
 class FareResultTable extends ConsumerWidget {
   const FareResultTable({super.key});
@@ -8,6 +10,12 @@ class FareResultTable extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final results = ref.watch(fareResultViewModelProvider);
+
+    // surchargeResult 가져오기
+    final condition = ref.watch(conditionViewModelProvider);
+    final surchargeRate = condition.surchargeResult?.rate ?? 0.0;
+    final cancellationFeeAmount =
+        condition.surchargeResult?.cancellationFeeAmount ?? 1.0;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 0),
@@ -80,6 +88,13 @@ class FareResultTable extends ConsumerWidget {
                 );
               }
               final row = results[idx - 1];
+
+              // 할증률 적용된 금액 계산 (10원 단위 반올림)
+              final ft20WithSurcharge =
+                  ((row.ft20Safe * (1 + surchargeRate) * cancellationFeeAmount) / 100).round() * 100;
+              final ft40WithSurcharge =
+                  ((row.ft40Safe * (1 + surchargeRate) * cancellationFeeAmount) / 100).round() * 100;
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Container(
@@ -155,7 +170,7 @@ class FareResultTable extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '${row.ft20Safe}원',
+                                    '${NumberFormat('#,###').format(ft20WithSurcharge)}원',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,
@@ -196,7 +211,7 @@ class FareResultTable extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '${row.ft40Safe}원',
+                                    '${NumberFormat('#,###').format(ft40WithSurcharge)}원',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,
