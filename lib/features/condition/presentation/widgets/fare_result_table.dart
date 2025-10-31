@@ -73,7 +73,7 @@ class FareResultTable extends ConsumerWidget {
                       top: 10,
                       bottom: 10,
                     ),
-    
+
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -101,12 +101,7 @@ class FareResultTable extends ConsumerWidget {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
-                                color: const Color.fromARGB(
-                                  255,
-                                  109,
-                                  120,
-                                  166,
-                                ),
+                                color: Colors.blueGrey[700],
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -133,7 +128,7 @@ class FareResultTable extends ConsumerWidget {
                   itemCount: results.length,
                   itemBuilder: (context, idx) {
                     final row = results[idx];
-    
+
                     final ft20WithSurcharge =
                         ((row.ft20Safe * (1 + surchargeRate)) *
                                 cancellationFeeAmount /
@@ -146,7 +141,7 @@ class FareResultTable extends ConsumerWidget {
                                 100)
                             .round() *
                         100;
-    
+
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 14),
                       child: Container(
@@ -174,11 +169,7 @@ class FareResultTable extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(
-                                  Icons.place,
-                                  color: Colors.teal,
-                                  size: 18,
-                                ),
+                                Icon(Icons.place, color: Colors.teal, size: 18),
                                 const SizedBox(width: 2),
                                 Expanded(
                                   child: Text(
@@ -205,9 +196,7 @@ class FareResultTable extends ConsumerWidget {
                                         vertical: 18,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          8,
-                                        ),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                       textStyle: const TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -248,9 +237,7 @@ class FareResultTable extends ConsumerWidget {
                                         vertical: 18,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          8,
-                                        ),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                       textStyle: const TextStyle(
                                         fontWeight: FontWeight.bold,
