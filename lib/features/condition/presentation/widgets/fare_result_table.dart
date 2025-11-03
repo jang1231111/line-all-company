@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 import 'package:line_all/features/condition/presentation/widgets/condition_surcharge_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/fare_result_row.dart';
@@ -15,10 +14,10 @@ class FareResultTable extends ConsumerWidget {
     final results = ref.watch(fareResultViewModelProvider);
     final condition = ref.watch(conditionViewModelProvider);
     final surchargeRate = condition.surchargeResult.rate;
-    final cancellationFeeAmount = condition.surchargeResult.cancellationFeeAmount;
+    final cancellationFeeAmount =
+        condition.surchargeResult.cancellationFeeAmount;
     final selectedFares = ref.watch(selectedFareProvider);
     final selectedFareNotifier = ref.read(selectedFareProvider.notifier);
-
 
     return Center(
       child: Container(
@@ -42,7 +41,7 @@ class FareResultTable extends ConsumerWidget {
           children: [
             // === 할증 정보 미니 컨테이너 (Stack으로 "할증 적용" 텍스트를 border에 걸치게)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 100.0),
               child: Material(
                 color: const Color(0xFFFFF3C2), // 컨테이너 배경색과 동일하게!
                 borderRadius: BorderRadius.circular(10),
@@ -57,7 +56,7 @@ class FareResultTable extends ConsumerWidget {
                     );
                   },
                   child: Container(
-                    width: double.infinity,
+                    // width: double.infinity,
                     decoration: BoxDecoration(
                       // color: const Color(0xFFFFF3C2),
                       borderRadius: BorderRadius.circular(10),
@@ -70,44 +69,48 @@ class FareResultTable extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.only(
-                      left: 10,
-                      right: 5,
-                      top: 10,
-                      bottom: 10,
-                    ),
+                    padding: const EdgeInsets.all(10),
 
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 4),
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.warning_amber_rounded,
                               color: Colors.orange[700],
                               size: 30,
                             ),
+                            SizedBox(width: 10),
                             Text(
-                              '할증 +${(surchargeRate * 100).toStringAsFixed(0)}%',
+                              '할증 적용 ',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                                 color: Colors.black87,
                               ),
                             ),
-                            const SizedBox(width: 14),
+                            SizedBox(width: 5),
                             Text(
-                              '배차 취소료 ${(cancellationFeeAmount * 100).toStringAsFixed(0)}%',
-                              style: TextStyle(
+                              '${(surchargeRate * 100).toStringAsFixed(0)}%',
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
-                                color: Colors.blueGrey[700],
+                                color: Color(0xFFD18A00),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 14),
+                            // Text(
+                            //   '배차 취소료 ${(cancellationFeeAmount * 100).toStringAsFixed(0)}%',
+                            //   style: TextStyle(
+                            //     fontWeight: FontWeight.bold,
+                            //     fontSize: 20,
+                            //     color: Colors.blueGrey[700],
+                            //   ),
+                            // ),
+                            // const SizedBox(width: 8),
                           ],
                         ),
                       ],
@@ -131,15 +134,31 @@ class FareResultTable extends ConsumerWidget {
                   itemCount: results.length,
                   itemBuilder: (context, idx) {
                     final row = results[idx];
-                    final ft20WithSurcharge = ((row.ft20Safe * (1 + surchargeRate)) * cancellationFeeAmount / 100).round() * 100;
-                    final ft40WithSurcharge = ((row.ft40Safe * (1 + surchargeRate)) * cancellationFeeAmount / 100).round() * 100;
+                    final ft20WithSurcharge =
+                        ((row.ft20Safe * (1 + surchargeRate)) *
+                                cancellationFeeAmount /
+                                100)
+                            .round() *
+                        100;
+                    final ft40WithSurcharge =
+                        ((row.ft40Safe * (1 + surchargeRate)) *
+                                cancellationFeeAmount /
+                                100)
+                            .round() *
+                        100;
 
                     return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.indigo.shade100, width: 1.5),
+                        border: Border.all(
+                          color: Colors.indigo.shade100,
+                          width: 1.5,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.indigo.withOpacity(0.06),
@@ -149,11 +168,20 @@ class FareResultTable extends ConsumerWidget {
                         ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 12,
+                        ),
                         child: FareResultRow(
                           row: row,
-                          is20Selected: selectedFareNotifier.isSelected(row, FareType.ft20),
-                          is40Selected: selectedFareNotifier.isSelected(row, FareType.ft40),
+                          is20Selected: selectedFareNotifier.isSelected(
+                            row,
+                            FareType.ft20,
+                          ),
+                          is40Selected: selectedFareNotifier.isSelected(
+                            row,
+                            FareType.ft40,
+                          ),
                           ft20WithSurcharge: ft20WithSurcharge,
                           ft40WithSurcharge: ft40WithSurcharge,
                           on20Tap: () {
@@ -162,7 +190,9 @@ class FareResultTable extends ConsumerWidget {
                               type: FareType.ft20,
                               rate: condition.surchargeResult.rate,
                               price: ft20WithSurcharge,
-                              surchargeLabels: List<String>.from(condition.surchargeResult.labels),
+                              surchargeLabels: List<String>.from(
+                                condition.surchargeResult.labels,
+                              ),
                             );
                           },
                           on40Tap: () {
@@ -171,7 +201,9 @@ class FareResultTable extends ConsumerWidget {
                               type: FareType.ft40,
                               rate: condition.surchargeResult.rate,
                               price: ft40WithSurcharge,
-                              surchargeLabels: List<String>.from(condition.surchargeResult.labels),
+                              surchargeLabels: List<String>.from(
+                                condition.surchargeResult.labels,
+                              ),
                             );
                           },
                         ),
