@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 import 'package:line_all/features/condition/presentation/widgets/condition_surcharge_dialog.dart';
+import 'package:line_all/features/condition/presentation/widgets/fare_result_row.dart';
 import '../providers/fare_result_provider.dart';
 import '../providers/condition_provider.dart';
 
@@ -11,11 +13,12 @@ class FareResultTable extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final results = ref.watch(fareResultViewModelProvider);
-
     final condition = ref.watch(conditionViewModelProvider);
-    final surchargeRate = condition.surchargeResult?.rate ?? 0.0;
-    final cancellationFeeAmount =
-        condition.surchargeResult?.cancellationFeeAmount ?? 1.0;
+    final surchargeRate = condition.surchargeResult.rate;
+    final cancellationFeeAmount = condition.surchargeResult.cancellationFeeAmount;
+    final selectedFares = ref.watch(selectedFareProvider);
+    final selectedFareNotifier = ref.read(selectedFareProvider.notifier);
+
 
     return Center(
       child: Container(
@@ -128,149 +131,49 @@ class FareResultTable extends ConsumerWidget {
                   itemCount: results.length,
                   itemBuilder: (context, idx) {
                     final row = results[idx];
+                    final ft20WithSurcharge = ((row.ft20Safe * (1 + surchargeRate)) * cancellationFeeAmount / 100).round() * 100;
+                    final ft40WithSurcharge = ((row.ft40Safe * (1 + surchargeRate)) * cancellationFeeAmount / 100).round() * 100;
 
-                    final ft20WithSurcharge =
-                        ((row.ft20Safe * (1 + surchargeRate)) *
-                                cancellationFeeAmount /
-                                100)
-                            .round() *
-                        100;
-                    final ft40WithSurcharge =
-                        ((row.ft40Safe * (1 + surchargeRate)) *
-                                cancellationFeeAmount /
-                                100)
-                            .round() *
-                        100;
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: Colors.blueGrey.shade100,
-                            width: 1,
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.indigo.shade100, width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.indigo.withOpacity(0.06),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blueGrey.withOpacity(0.07),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                          horizontal: 20,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.place, color: Colors.teal, size: 18),
-                                const SizedBox(width: 2),
-                                Expanded(
-                                  child: Text(
-                                    '${row.sido} > ${row.sigungu} > ${row.eupmyeondong}',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.indigo[50],
-                                      foregroundColor: Colors.indigo[900],
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 18,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      textStyle: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                    onPressed: () {},
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          '20FT',
-                                          style: TextStyle(
-                                            color: Colors.indigo[700],
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '${NumberFormat('#,###').format(ft20WithSurcharge)}원',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.deepOrange[50],
-                                      foregroundColor: Colors.deepOrange,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 18,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      textStyle: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                    onPressed: () {},
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          '40FT',
-                                          style: TextStyle(
-                                            color: Colors.deepOrange,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '${NumberFormat('#,###').format(ft40WithSurcharge)}원',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                        child: FareResultRow(
+                          row: row,
+                          is20Selected: selectedFareNotifier.isSelected(row, FareType.ft20),
+                          is40Selected: selectedFareNotifier.isSelected(row, FareType.ft40),
+                          ft20WithSurcharge: ft20WithSurcharge,
+                          ft40WithSurcharge: ft40WithSurcharge,
+                          on20Tap: () {
+                            selectedFareNotifier.toggle(
+                              row: row,
+                              type: FareType.ft20,
+                              rate: condition.surchargeResult.rate,
+                              price: ft20WithSurcharge,
+                              surchargeLabels: List<String>.from(condition.surchargeResult.labels),
+                            );
+                          },
+                          on40Tap: () {
+                            selectedFareNotifier.toggle(
+                              row: row,
+                              type: FareType.ft40,
+                              rate: condition.surchargeResult.rate,
+                              price: ft40WithSurcharge,
+                              surchargeLabels: List<String>.from(condition.surchargeResult.labels),
+                            );
+                          },
                         ),
                       ),
                     );

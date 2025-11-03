@@ -6,10 +6,10 @@ class SurchargeResult {
   final double cancellationFeeAmount; // 배차 취소료
   final List<String> labels; // 적용된 항목 라벨
 
-  SurchargeResult({
-    required this.rate,
-    required this.cancellationFeeAmount,
-    required this.labels,
+  const SurchargeResult({
+    this.rate = 0.0,
+    this.cancellationFeeAmount = 1.0,
+    this.labels = const [],
   });
 }
 

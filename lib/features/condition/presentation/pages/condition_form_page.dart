@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:line_all/features/condition/presentation/widgets/fare_result_table.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../widgets/condition_form_widget.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../widgets/fare_result_table.dart';
+import '../widgets/selected_fare_bottom_bar.dart';
 
 class ConditionFormPage extends ConsumerWidget {
   const ConditionFormPage({super.key});
@@ -91,7 +92,6 @@ class ConditionFormPage extends ConsumerWidget {
                   children: [
                     Expanded(child: ConditionFormWidget()),
                     SizedBox(width: 16),
-                    // SizedBox(width: 380, child: ConditionSurchargePanel()),
                     Expanded(child: FareResultTable()),
                   ],
                 );
@@ -101,11 +101,7 @@ class ConditionFormPage extends ConsumerWidget {
                     Expanded(
                       child: ListView(
                         padding: EdgeInsets.all(3.w),
-                        children: [
-                          ConditionFormWidget(),
-                          SizedBox(height: 12),
-                          // ConditionSurchargePanel(),
-                        ],
+                        children: [ConditionFormWidget(), SizedBox(height: 12)],
                       ),
                     ),
                     Expanded(
@@ -119,69 +115,7 @@ class ConditionFormPage extends ConsumerWidget {
               }
             },
           ),
-          bottomNavigationBar: SafeArea(
-            minimum: EdgeInsets.only(bottom: 12), // 하단 여백 추가
-            child: BottomAppBar(
-              elevation: 12,
-              color: Colors.transparent,
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 12),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.07),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                  border: Border.all(color: const Color(0xFFE0E7EF)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.check_circle, color: Color(0xFF1C63D6)),
-                        SizedBox(width: 8),
-                        Text(
-                          '선택: 3건',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Color(0xFF232323),
-                          ),
-                        ),
-                      ],
-                    ),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1C63D6),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 22,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      onPressed: () {},
-                      icon: Icon(Icons.done),
-                      label: Text('확정'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          bottomNavigationBar: SelectedFareBottomBar(),
         );
       },
     );

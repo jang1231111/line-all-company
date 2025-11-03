@@ -19,6 +19,6 @@ abstract class Condition with _$Condition {
     String? weightType, // 중량물 드롭다운 value
     String? specialType, // 활대품 드롭다운 value
     String? cancellationFee, // 취소료 드롭다운 value
-    SurchargeResult? surchargeResult, // 할증 계산 결과 추가
+    @Default(SurchargeResult()) SurchargeResult surchargeResult, // 기본값 적용
   }) = _Condition;
 }
