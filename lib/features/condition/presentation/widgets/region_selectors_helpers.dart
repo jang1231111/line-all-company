@@ -1,4 +1,4 @@
-part of 'region_selectors.dart';
+part of 'region_selectors_dialog.dart';
 
 // 각 드롭다운의 첫 번째 항목을 의미에 맞게 지정
 List<String> withLabel(List<String>? list, String label) => [label, ...?list];

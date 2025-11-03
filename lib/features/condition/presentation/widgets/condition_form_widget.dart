@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:line_all/features/condition/presentation/data/surcharge_calculator.dart';
 import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
-import 'package:line_all/features/condition/presentation/providers/fare_result_provider.dart';
 import 'package:line_all/features/condition/presentation/widgets/header.dart';
 import 'package:line_all/features/condition/presentation/widgets/period_dropdown_row.dart';
-import 'package:line_all/features/condition/presentation/widgets/region_selectors.dart';
-import 'package:line_all/features/condition/presentation/widgets/search_box.dart';
+import 'package:line_all/features/condition/presentation/widgets/region_selectors_dialog.dart';
+import 'package:line_all/features/condition/presentation/widgets/search_type_selector_row.dart';
 
 import '../../domain/models/condition.dart';
 
@@ -110,18 +108,10 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       typeKey: _typeKey,
                       sectionKey: _sectionKey,
                     ),
-                    SearchBox(
-                      initialValue: condition.searchQuery ?? '',
-                      onChanged: (v) =>
-                          viewModel.update(condition.copyWith(searchQuery: v)),
-                      onSearch: () {},
-                      onRegionSearch: () {
-                        // 지역 검색 다이얼로그 띄우기
-                      },
-                    ),
-
-                    const SizedBox(height: 10),
-                    const RegionSelectors(),
+                    const SizedBox(height: 5),
+                    const SearchTypeSelectorRow(),
+                    // const SizedBox(height: 10),
+                    // const RegionSelectors(),
                     const SizedBox(height: 18),
                     // 검색 버튼 추가
                     SizedBox(
@@ -150,15 +140,7 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                             );
                             return;
                           }
-                          // if (condition.type == null ||
-                          //     condition.type!.isEmpty) {
-                          //   await _focusAndScroll(
-                          //     _typeKey,
-                          //     _typeFocusNode,
-                          //     '유형을 선택해주세요.',
-                          //   );
-                          //   return;
-                          // }
+
                           if (condition.section == null ||
                               condition.section!.isEmpty) {
                             await _focusAndScroll(

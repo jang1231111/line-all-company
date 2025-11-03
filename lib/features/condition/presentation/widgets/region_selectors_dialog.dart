@@ -8,6 +8,82 @@ import '../providers/region_provider.dart';
 
 part 'region_selectors_helpers.dart'; // 헬퍼 함수 분리
 
+class RegionSelectorsDialog extends StatelessWidget {
+  const RegionSelectorsDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: SizedBox(
+        width: 520,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 상단 제목/설명/닫기
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.map, color: Colors.indigo[700], size: 28),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          '지역 선택',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Color(0xFF1C63D6),
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          '지역별로 행선지를 선택하세요',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF4B5B7A),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.black38),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Divider(height: 1, color: Color(0xFFE0E0E0)),
+              const SizedBox(height: 18),
+              // 지역 선택자
+              RegionSelectors(),
+              const SizedBox(height: 18),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.indigo,
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('닫기'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class RegionSelectors extends ConsumerWidget {
   const RegionSelectors({super.key});
 
@@ -29,26 +105,26 @@ class RegionSelectors extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 타이틀 & 안내문구
-          Row(
-            children: [
-              Icon(Icons.map, color: Colors.blue[700], size: 18),
-              const SizedBox(width: 6),
-              const Text(
-                '지역 검색',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: Color(0xFF154E9C),
-                ),
-              ),
-              const SizedBox(width: 10),
-            ],
-          ),
-          const Text(
-            '※ 고시지역 외 구간은 법정동 선택',
-            style: TextStyle(fontSize: 12, color: Colors.blueGrey),
-          ),
-          const SizedBox(height: 10),
+          // Row(
+          //   children: [
+          //     Icon(Icons.map, color: Colors.blue[700], size: 18),
+          //     const SizedBox(width: 6),
+          //     const Text(
+          //       '지역 검색',
+          //       style: TextStyle(
+          //         fontWeight: FontWeight.bold,
+          //         fontSize: 15,
+          //         color: Color(0xFF154E9C),
+          //       ),
+          //     ),
+          //     const SizedBox(width: 10),
+          //   ],
+          // ),
+          // const Text(
+          //   '※ 고시지역 외 구간은 법정동 선택',
+          //   style: TextStyle(fontSize: 12, color: Colors.blueGrey),
+          // ),
+          // const SizedBox(height: 10),
           regionAsync.when(
             loading: () => const Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
@@ -172,8 +248,11 @@ class RegionSelectors extends ConsumerWidget {
                                       ),
                                     );
                                   } else {
-                                    String? newEupmyeondong = condition.eupmyeondong;
-                                    final match = RegExp(r'\(([^)]+)\)').firstMatch(v ?? '');
+                                    String? newEupmyeondong =
+                                        condition.eupmyeondong;
+                                    final match = RegExp(
+                                      r'\(([^)]+)\)',
+                                    ).firstMatch(v ?? '');
                                     if (match != null) {
                                       newEupmyeondong = match.group(1);
                                     }
