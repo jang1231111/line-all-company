@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:line_all/features/condition/domain/models/road_name_address.dart';
 import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
+import 'package:line_all/features/condition/presentation/viewmodel/condition_viewmodel.dart';
 import 'package:line_all/features/condition/presentation/widgets/header.dart';
 import 'package:line_all/features/condition/presentation/widgets/period_dropdown_row.dart';
 import 'package:line_all/features/condition/presentation/widgets/region_selectors_dialog.dart';
@@ -142,12 +144,15 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                         });
                       },
                       onRoadNameSearch: () {
-                        _validateAndHandleSearchType(() {
+                        _validateAndHandleSearchType(() async {
                           // 도로명 검색 다이얼로그 띄우기
-                          showDialog(
+                          RoadNameAddress? result = await showDialog(
                             context: context,
                             builder: (context) => const RoadNameSearchDialog(),
                           );
+                          if (result != null) {
+                            await viewModel.searchByRoadName(result);
+                          }
                         });
                       },
                     ),
