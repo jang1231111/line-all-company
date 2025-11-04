@@ -20,6 +20,7 @@ abstract class ConditionRepository {
     required String sido,
     required String sigungu,
     String? eupmyeondong,
+    String? destinationSearch,
     String? dong,
   });
 }

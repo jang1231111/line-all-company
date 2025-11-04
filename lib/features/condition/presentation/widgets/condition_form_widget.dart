@@ -129,7 +129,6 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       sectionFocusNode: _sectionFocusNode,
                       typeKey: _typeKey,
                       sectionKey: _sectionKey,
-                      error: _periodError, // 추가
                     ),
                     const SizedBox(height: 5),
                     SearchTypeSelectorRow(

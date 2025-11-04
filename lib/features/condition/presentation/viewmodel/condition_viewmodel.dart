@@ -66,35 +66,14 @@ class ConditionViewModel extends StateNotifier<Condition> {
 
       // 2차: 결과가 없고 eupmyeondong이 4글자 이상이면 앞2+뒤2글자 조합으로 재검색
       if (results.isEmpty && eupmyeondong != null && eupmyeondong.length >= 4) {
-        final shortEupmyeondong =
-            eupmyeondong.substring(0, 2) +
-            eupmyeondong.substring(eupmyeondong.length - 2);
-
-        ///
-
         results = await _repository.searchByRoadName(
           period: state.period!,
           section: state.section!,
           sido: sido,
           sigungu: sigungu,
-          eupmyeondong: shortEupmyeondong,
+          destinationSearch:
+              '${eupmyeondong.substring(0, 2)}&${eupmyeondong.substring(eupmyeondong.length - 2)}',
         );
-      }
-
-      // 3차: 그래도 결과가 없고 eupmyeondong에 "제"가 있으면 "제"를 제거해서 재검색
-      if (results.isEmpty &&
-          eupmyeondong != null &&
-          eupmyeondong.contains('제')) {
-        final removedJe = eupmyeondong.replaceAll('제', '');
-        if (removedJe.isNotEmpty) {
-          results = await _repository.searchByRoadName(
-            period: state.period!,
-            section: state.section!,
-            sido: sido,
-            sigungu: sigungu,
-            eupmyeondong: removedJe,
-          );
-        }
       }
     }
     // hemdNm 값 null

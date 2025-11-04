@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:line_all/features/condition/domain/models/fare_result.dart';
-import 'package:line_all/features/condition/domain/models/road_name_address.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 // import '../../domain/models/condition.dart';
@@ -90,6 +89,7 @@ class ConditionApiRepository implements ConditionRepository {
     required String sido,
     required String sigungu,
     String? eupmyeondong,
+    String? destinationSearch,
     String? dong,
   }) async {
     final queryParameters = {
@@ -98,9 +98,9 @@ class ConditionApiRepository implements ConditionRepository {
       'type': 'safe',
       'sido': sido,
       'sigungu': sigungu,
-      if (eupmyeondong != null && eupmyeondong.isNotEmpty)
-        'eupmyeondong': eupmyeondong,
-      if (dong != null && dong.isNotEmpty) 'dong': dong,
+      if (eupmyeondong != null) 'eupmyeondong': eupmyeondong,
+      if (destinationSearch != null) 'destinationSearch': destinationSearch,
+      if (dong != null) 'dong': dong,
     };
     try {
       final response = await _dio.get(
