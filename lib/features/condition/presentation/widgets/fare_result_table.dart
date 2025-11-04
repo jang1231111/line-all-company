@@ -41,7 +41,7 @@ class FareResultTable extends ConsumerWidget {
           children: [
             // === 할증 정보 미니 컨테이너 (Stack으로 "할증 적용" 텍스트를 border에 걸치게)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 100.0),
+              padding: const EdgeInsets.symmetric(horizontal: 80.0),
               child: Material(
                 color: const Color(0xFFFFF3C2), // 컨테이너 배경색과 동일하게!
                 borderRadius: BorderRadius.circular(10),
