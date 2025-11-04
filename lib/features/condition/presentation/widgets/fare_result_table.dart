@@ -121,11 +121,62 @@ class FareResultTable extends ConsumerWidget {
             ),
             const Divider(height: 24, thickness: 1, color: Color(0xFFE0E7EF)),
             if (results.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  '검색 결과가 없습니다.',
-                  style: TextStyle(color: Colors.grey),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
+                child: Center(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: Colors.indigo.shade100,
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.indigo.withOpacity(0.07),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.sentiment_dissatisfied_rounded,
+                          color: Colors.indigo.shade300,
+                          size: 48,
+                        ),
+                        const SizedBox(height: 18),
+                        const Text(
+                          '검색 결과가 없어요',
+                          style: TextStyle(
+                            color: Color(0xFF3A4374),
+                            fontSize: 19,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '조건을 다시 선택하거나\n검색어를 변경해보세요.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.indigo.shade200,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               )
             else
