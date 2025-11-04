@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:line_all/features/condition/domain/models/fare_result.dart';
+import 'package:line_all/features/condition/domain/models/road_name_address.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 // import '../../domain/models/condition.dart';
@@ -33,7 +34,7 @@ class ConditionApiRepository implements ConditionRepository {
         );
 
   @override
-  Future<List<FareResult>> search({
+  Future<List<FareResult>> searchByRegion({
     String? period,
     String? section,
     String? sido,
@@ -66,6 +67,47 @@ class ConditionApiRepository implements ConditionRepository {
       );
       if (response.statusCode == 200) {
         // 여기서 타입 캐스팅
+        final data = response.data['data'];
+        if (data is List) {
+          return data.map((item) => FareResult.fromJson(item)).toList();
+        } else {
+          throw Exception('API 데이터 형식 오류');
+        }
+      } else {
+        throw Exception(
+          'API 오류: ${response.statusCode} ${response.statusMessage}',
+        );
+      }
+    } on DioException catch (e) {
+      throw Exception('Dio 오류: ${e.message}');
+    }
+  }
+
+  @override
+  Future<List<FareResult>> searchByRoadName({
+    required String period,
+    required String section,
+    required String sido,
+    required String sigungu,
+    String? eupmyeondong,
+    String? dong,
+  }) async {
+    final queryParameters = {
+      'period': period,
+      'section': section,
+      'type': 'safe',
+      'sido': sido,
+      'sigungu': sigungu,
+      if (eupmyeondong != null && eupmyeondong.isNotEmpty)
+        'eupmyeondong': eupmyeondong,
+      if (dong != null && dong.isNotEmpty) 'dong': dong,
+    };
+    try {
+      final response = await _dio.get(
+        '/api/routes',
+        queryParameters: queryParameters,
+      );
+      if (response.statusCode == 200) {
         final data = response.data['data'];
         if (data is List) {
           return data.map((item) => FareResult.fromJson(item)).toList();

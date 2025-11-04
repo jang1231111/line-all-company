@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'road_name_search_dialog.dart';
-import 'region_selectors_dialog.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SearchTypeSelectorRow extends StatelessWidget {
-  const SearchTypeSelectorRow({super.key});
+class SearchTypeSelectorRow extends ConsumerWidget {
+  final VoidCallback onRegionSearch;
+  final VoidCallback onRoadNameSearch;
+  const SearchTypeSelectorRow({
+    super.key,
+    required this.onRegionSearch,
+    required this.onRoadNameSearch,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -50,13 +55,7 @@ class SearchTypeSelectorRow extends StatelessWidget {
                             '지역 검색',
                             style: TextStyle(fontSize: 20),
                           ),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) =>
-                                  const RegionSelectorsDialog(),
-                            );
-                          },
+                          onPressed: onRegionSearch,
                         ),
                       ),
                     ],
@@ -97,18 +96,7 @@ class SearchTypeSelectorRow extends StatelessWidget {
                             '도로명 검색',
                             style: TextStyle(fontSize: 20),
                           ),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => RoadNameSearchDialog(
-                                initialValue: '',
-                                onChanged: (value) {},
-                                onSearch: () {},
-                                results: [],
-                                totalCount: 1,
-                              ),
-                            );
-                          },
+                          onPressed: onRoadNameSearch,
                         ),
                       ),
                     ],

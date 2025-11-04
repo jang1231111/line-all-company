@@ -4,6 +4,7 @@ import 'package:line_all/features/condition/presentation/providers/condition_pro
 import 'package:line_all/features/condition/presentation/widgets/header.dart';
 import 'package:line_all/features/condition/presentation/widgets/period_dropdown_row.dart';
 import 'package:line_all/features/condition/presentation/widgets/region_selectors_dialog.dart';
+import 'package:line_all/features/condition/presentation/widgets/road_name_search_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/search_type_selector_row.dart';
 
 import '../../domain/models/condition.dart';
@@ -26,6 +27,9 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
   final _periodKey = GlobalKey();
   final _typeKey = GlobalKey();
   final _sectionKey = GlobalKey();
+
+  bool _periodError = false;
+  bool _sectionError = false;
 
   @override
   void initState() {
@@ -56,6 +60,24 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _validateAndHandleSearchType(Function onValid) async {
+    final condition = ref.read(conditionViewModelProvider);
+    setState(() {
+      _periodError = condition.period == null || condition.period!.isEmpty;
+      _sectionError = condition.section == null || condition.section!.isEmpty;
+    });
+
+    if (_periodError) {
+      await _focusAndScroll(_periodKey, _periodFocusNode, '기간을 선택해주세요.');
+      return;
+    }
+    if (_sectionError) {
+      await _focusAndScroll(_sectionKey, _sectionFocusNode, '구간을 선택해주세요.');
+      return;
+    }
+    onValid();
   }
 
   @override
@@ -107,9 +129,29 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       sectionFocusNode: _sectionFocusNode,
                       typeKey: _typeKey,
                       sectionKey: _sectionKey,
+                      error: _periodError, // 추가
                     ),
                     const SizedBox(height: 5),
-                    const SearchTypeSelectorRow(),
+                    SearchTypeSelectorRow(
+                      onRegionSearch: () {
+                        _validateAndHandleSearchType(() {
+                          // 지역 검색 다이얼로그 띄우기
+                          showDialog(
+                            context: context,
+                            builder: (context) => const RegionSelectorsDialog(),
+                          );
+                        });
+                      },
+                      onRoadNameSearch: () {
+                        _validateAndHandleSearchType(() {
+                          // 도로명 검색 다이얼로그 띄우기
+                          showDialog(
+                            context: context,
+                            builder: (context) => const RoadNameSearchDialog(),
+                          );
+                        });
+                      },
+                    ),
                     // const SizedBox(height: 10),
                     // const RegionSelectors(),
                     const SizedBox(height: 18),
@@ -131,26 +173,7 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                           elevation: 0,
                         ),
                         onPressed: () async {
-                          if (condition.period == null ||
-                              condition.period!.isEmpty) {
-                            await _focusAndScroll(
-                              _periodKey,
-                              _periodFocusNode,
-                              '기간을 선택해주세요.',
-                            );
-                            return;
-                          }
-
-                          if (condition.section == null ||
-                              condition.section!.isEmpty) {
-                            await _focusAndScroll(
-                              _sectionKey,
-                              _sectionFocusNode,
-                              '구간을 선택해주세요.',
-                            );
-                            return;
-                          }
-                          await viewModel.search();
+                          await viewModel.searchByRegion();
                         },
                         icon: const Icon(Icons.search),
                         label: const Text('검색'),

@@ -1,23 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/road_name_search_provider.dart';
 
-class RoadNameSearchDialog extends StatelessWidget {
-  final String initialValue;
-  final ValueChanged<String> onChanged;
-  final VoidCallback onSearch;
-  final List<RoadSearchResult> results; // 검색 결과 리스트
-  final int totalCount; // 전체 결과 개수
+class RoadNameSearchDialog extends ConsumerStatefulWidget {
+  const RoadNameSearchDialog({super.key});
 
-  const RoadNameSearchDialog({
-    super.key,
-    required this.initialValue,
-    required this.onChanged,
-    required this.onSearch,
-    required this.results,
-    required this.totalCount,
-  });
+  @override
+  ConsumerState<RoadNameSearchDialog> createState() => _RoadNameSearchDialogState();
+}
+
+class _RoadNameSearchDialogState extends ConsumerState<RoadNameSearchDialog> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = ref.read(roadNameSearchViewModelProvider);
+    controller = TextEditingController(text: state.keyword);
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(roadNameSearchViewModelProvider);
+    final viewModel = ref.read(roadNameSearchViewModelProvider.notifier);
+
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -72,27 +84,48 @@ class RoadNameSearchDialog extends StatelessWidget {
                 children: [
                   Expanded(
                     child: TextFormField(
-                      initialValue: initialValue,
+                      controller: controller,
                       decoration: InputDecoration(
                         hintText: '도로명, 지번, 건물명을 입력하세요',
-                        hintStyle: const TextStyle(fontSize: 15, color: Colors.black45),
+                        hintStyle: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.black45,
+                        ),
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 14),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 14,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Color(0xFFB4C8F7)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFB4C8F7),
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Color(0xFFB4C8F7)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFB4C8F7),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Color(0xFF1BAF5D), width: 1.5),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF1BAF5D),
+                            width: 1.5,
+                          ),
                         ),
                       ),
-                      onChanged: onChanged,
+                      onChanged: (value) {
+                        viewModel.setKeyword(value);
+                      },
+                      onFieldSubmitted: (value) {
+                        if (value.trim().isNotEmpty) {
+                          viewModel.setKeyword(value);
+                          viewModel.search(value);
+                        }
+                      },
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -112,7 +145,13 @@ class RoadNameSearchDialog extends StatelessWidget {
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                       ),
-                      onPressed: onSearch,
+                      onPressed: (state.keyword.trim().isEmpty)
+                          ? null
+                          : () {
+                              final value = controller.text;
+                              viewModel.setKeyword(value);
+                              viewModel.search(value);
+                            },
                       icon: const Icon(Icons.search, size: 20),
                       label: const Text('검색'),
                     ),
@@ -121,9 +160,11 @@ class RoadNameSearchDialog extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               // 검색 결과 영역
-              if (results.isNotEmpty) ...[
+              if (state.isLoading)
+                const Center(child: CircularProgressIndicator()),
+              if (!state.isLoading && state.results.isNotEmpty) ...[
                 Text(
-                  '검색 결과 ($totalCount건)',
+                  '검색 결과 (${state.totalCount}건)',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
@@ -135,28 +176,38 @@ class RoadNameSearchDialog extends StatelessWidget {
                   constraints: const BoxConstraints(maxHeight: 320),
                   child: ListView.separated(
                     shrinkWrap: true,
-                    itemCount: results.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFE0E0E0)),
+                    itemCount: state.results.length,
+                    separatorBuilder: (_, __) =>
+                        const Divider(height: 1, color: Color(0xFFE0E0E0)),
                     itemBuilder: (context, idx) {
-                      final item = results[idx];
+                      final item = state.results[idx];
                       return ListTile(
-                        leading: const Icon(Icons.location_on, color: Color(0xFF1BAF5D)),
+                        leading: const Icon(
+                          Icons.location_on,
+                          color: Color(0xFF1BAF5D),
+                        ),
                         title: Text(
-                          item.title,
+                          item.roadAddr,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
                         subtitle: Text(
-                          item.subtitle,
+                          '${item.jibunAddr} ${item.bdNm}',
                           style: const TextStyle(
                             fontSize: 13,
                             color: Colors.black54,
                           ),
                         ),
-                        onTap: item.onTap,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 0),
+                        onTap: () {
+                          // 선택 시 처리
+                          Navigator.of(context).pop(item);
+                        },
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 2,
+                          horizontal: 0,
+                        ),
                         dense: true,
                         minLeadingWidth: 28,
                       );
@@ -164,7 +215,7 @@ class RoadNameSearchDialog extends StatelessWidget {
                   ),
                 ),
               ],
-              if (results.isEmpty)
+              if (!state.isLoading && state.results.isEmpty)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
                   child: Center(
@@ -174,23 +225,18 @@ class RoadNameSearchDialog extends StatelessWidget {
                     ),
                   ),
                 ),
+              if (state.error != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    state.error!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-// 검색 결과 모델 예시
-class RoadSearchResult {
-  final String title;
-  final String subtitle;
-  final VoidCallback? onTap;
-
-  RoadSearchResult({
-    required this.title,
-    required this.subtitle,
-    this.onTap,
-  });
 }
