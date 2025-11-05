@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
 import '../providers/selected_fare_result_provider.dart';
 
 class SelectedFareDialog extends ConsumerWidget {
@@ -10,6 +11,7 @@ class SelectedFareDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedFares = ref.watch(selectedFareProvider);
+    final selectedFareViewModel = ref.read(selectedFareProvider.notifier);
     final totalPrice = selectedFares.fold<int>(
       0,
       (sum, fare) => sum + fare.price,
@@ -255,7 +257,11 @@ class SelectedFareDialog extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      onPressed: () => Navigator.of(context).pop('save'),
+                      onPressed: () async {
+                        await selectedFareViewModel.saveCurrentToDb();
+                        selectedFareViewModel.clearState();
+                        Navigator.of(context).pop('save');
+                      },
                       icon: Icon(Icons.save_rounded, size: 26.sp),
                       label: Text('저장', style: TextStyle(fontSize: 20.sp)),
                     ),

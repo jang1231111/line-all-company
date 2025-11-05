@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // 반응형 패키지 추가
+import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
 import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 import 'package:line_all/features/condition/presentation/widgets/condition_surcharge_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/fare_result_row.dart';
