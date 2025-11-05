@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../providers/selected_fare_result_provider.dart';
 import 'selected_fare_dialog.dart';
 
 class SelectedFareBottomBar extends ConsumerWidget {
   final VoidCallback? onConfirm;
 
-  const SelectedFareBottomBar({
-    super.key,
-    this.onConfirm,
-  });
+  const SelectedFareBottomBar({super.key, this.onConfirm});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,21 +15,21 @@ class SelectedFareBottomBar extends ConsumerWidget {
     final selectedCount = selectedFares.length;
 
     return SafeArea(
-      minimum: const EdgeInsets.only(bottom: 12),
+      minimum: EdgeInsets.only(bottom: 12.h),
       child: BottomAppBar(
         elevation: 12,
         color: Colors.transparent,
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 12),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          margin: EdgeInsets.symmetric(horizontal: 12.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(18.r),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.07),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
+                blurRadius: 16.r,
+                offset: Offset(0, 4.h),
               ),
             ],
             border: Border.all(color: const Color(0xFFE0E7EF)),
@@ -41,45 +39,51 @@ class SelectedFareBottomBar extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.check_circle, color: Color(0xFF1C63D6)),
-                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.check_circle,
+                    color: const Color(0xFF1C63D6),
+                    size: 28.sp,
+                  ),
+                  SizedBox(width: 8.w),
                   Text(
-                    selectedCount > 0 ? '선택: $selectedCount건' : '선택된 항목이 없습니다',
-                    style: const TextStyle(
+                    '선택: $selectedCount건',
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Color(0xFF232323),
+                      fontSize: 18.sp,
+                      color: const Color(0xFF232323),
                     ),
                   ),
                 ],
               ),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1C63D6),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 12,
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 3.h),
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1C63D6),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 10.h,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    elevation: 0,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                  textStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                  onPressed: selectedCount > 0
+                      ? () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const SelectedFareDialog(),
+                          );
+                        }
+                      : null,
+                  icon: Icon(Icons.visibility, size: 22.sp),
+                  label: Text(
+                    '확인',
+                    style: TextStyle(fontSize: 15.sp),
                   ),
                 ),
-                onPressed: selectedCount > 0
-                    ? () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const SelectedFareDialog(),
-                        );
-                      }
-                    : null, // 0건일 때 비활성화
-                icon: const Icon(Icons.visibility), // 보기 아이콘으로 변경
-                label: const Text('보기'),           // '보기'로 텍스트 변경
               ),
             ],
           ),
