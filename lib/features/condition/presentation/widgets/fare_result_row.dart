@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // 반응형 패키지 추가
 
 import '../../domain/models/fare_result.dart';
 
@@ -26,7 +27,7 @@ class FareResultRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: EdgeInsets.only(bottom: 14.h),
       child: Container(
         // ...decoration 생략...
         child: Column(
@@ -34,13 +35,13 @@ class FareResultRow extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.place, color: Colors.teal, size: 18),
-                const SizedBox(width: 2),
+                Icon(Icons.place, color: Colors.teal, size: 22.sp),
+                SizedBox(width: 4.w),
                 Expanded(
                   child: Text(
                     '${row.sido} > ${row.sigungu} > ${row.eupmyeondong}',
-                    style: const TextStyle(
-                      fontSize: 20,
+                    style: TextStyle(
+                      fontSize: 22.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
@@ -49,7 +50,7 @@ class FareResultRow extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 14.h),
             Row(
               children: [
                 Expanded(
@@ -62,7 +63,7 @@ class FareResultRow extends StatelessWidget {
                     onTap: on20Tap,
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 16.w),
                 Expanded(
                   child: FareSelectButton(
                     selected: is40Selected,
@@ -107,24 +108,28 @@ class FareSelectButton extends StatelessWidget {
         backgroundColor: selected ? selectedColor : unselectedColor,
         foregroundColor: selected ? Colors.white : selectedColor,
         elevation: selected ? 4 : 0,
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        padding: EdgeInsets.symmetric(vertical: 20.h),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
       ),
       onPressed: onTap,
       child: Column(
         children: [
           Text(
             label,
-            style: TextStyle(color: selected ? Colors.white : selectedColor),
+            style: TextStyle(
+              color: selected ? Colors.white : selectedColor,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 6.h),
           Text(
             '${NumberFormat('#,###').format(price)}원',
             style: TextStyle(
               color: selected ? Colors.white : selectedColor,
               fontWeight: FontWeight.bold,
-              fontSize: 20,
+              fontSize: 22.sp,
             ),
           ),
         ],

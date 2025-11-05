@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // 반응형 패키지 추가
 import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 import 'package:line_all/features/condition/presentation/widgets/condition_surcharge_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/fare_result_row.dart';
@@ -21,34 +22,34 @@ class FareResultTable extends ConsumerWidget {
 
     return Center(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 600),
+        constraints: BoxConstraints(maxWidth: 600.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: Colors.indigo.shade100, width: 2),
+          borderRadius: BorderRadius.circular(22.r),
+          border: Border.all(color: Colors.indigo.shade100, width: 2.w),
           boxShadow: [
             BoxShadow(
               color: Colors.indigo.withOpacity(0.08),
-              blurRadius: 18,
-              offset: const Offset(0, 6),
+              blurRadius: 18.r,
+              offset: Offset(0, 6.h),
             ),
           ],
         ),
         margin: EdgeInsets.zero,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // === 할증 정보 미니 컨테이너 (Stack으로 "할증 적용" 텍스트를 border에 걸치게)
+            // === 할증 정보 미니 컨테이너
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 80.0),
+              padding: EdgeInsets.symmetric(horizontal: 80.w),
               child: Material(
-                color: const Color(0xFFFFF3C2), // 컨테이너 배경색과 동일하게!
-                borderRadius: BorderRadius.circular(10),
+                color: const Color(0xFFFFF3C2),
+                borderRadius: BorderRadius.circular(10.r),
                 child: InkWell(
                   splashColor: Colors.orange.withOpacity(0.1),
                   highlightColor: Colors.orange.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                   onTap: () {
                     showDialog(
                       context: context,
@@ -56,61 +57,49 @@ class FareResultTable extends ConsumerWidget {
                     );
                   },
                   child: Container(
-                    // width: double.infinity,
                     decoration: BoxDecoration(
-                      // color: const Color(0xFFFFF3C2),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                       border: Border.all(color: Colors.orange.shade200),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.orange.withOpacity(0.06),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
+                          blurRadius: 4.r,
+                          offset: Offset(0, 1.h),
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(10),
-
+                    padding: EdgeInsets.all(1.w),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4.h),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.warning_amber_rounded,
                               color: Colors.orange[700],
-                              size: 30,
+                              size: 32.sp,
                             ),
-                            SizedBox(width: 10),
+                            SizedBox(width: 10.w),
                             Text(
                               '할증 적용 ',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20,
+                                fontSize: 18.sp,
                                 color: Colors.black87,
                               ),
                             ),
-                            SizedBox(width: 5),
+                            SizedBox(width: 5.w),
                             Text(
                               '${(surchargeRate * 100).toStringAsFixed(0)}%',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20,
+                                fontSize: 18.sp,
                                 color: Color(0xFFD18A00),
                               ),
                             ),
-                            const SizedBox(width: 14),
-                            // Text(
-                            //   '배차 취소료 ${(cancellationFeeAmount * 100).toStringAsFixed(0)}%',
-                            //   style: TextStyle(
-                            //     fontWeight: FontWeight.bold,
-                            //     fontSize: 20,
-                            //     color: Colors.blueGrey[700],
-                            //   ),
-                            // ),
-                            // const SizedBox(width: 8),
+                            SizedBox(width: 14.w),
                           ],
                         ),
                       ],
@@ -119,29 +108,26 @@ class FareResultTable extends ConsumerWidget {
                 ),
               ),
             ),
-            const Divider(height: 24, thickness: 1, color: Color(0xFFE0E7EF)),
+            Divider(height: 24.h, thickness: 3.w, color: Color(0xFFE0E7EF)),
             if (results.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 10,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                 child: Center(
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: EdgeInsets.symmetric(vertical: 10.h),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(18.r),
                       border: Border.all(
                         color: Colors.indigo.shade100,
-                        width: 1.5,
+                        width: 1.5.w,
                       ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.indigo.withOpacity(0.07),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
+                          blurRadius: 16.r,
+                          offset: Offset(0, 4.h),
                         ),
                       ],
                     ),
@@ -151,25 +137,25 @@ class FareResultTable extends ConsumerWidget {
                         Icon(
                           Icons.sentiment_dissatisfied_rounded,
                           color: Colors.indigo.shade300,
-                          size: 48,
+                          size: 54.sp,
                         ),
-                        const SizedBox(height: 18),
-                        const Text(
-                          '검색 결과가 없어요',
+                        SizedBox(height: 18.h),
+                        Text(
+                          '검색 결과가 없습니다.',
                           style: TextStyle(
                             color: Color(0xFF3A4374),
-                            fontSize: 19,
+                            fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.2,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Text(
-                          '조건을 다시 선택하거나\n검색어를 변경해보세요.',
+                          '조건을 다시 입력해주세요.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.indigo.shade200,
-                            fontSize: 15,
+                            fontSize: 17.sp,
                             fontWeight: FontWeight.w500,
                             height: 1.5,
                           ),
@@ -199,29 +185,29 @@ class FareResultTable extends ConsumerWidget {
                         100;
 
                     return Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 4,
+                      margin: EdgeInsets.symmetric(
+                        vertical: 8.h,
+                        horizontal: 4.w,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(16.r),
                         border: Border.all(
                           color: Colors.indigo.shade100,
-                          width: 1.5,
+                          width: 1.5.w,
                         ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.indigo.withOpacity(0.06),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                            blurRadius: 8.r,
+                            offset: Offset(0, 2.h),
                           ),
                         ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 12,
+                        padding: EdgeInsets.symmetric(
+                          vertical: 14.h,
+                          horizontal: 12.w,
                         ),
                         child: FareResultRow(
                           row: row,
