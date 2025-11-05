@@ -12,6 +12,7 @@ class DropdownField extends StatelessWidget {
   final void Function(String?)? onSaved;
   final bool enabled;
   final TextStyle? style;
+  final TextStyle? hintStyle;
 
   const DropdownField({
     super.key,
@@ -26,10 +27,12 @@ class DropdownField extends StatelessWidget {
     this.onSaved,
     this.enabled = true,
     this.style,
+    this.hintStyle,
   });
 
   InputDecoration _decoration() => InputDecoration(
         hintText: hint,
+        hintStyle: hintStyle,
         filled: true,
         fillColor: enabled ? Colors.white : Colors.grey.shade100,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
@@ -87,16 +90,17 @@ class DropdownField extends StatelessWidget {
             ),
           ),
         ),
+        dropdownColor: Colors.white, // 드롭다운 목록 배경색 명확히 지정
         items: items
             .map(
               (e) => DropdownMenuItem(
                 value: e,
                 child: Text(
                   e,
-                  style: style ??
+                  style: style?.copyWith(color: Colors.black) ??
                       TextStyle(
                         fontSize: 14,
-                        color: isDisabled ? Colors.grey : Colors.black,
+                        color: Colors.black, // 목록은 항상 검정색으로!
                       ),
                 ),
               ),

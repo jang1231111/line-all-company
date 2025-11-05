@@ -9,28 +9,21 @@ class SelectedFareDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedFares = ref.watch(selectedFareProvider);
-    final totalPrice = selectedFares.fold<int>(
-      0,
-      (sum, fare) => sum + fare.price,
-    );
+    final totalPrice = selectedFares.fold<int>(0, (sum, fare) => sum + fare.price);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       backgroundColor: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 28),
         child: SizedBox(
-          width: 540, // 가로길이 더 넓게
+          width: 440,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 children: [
-                  const Icon(
-                    Icons.list_alt_rounded,
-                    color: Colors.indigo,
-                    size: 36,
-                  ),
+                  const Icon(Icons.list_alt_rounded, color: Colors.indigo, size: 36),
                   const SizedBox(width: 12),
                   const Text(
                     '선택된 운임 목록',
@@ -41,25 +34,28 @@ class SelectedFareDialog extends ConsumerWidget {
                       letterSpacing: 0.2,
                     ),
                   ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.grey, size: 30),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ],
               ),
               const SizedBox(height: 10),
               if (selectedFares.isNotEmpty)
                 Container(
-                  margin: const EdgeInsets.only(bottom: 5),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 18,
-                  ),
+                  margin: const EdgeInsets.only(bottom: 18),
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
                   decoration: BoxDecoration(
                     color: Colors.indigo.shade50,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     children: [
+                      const Icon(Icons.attach_money_rounded, color: Colors.indigo, size: 32),
                       const SizedBox(width: 10),
                       Text(
-                        '합계: ',
+                        '총 합계',
                         style: TextStyle(
                           fontSize: 20,
                           color: Colors.indigo.shade700,
@@ -82,18 +78,13 @@ class SelectedFareDialog extends ConsumerWidget {
                     ],
                   ),
                 ),
-              const Divider(height: 10, thickness: 2),
-              SizedBox(height: 10),
+              const Divider(height: 24, thickness: 1.4),
               if (selectedFares.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  padding: const EdgeInsets.symmetric(vertical: 48),
                   child: Column(
                     children: [
-                      Icon(
-                        Icons.inbox_rounded,
-                        color: Colors.indigo.shade100,
-                        size: 64,
-                      ),
+                      Icon(Icons.inbox_rounded, color: Colors.indigo.shade100, size: 64),
                       const SizedBox(height: 18),
                       const Text(
                         '선택된 항목이 없습니다.',
@@ -107,12 +98,11 @@ class SelectedFareDialog extends ConsumerWidget {
                   ),
                 )
               else
-                SizedBox(
-                  height: 260, // 세로길이 줄임
+                Flexible(
                   child: ListView.separated(
                     shrinkWrap: true,
                     itemCount: selectedFares.length,
-                    separatorBuilder: (_, __) => const Divider(height: 10),
+                    separatorBuilder: (_, __) => const Divider(height: 26),
                     itemBuilder: (context, idx) {
                       final fare = selectedFares[idx];
                       return Container(
@@ -120,10 +110,7 @@ class SelectedFareDialog extends ConsumerWidget {
                           color: Colors.indigo.withOpacity(0.07),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 18,
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -135,14 +122,11 @@ class SelectedFareDialog extends ConsumerWidget {
                                 color: Color(0xFF2D365C),
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 10),
                             Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: fare.type == FareType.ft20
                                         ? Colors.indigo.shade100
@@ -150,9 +134,7 @@ class SelectedFareDialog extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    fare.type == FareType.ft20
-                                        ? '20FT'
-                                        : '40FT',
+                                    fare.type == FareType.ft20 ? '20FT' : '40FT',
                                     style: TextStyle(
                                       color: fare.type == FareType.ft20
                                           ? Colors.indigo.shade900
@@ -173,62 +155,56 @@ class SelectedFareDialog extends ConsumerWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
-                            // 할증률 강조
-                            Row(
-                              children: [
-                                const SizedBox(width: 10),
-                                Text(
-                                  '할증률: ',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.2,
-                                  ),
-                                ),
-                                Text(
-                                  '${(fare.rate * 100).toStringAsFixed(1)}%',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.orange,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.2,
-                                  ),
-                                ),
-                              ],
-                            ),
                             if (fare.surchargeLabels.isNotEmpty) ...[
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 10),
                               Wrap(
                                 spacing: 8,
                                 children: fare.surchargeLabels
-                                    .map(
-                                      (label) => Chip(
-                                        label: Text(
-                                          label,
-                                          style: const TextStyle(fontSize: 14),
-                                        ),
-                                        backgroundColor: Colors.blue[50],
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
+                                    .map((label) => Chip(
+                                          label: Text(label,
+                                              style: const TextStyle(fontSize: 14)),
+                                          backgroundColor: Colors.blue[50],
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
                                           ),
-                                        ),
-                                      ),
-                                    )
+                                        ))
                                     .toList(),
                               ),
                             ],
+                            const SizedBox(height: 6),
+                            Text(
+                              '할증률: ${(fare.rate * 100).toStringAsFixed(1)}%',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ],
                         ),
                       );
                     },
                   ),
                 ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 28),
               Row(
                 children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.indigo,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () => Navigator.of(context).pop('save'),
+                      icon: const Icon(Icons.save_rounded, size: 26),
+                      label: const Text('저장'),
+                    ),
+                  ),
+                  const SizedBox(width: 18),
                   Expanded(
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
@@ -239,34 +215,11 @@ class SelectedFareDialog extends ConsumerWidget {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         elevation: 0,
-                        textStyle: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.close_rounded, size: 26),
                       label: const Text('닫기'),
-                    ),
-                  ),
-                  const SizedBox(width: 18),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.indigo,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        textStyle: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onPressed: () => Navigator.of(context).pop('save'),
-                      icon: const Icon(Icons.save_rounded, size: 26),
-                      label: const Text('저장'),
                     ),
                   ),
                 ],
