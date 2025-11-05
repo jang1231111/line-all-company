@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SearchTypeSelectorRow extends ConsumerWidget {
   final VoidCallback onRegionSearch;
@@ -18,19 +19,19 @@ class SearchTypeSelectorRow extends ConsumerWidget {
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFB4C8F7), width: 1.2),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: const Color(0xFFB4C8F7), width: 1.2.w),
           ),
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(8.w),
           child: Row(
             children: [
               // 빠른 행선지 검색 카드
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(
                     color: const Color(0xFFEAF1FF),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,18 +43,18 @@ class SearchTypeSelectorRow extends ConsumerWidget {
                             backgroundColor: const Color(0xFF1C63D6),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 10,
+                            padding: EdgeInsets.symmetric(
+                              vertical: 14.h,
+                              horizontal: 14.w,
                             ),
-                            minimumSize: const Size(0, 36),
+                            minimumSize: Size(0, 40.h),
                           ),
-                          icon: const Icon(Icons.search, size: 18),
-                          label: const Text(
+                          icon: Icon(Icons.search, size: 22.sp),
+                          label: Text(
                             '지역 검색',
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
                           ),
                           onPressed: onRegionSearch,
                         ),
@@ -64,18 +65,18 @@ class SearchTypeSelectorRow extends ConsumerWidget {
               ),
               // 세로 구분선
               Container(
-                width: 1.2,
-                height: 70,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
+                width: 1.2.w,
+                height: 70.h,
+                margin: EdgeInsets.symmetric(horizontal: 8.w),
                 color: const Color(0xFFB4C8F7),
               ),
               // 도로명 검색 카드
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(
                     color: const Color(0xFFE7F6EA),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,14 +88,14 @@ class SearchTypeSelectorRow extends ConsumerWidget {
                             backgroundColor: const Color(0xFF1BAF5D),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
                           ),
-                          icon: const Icon(Icons.location_on),
-                          label: const Text(
+                          icon: Icon(Icons.location_on, size: 22.sp),
+                          label: Text(
                             '도로명 검색',
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
                           ),
                           onPressed: onRoadNameSearch,
                         ),
