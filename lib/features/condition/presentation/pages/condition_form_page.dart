@@ -72,15 +72,22 @@ class ConditionFormPage extends ConsumerWidget {
               ],
             ),
             actions: [
+              // IconButton(
+              //   icon: const Icon(Icons.help_outline, color: Colors.white),
+              //   onPressed: () {},
+              // ),
+              // IconButton(
+              //   icon: const Icon(Icons.settings, color: Colors.white),
+              //   onPressed: () {},
+              // ),
               IconButton(
-                icon: const Icon(Icons.help_outline, color: Colors.white),
-                onPressed: () {},
+                icon: const Icon(Icons.bar_chart_rounded, color: Colors.white),
+                tooltip: '통계',
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/statistics');
+                },
               ),
-              IconButton(
-                icon: const Icon(Icons.settings, color: Colors.white),
-                onPressed: () {},
-              ),
-              SizedBox(width: 8.w),
+              SizedBox(width: 15.w),
             ],
           ),
           backgroundColor: const Color(0xFFF5F7FA),
