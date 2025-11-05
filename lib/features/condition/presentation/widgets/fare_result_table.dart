@@ -41,72 +41,103 @@ class FareResultTable extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // === 할증 정보 미니 컨테이너
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 80.w),
-              child: Material(
-                color: const Color(0xFFFFF3C2),
-                borderRadius: BorderRadius.circular(10.r),
-                child: InkWell(
-                  splashColor: Colors.orange.withOpacity(0.1),
-                  highlightColor: Colors.orange.withOpacity(0.1),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Material(
+                  color: const Color(0xFFFFF3C2),
                   borderRadius: BorderRadius.circular(10.r),
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const ConditionSurchargeDialog(),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.r),
-                      border: Border.all(color: Colors.orange.shade200),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.orange.withOpacity(0.06),
-                          blurRadius: 4.r,
-                          offset: Offset(0, 1.h),
-                        ),
-                      ],
-                    ),
-                    padding: EdgeInsets.all(1.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 4.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.warning_amber_rounded,
-                              color: Colors.orange[700],
-                              size: 32.sp,
-                            ),
-                            SizedBox(width: 10.w),
-                            Text(
-                              '할증 적용 ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.sp,
-                                color: Colors.black87,
+                  child:
+                      // SizedBox(
+                      //   width: double.infinity,
+                      //   child: ElevatedButton.icon(
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: Colors.orange.shade200,
+                      //       foregroundColor: Colors.white,
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(8.r),
+                      //       ),
+                      //       minimumSize: Size(0, 40.h),
+                      //     ),
+                      //     icon: Icon(
+                      //       Icons.warning_amber_rounded,
+                      //       color: Colors.orange.shade200,
+                      //       size: 22.sp,
+                      //     ),
+                      //     label: Text(
+                      //       '할증 적용 ${(surchargeRate * 100).toStringAsFixed(0)}%',
+                      //       style: TextStyle(
+                      //         color: Colors.black87,
+                      //         fontSize: 20.sp,
+                      //         fontWeight: FontWeight.bold,
+                      //       ),
+                      //     ),
+                      //     onPressed: () {},
+                      //   ),
+                      // ),
+                      InkWell(
+                        splashColor: Colors.orange.withOpacity(0.1),
+                        highlightColor: Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10.r),
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                const ConditionSurchargeDialog(),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.r),
+                            border: Border.all(color: Colors.orange.shade200),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.orange.withOpacity(0.06),
+                                blurRadius: 4.r,
+                                offset: Offset(0, 1.h),
                               ),
-                            ),
-                            SizedBox(width: 5.w),
-                            Text(
-                              '${(surchargeRate * 100).toStringAsFixed(0)}%',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.sp,
-                                color: Color(0xFFD18A00),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(1.w),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 4.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
+                                    color: Colors.orange[700],
+                                    size: 32.sp,
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Text(
+                                    '할증 적용 ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.sp,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  SizedBox(width: 5.w),
+                                  Text(
+                                    '${(surchargeRate * 100).toStringAsFixed(0)}%',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.sp,
+                                      color: Color(0xFFD18A00),
+                                    ),
+                                  ),
+                                  SizedBox(width: 14.w),
+                                ],
                               ),
-                            ),
-                            SizedBox(width: 14.w),
-                          ],
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
                 ),
-              ),
+              ],
             ),
             Divider(height: 24.h, thickness: 3.w, color: Color(0xFFE0E7EF)),
             if (results.isEmpty)
