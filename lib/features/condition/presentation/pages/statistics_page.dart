@@ -6,6 +6,7 @@ import 'package:line_all/features/condition/presentation/data/selected_fare_loca
 import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 import 'package:line_all/features/condition/presentation/viewmodel/selected_fare_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/condition_options.dart';
 import '../models/selected_fare.dart';
 
 class StatisticsPage extends ConsumerStatefulWidget {
@@ -357,9 +358,9 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                               ),
                                               decoration: BoxDecoration(
                                                 color:
-                                                    fare.type == FareType.ft20
-                                                    ? Colors.indigo.shade50
-                                                    : Colors.orange.shade50,
+                                                    // fare.type == FareType.ft20
+                                                    Colors.indigo.shade50,
+                                                // : Colors.orange.shade50,
                                                 borderRadius:
                                                     BorderRadius.circular(12.r),
                                               ),
@@ -373,7 +374,9 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                             .spaceBetween,
                                                     children: [
                                                       Text(
-                                                        fare.row.section,
+                                                        getSectionLabel(
+                                                          fare.row.section,
+                                                        ),
                                                         style: TextStyle(
                                                           fontSize: 20.sp,
                                                           fontWeight:
@@ -381,6 +384,24 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                           color: Colors.indigo,
                                                         ),
                                                       ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(height: 8.h),
+                                                  Text(
+                                                    '${fare.row.sido} > ${fare.row.sigungu} > ${fare.row.eupmyeondong}',
+                                                    style: TextStyle(
+                                                      fontSize: 22.sp,
+                                                      color: Colors.black87,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 8.h),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
                                                       Container(
                                                         padding:
                                                             EdgeInsets.symmetric(
@@ -395,8 +416,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                     .indigo
                                                                     .shade100
                                                               : Colors
-                                                                    .orange
-                                                                    .shade100,
+                                                                    .deepOrange[50],
                                                           borderRadius:
                                                               BorderRadius.circular(
                                                                 8.r,
@@ -423,27 +443,17 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                           ),
                                                         ),
                                                       ),
+                                                      Text(
+                                                        '할증률: ${(fare.rate * 100).toStringAsFixed(1)}%',
+                                                        style: TextStyle(
+                                                          fontSize: 18.sp,
+                                                          color:
+                                                              Colors.grey[700],
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
                                                     ],
-                                                  ),
-                                                  SizedBox(height: 8.h),
-                                                  Text(
-                                                    '${fare.row.sido} > ${fare.row.sigungu} > ${fare.row.eupmyeondong}',
-                                                    style: TextStyle(
-                                                      fontSize: 22.sp,
-                                                      color: Colors.black87,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 8.h),
-                                                  Text(
-                                                    '할증률: ${(fare.rate * 100).toStringAsFixed(1)}%',
-                                                    style: TextStyle(
-                                                      fontSize: 18.sp,
-                                                      color: Colors.grey[700],
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
                                                   ),
                                                   SizedBox(height: 12.h),
                                                   if (fare

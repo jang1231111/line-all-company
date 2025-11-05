@@ -110,3 +110,13 @@ const sidoOptions = [
 ];
 
 // 시군구, 읍면동, 법정동 등은 json에서 동적으로 파싱해서 사용 권장
+
+
+// section label 가져오기 함수
+String getSectionLabel(String value) {
+  final option = sectionOptions.firstWhere(
+    (opt) => opt.value == value,
+    orElse: () => const DropdownOption(value: '', label: '알 수 없음'),
+  );
+  return option.label;
+}

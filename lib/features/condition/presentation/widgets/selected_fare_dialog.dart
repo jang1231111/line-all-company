@@ -156,7 +156,7 @@ class SelectedFareDialog extends ConsumerWidget {
                                   decoration: BoxDecoration(
                                     color: fare.type == FareType.ft20
                                         ? Colors.indigo.shade100
-                                        : Colors.orange.shade100,
+                                        : Colors.deepOrange[50],
                                     borderRadius: BorderRadius.circular(8.r),
                                   ),
                                   child: Text(
