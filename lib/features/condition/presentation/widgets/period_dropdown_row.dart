@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_all/common/widgets/dropdown_field.dart';
 import 'package:line_all/features/condition/presentation/data/condition_options.dart';
 import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
@@ -27,10 +28,10 @@ class PeriodDropdownRow extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFB4C8F7), width: 1.2),
-        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFB4C8F7), width: 1.2.w),
+        borderRadius: BorderRadius.circular(8.r),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 14.w),
       child: Column(
         children: [
           // 기간 드롭다운
@@ -45,6 +46,8 @@ class PeriodDropdownRow extends ConsumerWidget {
             items: periodOptions.map((opt) => opt.label).toList(),
             hint: '필수 선택',
             icon: null,
+            style: TextStyle(fontSize: 20.sp),
+            hintStyle: TextStyle(fontSize: 20.sp, color: Colors.grey),
             onChanged: (v) {
               final selected = periodOptions.firstWhere(
                 (opt) => opt.label == v,
@@ -53,29 +56,7 @@ class PeriodDropdownRow extends ConsumerWidget {
               viewModel.update(condition.copyWith(period: selected.value));
             },
           ),
-          const SizedBox(height: 10),
-          // 유형 드롭다운
-          // DropdownField(
-          //   key: typeKey,
-          //   focusNode: typeFocusNode,
-          //   initialValue: typeOptions
-          //       .firstWhere(
-          //         (opt) => opt.value == condition.type,
-          //         orElse: () => typeOptions.first,
-          //       )
-          //       .label,
-          //   items: typeOptions.map((opt) => opt.label).toList(),
-          //   hint: '유형 선택',
-          //   icon: null,
-          //   onChanged: (v) {
-          //     final selected = typeOptions.firstWhere(
-          //       (opt) => opt.label == v,
-          //       orElse: () => typeOptions.first,
-          //     );
-          //     viewModel.update(condition.copyWith(type: selected.value));
-          //   },
-          // ),
-          // const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           // 구간 드롭다운
           DropdownField(
             key: sectionKey,
@@ -89,6 +70,8 @@ class PeriodDropdownRow extends ConsumerWidget {
             items: sectionOptions.map((opt) => opt.label).toList(),
             hint: '구간 선택',
             icon: null,
+            style: TextStyle(fontSize: 20.sp),
+            hintStyle: TextStyle(fontSize: 20.sp, color: Colors.grey),
             onChanged: (v) {
               final selected = sectionOptions.firstWhere(
                 (opt) => opt.label == v,
