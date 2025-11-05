@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../providers/road_name_search_provider.dart';
 
 class RoadNameSearchDialog extends ConsumerStatefulWidget {
@@ -31,12 +32,13 @@ class _RoadNameSearchDialogState extends ConsumerState<RoadNameSearchDialog> {
     final viewModel = ref.read(roadNameSearchViewModelProvider.notifier);
 
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      insetPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
+      backgroundColor: const Color(0xFFF5F7FA),
       child: SizedBox(
-        width: 520,
+        width: 520.w,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+          padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 24.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,75 +47,65 @@ class _RoadNameSearchDialogState extends ConsumerState<RoadNameSearchDialog> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.location_on, color: Colors.green[700], size: 28),
-                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.location_on,
+                    color: Colors.green[700],
+                    size: 36.sp,
+                  ),
+                  SizedBox(width: 12.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           '도로명 검색',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                            fontSize: 28.sp,
                             color: Color(0xFF1BAF5D),
                           ),
                         ),
-                        SizedBox(height: 2),
-                        Text(
-                          '도로명으로 행선지를 검색하세요',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF4CAF50),
-                          ),
-                        ),
+                        SizedBox(height: 4.h),
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.black38),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
                 ],
               ),
-              const SizedBox(height: 10),
-              const Divider(height: 1, color: Color(0xFFE0E0E0)),
-              const SizedBox(height: 18),
+              SizedBox(height: 16.h),
+              Divider(height: 1, color: Color(0xFFE0E0E0)),
+              SizedBox(height: 22.h),
               // 입력창 + 검색 버튼
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       controller: controller,
+                      style: TextStyle(fontSize: 20.sp),
                       decoration: InputDecoration(
                         hintText: '도로명, 지번, 건물명을 입력하세요',
-                        hintStyle: const TextStyle(
-                          fontSize: 15,
+                        hintStyle: TextStyle(
+                          fontSize: 20.sp,
                           color: Colors.black45,
                         ),
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
+                        contentPadding: EdgeInsets.symmetric(
                           vertical: 0,
-                          horizontal: 14,
+                          horizontal: 14.w,
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFB4C8F7),
-                          ),
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(color: Color(0xFFB4C8F7)),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFB4C8F7),
-                          ),
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(color: Color(0xFFB4C8F7)),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
+                          borderRadius: BorderRadius.circular(8.r),
+                          borderSide: BorderSide(
                             color: Color(0xFF1BAF5D),
-                            width: 1.5,
+                            width: 1.5.w,
                           ),
                         ),
                       ),
@@ -128,22 +120,22 @@ class _RoadNameSearchDialogState extends ConsumerState<RoadNameSearchDialog> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10.w),
                   SizedBox(
-                    height: 44,
+                    height: 54.h,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1BAF5D),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(8.r),
                         ),
-                        textStyle: const TextStyle(
-                          fontSize: 16,
+                        textStyle: TextStyle(
+                          fontSize: 20.sp,
                           fontWeight: FontWeight.bold,
                         ),
                         elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        padding: EdgeInsets.symmetric(horizontal: 18.w),
                       ),
                       onPressed: (state.keyword.trim().isEmpty)
                           ? null
@@ -152,87 +144,115 @@ class _RoadNameSearchDialogState extends ConsumerState<RoadNameSearchDialog> {
                               viewModel.setKeyword(value);
                               viewModel.search(value);
                             },
-                      icon: const Icon(Icons.search, size: 20),
-                      label: const Text('검색'),
+                      icon: Icon(Icons.search, size: 24.sp),
+                      label: Text('검색', style: TextStyle(fontSize: 20.sp)),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
-              // 검색 결과 영역
-              if (state.isLoading)
-                const Center(child: CircularProgressIndicator()),
-              if (!state.isLoading && state.results.isNotEmpty) ...[
-                Text(
-                  '검색 결과 (${state.totalCount}건)',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: Color(0xFF4B5B7A),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  constraints: const BoxConstraints(maxHeight: 320),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: state.results.length,
-                    separatorBuilder: (_, __) =>
-                        const Divider(height: 1, color: Color(0xFFE0E0E0)),
-                    itemBuilder: (context, idx) {
-                      final item = state.results[idx];
-                      return ListTile(
-                        leading: const Icon(
-                          Icons.location_on,
-                          color: Color(0xFF1BAF5D),
-                        ),
-                        title: Text(
-                          item.roadAddr,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        subtitle: Text(
-                          '${item.jibunAddr} ${item.bdNm}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.black54,
-                          ),
-                        ),
-                        onTap: () {
-                          // 선택 시 처리
-                          Navigator.of(context).pop(item);
-                        },
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 2,
-                          horizontal: 0,
-                        ),
-                        dense: true,
-                        minLeadingWidth: 28,
-                      );
-                    },
-                  ),
-                ),
-              ],
-              if (!state.isLoading && state.results.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: Text(
-                      '검색 결과가 없습니다.',
-                      style: TextStyle(color: Colors.grey, fontSize: 15),
+              SizedBox(height: 22.h),
+              // 검색 결과 컨테이너
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14.r),
+                  border: Border.all(color: Color(0xFFB4C8F7), width: 1.2.w),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withOpacity(0.06),
+                      blurRadius: 8.r,
+                      offset: Offset(0, 2.h),
                     ),
-                  ),
+                  ],
                 ),
-              if (state.error != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(
-                    state.error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
+                padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
+                child: Builder(
+                  builder: (_) {
+                    if (state.isLoading) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (!state.isLoading && state.results.isNotEmpty) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '검색 결과 (${state.totalCount}건)',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.sp,
+                              color: Color(0xFF4B5B7A),
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Container(
+                            constraints: BoxConstraints(maxHeight: 320.h),
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: state.results.length,
+                              separatorBuilder: (_, __) =>
+                                  Divider(height: 1, color: Color(0xFFE0E0E0)),
+                              itemBuilder: (context, idx) {
+                                final item = state.results[idx];
+                                return ListTile(
+                                  leading: Icon(
+                                    Icons.location_on,
+                                    color: Color(0xFF1BAF5D),
+                                    size: 28.sp,
+                                  ),
+                                  title: Text(
+                                    item.roadAddr,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20.sp,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    '${item.jibunAddr} ${item.bdNm}',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.of(context).pop(item);
+                                  },
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 2.h,
+                                    horizontal: 0,
+                                  ),
+                                  dense: true,
+                                  minLeadingWidth: 28.w,
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    if (!state.isLoading && state.results.isEmpty) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24.h),
+                        child: Center(
+                          child: Text(
+                            '검색 결과가 없습니다.',
+                            style: TextStyle(color: Colors.grey, fontSize: 18.sp),
+                          ),
+                        ),
+                      );
+                    }
+                    if (state.error != null) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        child: Text(
+                          state.error!,
+                          style: TextStyle(color: Colors.red, fontSize: 18.sp),
+                        ),
+                      );
+                    }
+                    return SizedBox.shrink();
+                  },
                 ),
+              ),
             ],
           ),
         ),

@@ -275,8 +275,8 @@ class RegionSelectors extends ConsumerWidget {
             SizedBox(height: 12.h),
             if (!isSidoSelected)
               Text(
-                '시도를 먼저 선택하세요.',
-                style: TextStyle(color: Colors.red, fontSize: 18.sp),
+                '시도를 선택하면 시군구을 선택할 수 있습니다.',
+                style: TextStyle(color: Colors.indigo, fontSize: 18.sp),
               )
             else if (!isSigunguSelected)
               Text(
