@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // 반응형 패키지 추가
 import 'package:line_all/features/condition/domain/models/road_name_address.dart';
 import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
-import 'package:line_all/features/condition/presentation/viewmodel/condition_viewmodel.dart';
-import 'package:line_all/features/condition/presentation/widgets/header.dart';
 import 'package:line_all/features/condition/presentation/widgets/period_dropdown_row.dart';
 import 'package:line_all/features/condition/presentation/widgets/region_selectors_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/road_name_search_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/search_type_selector_row.dart';
-
-import '../../domain/models/condition.dart';
 
 class ConditionFormWidget extends ConsumerStatefulWidget {
   const ConditionFormWidget({super.key});
@@ -25,18 +22,12 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
   final _typeFocusNode = FocusNode();
   final _sectionFocusNode = FocusNode();
 
-  // 각 입력란의 GlobalKey
   final _periodKey = GlobalKey();
   final _typeKey = GlobalKey();
   final _sectionKey = GlobalKey();
 
   bool _periodError = false;
   bool _sectionError = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -46,7 +37,6 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
     super.dispose();
   }
 
-  // 스크롤 및 포커스 + 메시지
   Future<void> _focusAndScroll(
     GlobalKey key,
     FocusNode focusNode,
@@ -57,11 +47,13 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
       key.currentContext!,
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
-      alignment: 0.2, // 위에서 약간 띄워서 보이게
+      alignment: 0.2,
     );
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(fontSize: 18.sp)),
+      ),
+    );
   }
 
   void _validateAndHandleSearchType(Function onValid) async {
@@ -89,7 +81,7 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1100),
+        constraints: BoxConstraints(maxWidth: 1100.w),
         child: Form(
           key: _formKey,
           child: Column(
@@ -99,30 +91,31 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFFF6FAFF),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: Colors.blue.shade100, width: 1.2),
+                  borderRadius: BorderRadius.circular(18.r),
+                  border: Border.all(color: Colors.blue.shade100, width: 1.2.w),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.blueGrey.withOpacity(0.06),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      blurRadius: 12.r,
+                      offset: Offset(0, 4.h),
                     ),
                   ],
                 ),
                 margin: EdgeInsets.zero,
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10.w),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Header(
-                      title: '운임 계산 조건 설정',
-                      leadingIcon: Icons.receipt_long,
-                      onReset: () {
-                        viewModel.update(Condition());
-                      },
-                    ),
-                    const SizedBox(height: 14),
+                    // Header(
+                    //   title: '운임 계산 조건 설정',
+                    //   leadingIcon: Icons.receipt_long,
+                    //   onReset: () {
+                    //     viewModel.update(Condition());
+                    //   },
+                    //   titleStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold), // 제목 크게
+                    // ),
+                    SizedBox(height: 14.h),
                     // Period
                     PeriodDropdownRow(
                       key: _periodKey,
@@ -132,11 +125,10 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       typeKey: _typeKey,
                       sectionKey: _sectionKey,
                     ),
-                    const SizedBox(height: 5),
+                    SizedBox(height: 10.h),
                     SearchTypeSelectorRow(
                       onRegionSearch: () {
                         _validateAndHandleSearchType(() {
-                          // 지역 검색 다이얼로그 띄우기
                           showDialog(
                             context: context,
                             builder: (context) => const RegionSelectorsDialog(),
@@ -145,7 +137,6 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       },
                       onRoadNameSearch: () {
                         _validateAndHandleSearchType(() async {
-                          // 도로명 검색 다이얼로그 띄우기
                           RoadNameAddress? result = await showDialog(
                             context: context,
                             builder: (context) => const RoadNameSearchDialog(),
@@ -156,33 +147,7 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                         });
                       },
                     ),
-                    // const SizedBox(height: 10),
-                    // const RegionSelectors(),
-                    const SizedBox(height: 18),
-                    // 검색 버튼 추가
-                    // SizedBox(
-                    //   width: double.infinity,
-                    //   child: ElevatedButton.icon(
-                    //     style: ElevatedButton.styleFrom(
-                    //       backgroundColor: const Color(0xFF154E9C),
-                    //       foregroundColor: Colors.white,
-                    //       padding: const EdgeInsets.symmetric(vertical: 16),
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.circular(8),
-                    //       ),
-                    //       textStyle: const TextStyle(
-                    //         fontWeight: FontWeight.bold,
-                    //         fontSize: 16,
-                    //       ),
-                    //       elevation: 0,
-                    //     ),
-                    //     onPressed: () async {
-                    //       // await viewModel.searchByRegion();
-                    //     },
-                    //     icon: const Icon(Icons.search),
-                    //     label: const Text('검색'),
-                    //   ),
-                    // ),
+                    SizedBox(height: 10.h),
                   ],
                 ),
               ),

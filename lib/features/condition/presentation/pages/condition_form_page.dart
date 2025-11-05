@@ -72,14 +72,6 @@ class ConditionFormPage extends ConsumerWidget {
               ],
             ),
             actions: [
-              // IconButton(
-              //   icon: const Icon(Icons.help_outline, color: Colors.white),
-              //   onPressed: () {},
-              // ),
-              // IconButton(
-              //   icon: const Icon(Icons.settings, color: Colors.white),
-              //   onPressed: () {},
-              // ),
               IconButton(
                 icon: const Icon(Icons.bar_chart_rounded, color: Colors.white),
                 tooltip: '통계',
@@ -98,7 +90,7 @@ class ConditionFormPage extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(child: ConditionFormWidget()),
-                    SizedBox(width: 16),
+                    SizedBox(width: 16.w),
                     Expanded(child: FareResultTable()),
                   ],
                 );
@@ -106,12 +98,17 @@ class ConditionFormPage extends ConsumerWidget {
                 return Column(
                   children: [
                     Expanded(
+                      flex: 9,
                       child: ListView(
                         padding: EdgeInsets.all(3.w),
-                        children: [ConditionFormWidget(), SizedBox(height: 12)],
+                        children: [
+                          ConditionFormWidget(),
+                          SizedBox(height: 10.h),
+                        ],
                       ),
                     ),
                     Expanded(
+                      flex: 12,
                       child: Padding(
                         padding: EdgeInsets.all(3.w),
                         child: FareResultTable(),
