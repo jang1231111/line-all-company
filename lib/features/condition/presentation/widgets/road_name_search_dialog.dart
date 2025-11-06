@@ -82,7 +82,7 @@ class _RoadNameSearchDialogState extends ConsumerState<RoadNameSearchDialog> {
                       controller: controller,
                       style: TextStyle(fontSize: 20.sp),
                       decoration: InputDecoration(
-                        hintText: '도로명, 지번, 건물명을 입력하세요',
+                        hintText: '도로명 입력',
                         hintStyle: TextStyle(
                           fontSize: 20.sp,
                           color: Colors.black45,

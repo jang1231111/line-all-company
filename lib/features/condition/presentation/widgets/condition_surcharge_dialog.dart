@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_all/features/condition/presentation/data/surcharge_calculator.dart';
 
 import '../providers/condition_provider.dart';
-import '../data/surcharge_options.dart'; // 드롭다운/체크박스 옵션
+import '../data/surcharge_options.dart';
 
 class ConditionSurchargeDialog extends ConsumerStatefulWidget {
   const ConditionSurchargeDialog({super.key});
@@ -37,7 +38,6 @@ class _ConditionSurchargeDialogState
     final condition = ref.read(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
 
-    // 할증률 계산
     final surchargeResult = calculateSurcharge(
       selectedCheckboxIds: surcharges,
       dangerType: dangerType,
@@ -47,141 +47,152 @@ class _ConditionSurchargeDialogState
     );
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      insetPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
       backgroundColor: const Color(0xFFFFF6E0),
-      child: Padding(
-        padding: const EdgeInsets.all(22),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 상단 요약 (아이콘 + 할증 적용 + 퍼센트)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 상단 요약 (아이콘 + 할증 적용 + 퍼센트)
+            Padding(
+              padding: EdgeInsets.only(top: 24.h, left: 24.w, right: 24.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF3C2),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(14.r),
+                      border: Border.all(color: Colors.orange.shade200),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 18.w,
+                      vertical: 12.h,
                     ),
                     child: Row(
                       children: [
                         Icon(
                           Icons.warning_amber_rounded,
                           color: Colors.orange[700],
-                          size: 22,
+                          size: 28.sp,
                         ),
-                        const SizedBox(width: 6),
-                        const Text(
+                        SizedBox(width: 10.w),
+                        Text(
                           '할증 적용',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Color(0xFF232323),
+                            fontSize: 24.sp,
+                            color: const Color(0xFF232323),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 12.w),
                         Text(
                           surchargeResult != null
                               ? '${(surchargeResult.rate * 100).toStringAsFixed(2)}%'
                               : '0.00%',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Color(0xFFD18A00),
+                            fontSize: 22.sp,
+                            color: const Color(0xFFD18A00),
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                  // header.dart 스타일의 초기화 버튼
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.orange.shade200),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.orange.withOpacity(0.06),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: () {
-                          viewModel.update(
-                            condition.copyWith(
-                              surcharges: [],
-                              dangerType: '',
-                              weightType: '',
-                              specialType: '',
-                              cancellationFee: '',
-                            ),
-                          );
-                          viewModel.updateSurcharge();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.refresh,
-                                size: 18,
-                                color: Colors.orange[700],
-                              ),
-                              const SizedBox(width: 4),
-                              const Text(
-                                '초기화',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFFD18A00),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
+            ),
+            SizedBox(height: 10.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.r),
+                    border: Border.all(color: Colors.orange.shade200),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orange.withOpacity(0.06),
+                        blurRadius: 6.r,
+                        offset: Offset(0, 2.h),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10.r),
+                      onTap: () {
+                        setState(() {
+                          surcharges = [];
+                          dangerType = '';
+                          weightType = '';
+                          specialType = '';
+                          cancellationFee = '';
+                        });
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 14.w,
+                          vertical: 8.h,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.refresh,
+                              size: 22.sp,
+                              color: Colors.orange[700],
+                            ),
+                            SizedBox(width: 6.w),
+                            Text(
+                              '초기화',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                color: const Color(0xFFD18A00),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10.w),
+              ],
+            ),
+            Divider(
+              color: Colors.orange.shade200,
+              thickness: 1.5.h,
+              height: 32.h,
+            ),
 
-              // 체크박스 리스트
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 340), // 높이 넉넉히 조정
-                child: SingleChildScrollView(
+            // 체크박스 리스트
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 280.h),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.w, horizontal: 8.w),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // 체크박스 리스트
                       ...surchargeCheckboxOptions.map((opt) {
-                        if (opt.isDivider) return const Divider();
+                        if (opt.isDivider) return Divider();
                         final checked = surcharges.contains(opt.id);
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          margin: EdgeInsets.only(bottom: 12.h),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w),
                           decoration: BoxDecoration(
                             color: checked ? Colors.orange[50] : Colors.white,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(10.r),
                             border: Border.all(
                               color: checked
                                   ? Colors.orange
                                   : Colors.orange.shade100,
-                              width: checked ? 1.5 : 1,
+                              width: checked ? 2 : 1,
                             ),
                           ),
                           child: CheckboxListTile(
@@ -189,7 +200,7 @@ class _ConditionSurchargeDialogState
                             title: Text(
                               opt.label,
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 18.sp,
                                 color: checked
                                     ? Colors.orange[800]
                                     : Colors.black87,
@@ -213,58 +224,16 @@ class _ConditionSurchargeDialogState
                           ),
                         );
                       }),
-
-                      // const SizedBox(height: 10),
-
-                      // 드롭다운 4개 (세로 배치)
-                      // Text(
-                      //   '위험물 종류',
-                      //   style: TextStyle(
-                      //     fontSize: 13,
-                      //     color: Colors.orange[800],
-                      //     fontWeight: FontWeight.bold,
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 4),
-                      // DropdownButtonFormField<String>(
-                      //   isExpanded: true,
-                      //   value: dangerType ?? '',
-                      //   decoration: fieldDecoration(
-                      //     context,
-                      //     hint: '위험물 종류',
-                      //     icon: Icons.warning_amber_rounded,
-                      //     fillColor: (dangerType != null && dangerType != '')
-                      //         ? const Color(0xFFFFF9C4) // 연한 오렌지
-                      //         : Colors.white,
-                      //     borderColor: Colors.orange.shade100,
-                      //   ),
-                      //   items: dangerTypeOptions
-                      //       .map(
-                      //         (e) => DropdownMenuItem(
-                      //           value: e.value,
-                      //           child: Text(
-                      //             e.label,
-                      //             style: const TextStyle(fontSize: 13),
-                      //           ),
-                      //         ),
-                      //       )
-                      //       .toList(),
-                      //   onChanged: (v) {
-                      //     setState(() {
-                      //       dangerType = v;
-                      //     });
-                      //   },
-                      // ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 18.h),
                       Text(
                         '중량물 할증',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 17.sp,
                           color: Colors.orange[800],
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 6.h),
                       DropdownButtonFormField<String>(
                         isExpanded: true,
                         value: weightType ?? '',
@@ -283,7 +252,7 @@ class _ConditionSurchargeDialogState
                                 value: e.value,
                                 child: Text(
                                   e.label,
-                                  style: const TextStyle(fontSize: 13),
+                                  style: TextStyle(fontSize: 16.sp),
                                 ),
                               ),
                             )
@@ -294,55 +263,16 @@ class _ConditionSurchargeDialogState
                           });
                         },
                       ),
-                      // const SizedBox(height: 12),
-                      // Text(
-                      //   '활대품 할증',
-                      //   style: TextStyle(
-                      //     fontSize: 13,
-                      //     color: Colors.orange[800],
-                      //     fontWeight: FontWeight.bold,
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 4),
-                      // DropdownButtonFormField<String>(
-                      //   isExpanded: true,
-                      //   value: specialType ?? '',
-                      //   decoration: fieldDecoration(
-                      //     context,
-                      //     hint: '활대품 할증',
-                      //     icon: Icons.extension,
-                      //     fillColor: (specialType != null && specialType != '')
-                      //         ? const Color(0xFFFFF9C4)
-                      //         : Colors.white,
-                      //     borderColor: Colors.orange.shade100,
-                      //   ),
-                      //   items: specialTypeOptions
-                      //       .map(
-                      //         (e) => DropdownMenuItem(
-                      //           value: e.value,
-                      //           child: Text(
-                      //             e.label,
-                      //             style: const TextStyle(fontSize: 13),
-                      //           ),
-                      //         ),
-                      //       )
-                      //       .toList(),
-                      //   onChanged: (v) {
-                      //     setState(() {
-                      //       specialType = v;
-                      //     });
-                      //   },
-                      // ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 18.h),
                       Text(
                         '배차 취소료',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 17.sp,
                           color: const Color.fromARGB(255, 109, 120, 166),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 6.h),
                       DropdownButtonFormField<String>(
                         isExpanded: true,
                         value: cancellationFee ?? '',
@@ -362,7 +292,7 @@ class _ConditionSurchargeDialogState
                                 value: e.value,
                                 child: Text(
                                   e.label,
-                                  style: const TextStyle(fontSize: 13),
+                                  style: TextStyle(fontSize: 16.sp),
                                 ),
                               ),
                             )
@@ -377,205 +307,230 @@ class _ConditionSurchargeDialogState
                   ),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 18),
-              // 할증 적용 버튼
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange[700],
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: () {
-                    // 할증 적용 확인 다이얼로그
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => Dialog(
+            SizedBox(height: 10.h),
+            Padding(
+              padding: EdgeInsets.only(left: 8.w, right: 8.w, bottom: 8.h),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey.shade200,
+                        foregroundColor: Colors.black87,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(8.r),
                         ),
-                        backgroundColor: const Color(0xFFFFF6E0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(28),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                        padding: EdgeInsets.symmetric(vertical: 18.h),
+                        elevation: 0,
+                        textStyle: TextStyle(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      icon: Icon(Icons.close_rounded, size: 24.sp),
+                      label: Text('닫기', style: TextStyle(fontSize: 20.sp)),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                  SizedBox(width: 18.w),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[700],
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 20.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        textStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.r),
+                            ),
+                            backgroundColor: const Color(0xFFFFF6E0),
+                            child: Padding(
+                              padding: EdgeInsets.all(32.w),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.warning_amber_rounded,
-                                    color: Colors.orange[700],
-                                    size: 22,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const Text(
-                                    '할증을 적용하시겠습니까?',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      color: Color(0xFF7A4B00),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 18),
-                              if (surchargeResult == null ||
-                                  surchargeResult.labels.isEmpty)
-                                const Text(
-                                  '선택된 할증이 없습니다.',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              if (surchargeResult != null &&
-                                  surchargeResult.labels.isNotEmpty) ...[
-                                ...surchargeResult.labels.map(
-                                  (e) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 6,
-                                      horizontal: 8,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.check_circle,
-                                          color: Colors.orange,
-                                          size: 18,
+                                  Row(
+                                    children: [
+                                      SizedBox(width: 12.w),
+                                      Text(
+                                        '할증을 적용하시겠습니까?',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 22.sp,
+                                          color: Color(0xFF7A4B00),
                                         ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            e,
-                                            style: const TextStyle(
-                                              fontSize: 15,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 22.h),
+                                  if (surchargeResult == null ||
+                                      surchargeResult.labels.isEmpty)
+                                    Text(
+                                      '선택된 할증이 없습니다.',
+                                      style: TextStyle(
+                                        fontSize: 18.sp,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  if (surchargeResult != null &&
+                                      surchargeResult.labels.isNotEmpty) ...[
+                                    ...surchargeResult.labels.map(
+                                      (e) => Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 8.h,
+                                          horizontal: 10.w,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.check_circle,
+                                              color: Colors.orange,
+                                              size: 22.sp,
                                             ),
+                                            SizedBox(width: 10.w),
+                                            Expanded(
+                                              child: Text(
+                                                e,
+                                                style: TextStyle(
+                                                  fontSize: 18.sp,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 22.h),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          '할증: ',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 18.sp,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${(surchargeResult.rate * 100).toStringAsFixed(2)}%',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFFD18A00),
+                                            fontSize: 22.sp,
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ),
-                                const SizedBox(height: 18),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      '할증: ',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${(surchargeResult.rate * 100).toStringAsFixed(2)}%',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFFD18A00),
-                                        fontSize: 18,
-                                      ),
-                                    ),
                                   ],
-                                ),
-                              ],
-                              const SizedBox(height: 28),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton(
-                                      style: OutlinedButton.styleFrom(
-                                        foregroundColor: Colors.orange[700],
-                                        side: BorderSide(
-                                          color: Colors.orange[700]!,
-                                          width: 2,
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 16,
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                  SizedBox(height: 32.h),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton(
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: Colors.orange[700],
+                                            side: BorderSide(
+                                              color: Colors.orange[700]!,
+                                              width: 2,
+                                            ),
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: 18.h,
+                                            ),
+                                            textStyle: TextStyle(
+                                              fontSize: 18.sp,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.r),
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text(
+                                            '취소',
+                                            style: TextStyle(fontSize: 18.sp),
                                           ),
                                         ),
                                       ),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('취소'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.orange[700],
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 16,
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                      SizedBox(width: 20.w),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.orange[700],
+                                            foregroundColor: Colors.white,
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: 18.h,
+                                            ),
+                                            textStyle: TextStyle(
+                                              fontSize: 18.sp,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.r),
+                                            ),
+                                            elevation: 0,
                                           ),
-                                        ),
-                                        elevation: 0,
-                                      ),
-                                      onPressed: () async {
-                                        // 여기서만 실제 저장!
-                                        viewModel.update(
-                                          condition.copyWith(
-                                            surcharges: surcharges,
-                                            dangerType: dangerType,
-                                            weightType: weightType,
-                                            specialType: specialType,
-                                            cancellationFee: cancellationFee,
-                                          ),
-                                        );
-                                        viewModel.updateSurcharge();
+                                          onPressed: () async {
+                                            viewModel.update(
+                                              condition.copyWith(
+                                                surcharges: surcharges,
+                                                dangerType: dangerType,
+                                                weightType: weightType,
+                                                specialType: specialType,
+                                                cancellationFee:
+                                                    cancellationFee,
+                                              ),
+                                            );
+                                            viewModel.updateSurcharge();
 
-                                        Navigator.of(
-                                          context,
-                                        ).pop(); // 확인 다이얼로그 닫기
-                                        Navigator.of(
-                                          context,
-                                        ).pop(); // 할증 다이얼로그 닫기
-                                      },
-                                      child: const Text('적용'),
-                                    ),
+                                            Navigator.of(
+                                              context,
+                                            ).pop(); // 확인 다이얼로그 닫기
+                                            Navigator.of(
+                                              context,
+                                            ).pop(); // 할증 다이얼로그 닫기
+                                          },
+                                          child: Text(
+                                            '적용',
+                                            style: TextStyle(fontSize: 18.sp),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('할증 적용'),
-                ),
+                        );
+                      },
+                      child: Text('할증 적용', style: TextStyle(fontSize: 20.sp)),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -594,22 +549,22 @@ InputDecoration fieldDecoration(
     hintText: hint,
     filled: true,
     fillColor: fillColor ?? Colors.white,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+    contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 18.h),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(10.r),
       borderSide: BorderSide(color: borderColor ?? Colors.blue.shade100),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(10.r),
       borderSide: BorderSide(color: borderColor ?? Colors.blue.shade100),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(10.r),
       borderSide: BorderSide(
         color: borderColor ?? Colors.blue.shade300,
-        width: 1.5,
+        width: 2,
       ),
     ),
-    prefixIcon: icon != null ? Icon(icon, size: 18) : null,
+    prefixIcon: icon != null ? Icon(icon, size: 22.sp) : null,
   );
 }
