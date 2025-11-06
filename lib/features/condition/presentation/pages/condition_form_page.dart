@@ -94,38 +94,38 @@ class ConditionFormPage extends ConsumerWidget {
           backgroundColor: const Color(0xFFF5F7FA),
           body: LayoutBuilder(
             builder: (context, constraints) {
-              if (constraints.maxWidth > 720.w) {
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: ConditionFormWidget()),
-                    SizedBox(width: 16.w),
-                    Expanded(child: FareResultTable()),
-                  ],
-                );
-              } else {
-                return Column(
-                  children: [
-                    Expanded(
-                      flex: 9,
-                      child: ListView(
-                        padding: EdgeInsets.all(3.w),
-                        children: [
-                          ConditionFormWidget(),
-                          SizedBox(height: 10.h),
-                        ],
-                      ),
+              // if (constraints.maxWidth > 720.w) {
+              //   return Row(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       Expanded(child: ConditionFormWidget()),
+              //       SizedBox(width: 16.w),
+              //       Expanded(child: FareResultTable()),
+              //     ],
+              //   );
+              // } else {
+              return Column(
+                children: [
+                  Expanded(
+                    flex: 9,
+                    child: ListView(
+                      padding: EdgeInsets.all(3.w),
+                      children: [
+                        ConditionFormWidget(),
+                        SizedBox(height: 10.h),
+                      ],
                     ),
-                    Expanded(
-                      flex: 12,
-                      child: Padding(
-                        padding: EdgeInsets.all(3.w),
-                        child: FareResultTable(),
-                      ),
+                  ),
+                  Expanded(
+                    flex: 12,
+                    child: Padding(
+                      padding: EdgeInsets.all(3.w),
+                      child: FareResultTable(),
                     ),
-                  ],
-                );
-              }
+                  ),
+                ],
+              );
+              // }
             },
           ),
           bottomNavigationBar: SelectedFareBottomBar(),
