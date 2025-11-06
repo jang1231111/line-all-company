@@ -44,7 +44,7 @@ class ConditionFormPage extends ConsumerWidget {
                 Container(
                   padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
+                    // color: Colors.white.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: const Icon(Icons.local_shipping, color: Colors.white),
@@ -72,12 +72,21 @@ class ConditionFormPage extends ConsumerWidget {
               ],
             ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.bar_chart_rounded, color: Colors.white),
-                tooltip: '통계',
-                onPressed: () {
+              InkWell(
+                onTap: () {
                   Navigator.of(context).pushNamed('/statistics');
                 },
+                child: Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: const Icon(
+                    Icons.bar_chart_rounded,
+                    color: Colors.white,
+                  ),
+                ),
               ),
               SizedBox(width: 15.w),
             ],
