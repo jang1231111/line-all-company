@@ -1,4 +1,4 @@
-package com.example.line_all
+package com.optilo.line_all
 
 import io.flutter.embedding.android.FlutterActivity
 
