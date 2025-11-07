@@ -17,117 +17,119 @@ class RegionSelectorsDialog extends ConsumerWidget {
     final viewModel = ref.read(conditionViewModelProvider.notifier);
 
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       backgroundColor: const Color(0xFFF5F7FA),
       child: SizedBox(
-        width: 520.w, // 반응형 너비
+        width: 520.w,
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 24.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 상단 제목/설명/닫기
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.map_rounded,
-                    color: Colors.indigo[700],
-                    size: 36.sp,
+          padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 24.w),
+          child: SingleChildScrollView( // 추가!
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 상단 제목/설명/닫기디
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.map_rounded,
+                      color: Colors.indigo[700],
+                      size: 36.sp,
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '지역 검색',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 28.sp, // 폰트 크게 + 반응형
+                              color: Color(0xFF1C63D6),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // IconButton(
+                    //   icon: Icon(Icons.close, color: Colors.black38, size: 28.sp),
+                    //   onPressed: () => Navigator.of(context).pop(),
+                    // ),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+                Divider(height: 1, color: Color(0xFFE0E0E0)),
+                SizedBox(height: 22.h),
+                // 지역 선택자
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.indigo.withOpacity(0.06),
+                        blurRadius: 8.r,
+                        offset: Offset(0, 2.h),
+                      ),
+                    ],
+                    border: Border.all(color: Colors.indigo.shade50),
                   ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '지역 검색',
-                          style: TextStyle(
+                  padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 18.w),
+                  child: const RegionSelectors(),
+                ),
+                SizedBox(height: 28.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey.shade200,
+                          foregroundColor: Colors.black87,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 18.h),
+                          elevation: 0,
+                          textStyle: TextStyle(
+                            fontSize: 20.sp,
                             fontWeight: FontWeight.bold,
-                            fontSize: 28.sp, // 폰트 크게 + 반응형
-                            color: Color(0xFF1C63D6),
                           ),
                         ),
-                      ],
+                        icon: Icon(Icons.close_rounded, size: 24.sp),
+                        label: Text('닫기', style: TextStyle(fontSize: 20.sp)),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
                     ),
-                  ),
-                  // IconButton(
-                  //   icon: Icon(Icons.close, color: Colors.black38, size: 28.sp),
-                  //   onPressed: () => Navigator.of(context).pop(),
-                  // ),
-                ],
-              ),
-              SizedBox(height: 16.h),
-              Divider(height: 1, color: Color(0xFFE0E0E0)),
-              SizedBox(height: 22.h),
-              // 지역 선택자
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.indigo.withOpacity(0.06),
-                      blurRadius: 8.r,
-                      offset: Offset(0, 2.h),
+                    SizedBox(width: 18.w),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.indigo,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 18.h),
+                          textStyle: TextStyle(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        icon: Icon(Icons.search_rounded, size: 24.sp),
+                        label: Text('검색', style: TextStyle(fontSize: 20.sp)),
+                        onPressed: () async {
+                          Navigator.of(context).pop('search');
+                          await viewModel.searchByRegion();
+                        },
+                      ),
                     ),
                   ],
-                  border: Border.all(color: Colors.indigo.shade50),
                 ),
-                padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 18.w),
-                child: const RegionSelectors(),
-              ),
-              SizedBox(height: 28.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade200,
-                        foregroundColor: Colors.black87,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 18.h),
-                        elevation: 0,
-                        textStyle: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      icon: Icon(Icons.close_rounded, size: 24.sp),
-                      label: Text('닫기', style: TextStyle(fontSize: 20.sp)),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                  SizedBox(width: 18.w),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.indigo,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 18.h),
-                        textStyle: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      icon: Icon(Icons.search_rounded, size: 24.sp),
-                      label: Text('검색', style: TextStyle(fontSize: 20.sp)),
-                      onPressed: () async {
-                        Navigator.of(context).pop('search');
-                        await viewModel.searchByRegion();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
