@@ -120,8 +120,8 @@ class RegionSelectorsDialog extends ConsumerWidget {
                       icon: Icon(Icons.search_rounded, size: 24.sp),
                       label: Text('검색', style: TextStyle(fontSize: 20.sp)),
                       onPressed: () async {
-                        await viewModel.searchByRegion();
                         Navigator.of(context).pop('search');
+                        await viewModel.searchByRegion();
                       },
                     ),
                   ),

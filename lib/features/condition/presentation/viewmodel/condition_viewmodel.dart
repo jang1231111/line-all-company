@@ -18,6 +18,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
   }
 
   Future<void> searchByRegion() async {
+    _ref.read(fareResultViewModelProvider.notifier).setLoading();
     final results = await _repository.searchByRegion(
       period: state.period,
       section: state.section,
@@ -46,6 +47,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
     String? eupmyeondong;
     List<FareResult> results;
 
+    _ref.read(fareResultViewModelProvider.notifier).setLoading();
     // hemdNm non-null
     if (address.hemdNm != null) {
       // 읍면동 값 추출
