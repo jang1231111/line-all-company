@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:line_all/features/condition/domain/models/fare_result.dart';
-import 'package:line_all/features/condition/presentation/data/selected_fare_local_data_source.dart';
 import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
-import 'package:line_all/features/condition/presentation/viewmodel/selected_fare_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/condition_options.dart';
 import '../models/selected_fare.dart';
@@ -226,17 +223,18 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                 children: [
                   Padding(
                     padding: EdgeInsets.only(right: 18.w, top: 8.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '이 달의 운임 합계',
+                          '이 달의 운임 합계:',
                           style: TextStyle(
                             fontSize: 15.sp,
                             // fontWeight: FontWeight.bold,
                             color: Colors.black54,
                           ),
                         ),
+                        SizedBox(width: 10.w),
                         Text(
                           '${NumberFormat('#,###').format(getMonthTotal(grouped[months[_currentPage]]!))}원',
                           style: TextStyle(
@@ -270,7 +268,6 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                       ),
                       child: Column(
                         children: [
-                          SizedBox(height: 24.h),
                           Expanded(
                             child: Container(
                               margin: EdgeInsets.symmetric(
@@ -387,21 +384,20 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                     ],
                                                   ),
                                                   SizedBox(height: 8.h),
-                                                  Text(
-                                                    '${fare.row.sido} > ${fare.row.sigungu} > ${fare.row.eupmyeondong}',
-                                                    style: TextStyle(
-                                                      fontSize: 22.sp,
-                                                      color: Colors.black87,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 8.h),
                                                   Row(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
                                                             .spaceBetween,
                                                     children: [
+                                                      Text(
+                                                        '${fare.row.sido}>${fare.row.sigungu}>${fare.row.eupmyeondong}',
+                                                        style: TextStyle(
+                                                          fontSize: 18.sp,
+                                                          color: Colors.black87,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
                                                       Container(
                                                         padding:
                                                             EdgeInsets.symmetric(
@@ -443,6 +439,14 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                           ),
                                                         ),
                                                       ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(height: 8.h),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
                                                       Text(
                                                         '할증률: ${(fare.rate * 100).toStringAsFixed(1)}%',
                                                         style: TextStyle(
@@ -451,6 +455,15 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                               Colors.grey[700],
                                                           fontWeight:
                                                               FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        '운임비: ${NumberFormat('#,###').format(fare.price)}원',
+                                                        style: TextStyle(
+                                                          fontSize: 20.sp,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.black87,
                                                         ),
                                                       ),
                                                     ],
@@ -486,21 +499,6 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                           )
                                                           .toList(),
                                                     ),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.end,
-                                                    children: [
-                                                      Text(
-                                                        '운임비: ${NumberFormat('#,###').format(fare.price)}원',
-                                                        style: TextStyle(
-                                                          fontSize: 20.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.black87,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
                                                 ],
                                               ),
                                             ),
