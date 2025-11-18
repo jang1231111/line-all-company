@@ -10,7 +10,14 @@ import '../providers/fare_result_provider.dart';
 import '../providers/condition_provider.dart';
 
 class FareResultTable extends ConsumerWidget {
-  const FareResultTable({super.key});
+  final GlobalKey? surchargeTargetKey;
+  final GlobalKey? resultsTargetKey;
+
+  const FareResultTable({
+    super.key,
+    this.surchargeTargetKey,
+    this.resultsTargetKey,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,12 +53,6 @@ class FareResultTable extends ConsumerWidget {
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.indigo),
               ),
-              // Lottie.asset(
-              //   'lib/assets/loading.json',
-              //   width: 120.w,
-              //   height: 120.h,
-              //   fit: BoxFit.contain,
-              // ),
             ),
           ),
           error: (err, stack) => Center(
@@ -64,11 +65,12 @@ class FareResultTable extends ConsumerWidget {
           data: (results) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // === 할증 정보 미니 컨테이너
+              // 할증 정보 박스에 키 추가
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Material(
+                    key: surchargeTargetKey, // <-- key 전달
                     color: const Color(0xFFFFF3C2),
                     borderRadius: BorderRadius.circular(10.r),
                     child: InkWell(
@@ -137,6 +139,7 @@ class FareResultTable extends ConsumerWidget {
               ),
               Divider(height: 24.h, thickness: 3.w, color: Color(0xFFE0E7EF)),
               if (results.isEmpty)
+                // ...empty UI...
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: 10.w,
@@ -144,6 +147,7 @@ class FareResultTable extends ConsumerWidget {
                   ),
                   child: Center(
                     child: Container(
+                      key: resultsTargetKey, // <-- 전체 결과 영역 키
                       width: double.infinity,
                       padding: EdgeInsets.symmetric(vertical: 10.h),
                       decoration: BoxDecoration(
@@ -197,86 +201,88 @@ class FareResultTable extends ConsumerWidget {
                 )
               else
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: results.length,
-                    itemBuilder: (context, idx) {
-                      final row = results[idx];
-                      final ft20WithSurcharge =
-                          ((row.ft20Safe * (1 + surchargeRate)) *
-                                  cancellationFeeAmount /
-                                  100)
-                              .round() *
-                          100;
-                      final ft40WithSurcharge =
-                          ((row.ft40Safe * (1 + surchargeRate)) *
-                                  cancellationFeeAmount /
-                                  100)
-                              .round() *
-                          100;
+                  child: Container(
+                    child: ListView.builder(
+                      itemCount: results.length,
+                      itemBuilder: (context, idx) {
+                        final row = results[idx];
+                        final ft20WithSurcharge =
+                            ((row.ft20Safe * (1 + surchargeRate)) *
+                                    cancellationFeeAmount /
+                                    100)
+                                .round() *
+                            100;
+                        final ft40WithSurcharge =
+                            ((row.ft40Safe * (1 + surchargeRate)) *
+                                    cancellationFeeAmount /
+                                    100)
+                                .round() *
+                            100;
 
-                      return Container(
-                        margin: EdgeInsets.symmetric(
-                          vertical: 8.h,
-                          horizontal: 4.w,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16.r),
-                          border: Border.all(
-                            color: Colors.indigo.shade100,
-                            width: 1.5.w,
+                        return Container(
+                          margin: EdgeInsets.symmetric(
+                            vertical: 8.h,
+                            horizontal: 4.w,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.indigo.withOpacity(0.06),
-                              blurRadius: 8.r,
-                              offset: Offset(0, 2.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16.r),
+                            border: Border.all(
+                              color: Colors.indigo.shade100,
+                              width: 1.5.w,
                             ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 14.h,
-                            horizontal: 12.w,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.indigo.withOpacity(0.06),
+                                blurRadius: 8.r,
+                                offset: Offset(0, 2.h),
+                              ),
+                            ],
                           ),
-                          child: FareResultRow(
-                            row: row,
-                            is20Selected: selectedFareNotifier.isSelected(
-                              row,
-                              FareType.ft20,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 14.h,
+                              horizontal: 12.w,
                             ),
-                            is40Selected: selectedFareNotifier.isSelected(
-                              row,
-                              FareType.ft40,
+                            child: FareResultRow(
+                              row: row,
+                              is20Selected: selectedFareNotifier.isSelected(
+                                row,
+                                FareType.ft20,
+                              ),
+                              is40Selected: selectedFareNotifier.isSelected(
+                                row,
+                                FareType.ft40,
+                              ),
+                              ft20WithSurcharge: ft20WithSurcharge,
+                              ft40WithSurcharge: ft40WithSurcharge,
+                              on20Tap: () {
+                                selectedFareNotifier.toggle(
+                                  row: row,
+                                  type: FareType.ft20,
+                                  rate: condition.surchargeResult.rate,
+                                  price: ft20WithSurcharge,
+                                  surchargeLabels: List<String>.from(
+                                    condition.surchargeResult.labels,
+                                  ),
+                                );
+                              },
+                              on40Tap: () {
+                                selectedFareNotifier.toggle(
+                                  row: row,
+                                  type: FareType.ft40,
+                                  rate: condition.surchargeResult.rate,
+                                  price: ft40WithSurcharge,
+                                  surchargeLabels: List<String>.from(
+                                    condition.surchargeResult.labels,
+                                  ),
+                                );
+                              },
                             ),
-                            ft20WithSurcharge: ft20WithSurcharge,
-                            ft40WithSurcharge: ft40WithSurcharge,
-                            on20Tap: () {
-                              selectedFareNotifier.toggle(
-                                row: row,
-                                type: FareType.ft20,
-                                rate: condition.surchargeResult.rate,
-                                price: ft20WithSurcharge,
-                                surchargeLabels: List<String>.from(
-                                  condition.surchargeResult.labels,
-                                ),
-                              );
-                            },
-                            on40Tap: () {
-                              selectedFareNotifier.toggle(
-                                row: row,
-                                type: FareType.ft40,
-                                rate: condition.surchargeResult.rate,
-                                price: ft40WithSurcharge,
-                                surchargeLabels: List<String>.from(
-                                  condition.surchargeResult.labels,
-                                ),
-                              );
-                            },
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
             ],

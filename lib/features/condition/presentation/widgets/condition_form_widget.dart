@@ -9,7 +9,18 @@ import 'package:line_all/features/condition/presentation/widgets/road_name_searc
 import 'package:line_all/features/condition/presentation/widgets/search_type_selector_row.dart';
 
 class ConditionFormWidget extends ConsumerStatefulWidget {
-  const ConditionFormWidget({super.key});
+  final GlobalKey? periodTargetKey;
+  final GlobalKey? sectionTargetKey;
+  final GlobalKey? regionButtonKey;
+  final GlobalKey? roadButtonKey;
+
+  const ConditionFormWidget({
+    super.key,
+    this.periodTargetKey,
+    this.sectionTargetKey,
+    this.regionButtonKey,
+    this.roadButtonKey,
+  });
 
   @override
   ConsumerState<ConditionFormWidget> createState() =>
@@ -107,45 +118,57 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header(
-                    //   title: '운임 계산 조건 설정',
-                    //   leadingIcon: Icons.receipt_long,
-                    //   onReset: () {
-                    //     viewModel.update(Condition());
-                    //   },
-                    //   titleStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold), // 제목 크게
-                    // ),
                     SizedBox(height: 14.h),
-                    // Period
+                    // Period (튜토리얼용 key 전달)
                     PeriodDropdownRow(
-                      key: _periodKey,
+                      key: widget.periodTargetKey ?? _periodKey,
                       periodFocusNode: _periodFocusNode,
                       typeFocusNode: _typeFocusNode,
                       sectionFocusNode: _sectionFocusNode,
                       typeKey: _typeKey,
-                      sectionKey: _sectionKey,
+                      sectionKey: widget.sectionTargetKey ?? _sectionKey,
                     ),
                     SizedBox(height: 10.h),
-                    SearchTypeSelectorRow(
-                      onRegionSearch: () {
-                        _validateAndHandleSearchType(() {
-                          showDialog(
-                            context: context,
-                            builder: (context) => const RegionSelectorsDialog(),
-                          );
-                        });
-                      },
-                      onRoadNameSearch: () {
-                        _validateAndHandleSearchType(() async {
-                          RoadNameAddress? result = await showDialog(
-                            context: context,
-                            builder: (context) => const RoadNameSearchDialog(),
-                          );
-                          if (result != null) {
-                            await viewModel.searchByRoadName(result);
-                          }
-                        });
-                      },
+                    // 검색 버튼들을 인라인으로 두어 개별 키 부여
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            key: widget.regionButtonKey,
+                            icon: const Icon(Icons.search),
+                            label: const Text('지역 검색'),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+                            onPressed: () {
+                              _validateAndHandleSearchType(() {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => const RegionSelectorsDialog(),
+                                );
+                              });
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            key: widget.roadButtonKey,
+                            icon: const Icon(Icons.place),
+                            label: const Text('도로명 검색'),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                            onPressed: () {
+                              _validateAndHandleSearchType(() async {
+                                RoadNameAddress? result = await showDialog(
+                                  context: context,
+                                  builder: (context) => const RoadNameSearchDialog(),
+                                );
+                                if (result != null) {
+                                  await viewModel.searchByRoadName(result);
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 10.h),
                   ],

@@ -6,8 +6,9 @@ import 'selected_fare_dialog.dart';
 
 class SelectedFareBottomBar extends ConsumerWidget {
   final VoidCallback? onConfirm;
+  final GlobalKey? confirmButtonKey; // 추가
 
-  const SelectedFareBottomBar({super.key, this.onConfirm});
+  const SelectedFareBottomBar({super.key, this.onConfirm, this.confirmButtonKey}); // 생성자에 추가
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,6 +59,7 @@ class SelectedFareBottomBar extends ConsumerWidget {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 3.h),
                 child: ElevatedButton.icon(
+                  key: confirmButtonKey, // 키 붙임
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1C63D6),
                     foregroundColor: Colors.white,
@@ -76,6 +78,7 @@ class SelectedFareBottomBar extends ConsumerWidget {
                             context: context,
                             builder: (context) => const SelectedFareDialog(),
                           );
+                          if (onConfirm != null) onConfirm!();
                         }
                       : null,
                   icon: Icon(Icons.visibility, size: 22.sp),
