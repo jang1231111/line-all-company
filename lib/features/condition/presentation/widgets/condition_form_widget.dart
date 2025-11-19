@@ -11,6 +11,7 @@ import 'package:line_all/features/condition/presentation/widgets/search_type_sel
 class ConditionFormWidget extends ConsumerStatefulWidget {
   final GlobalKey? periodTargetKey;
   final GlobalKey? sectionTargetKey;
+  final GlobalKey? serachKey;
   final GlobalKey? regionButtonKey;
   final GlobalKey? roadButtonKey;
 
@@ -18,6 +19,7 @@ class ConditionFormWidget extends ConsumerStatefulWidget {
     super.key,
     this.periodTargetKey,
     this.sectionTargetKey,
+    this.serachKey,
     this.regionButtonKey,
     this.roadButtonKey,
   });
@@ -53,13 +55,13 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
     FocusNode focusNode,
     String message,
   ) async {
-    focusNode.requestFocus();
-    await Scrollable.ensureVisible(
-      key.currentContext!,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-      alignment: 0.2,
-    );
+    // focusNode.requestFocus();
+    // await Scrollable.ensureVisible(
+    //   key.currentContext!,
+    //   duration: const Duration(milliseconds: 200),
+    //   curve: Curves.easeInOut,
+    //   alignment: 0.2,
+    // );
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, style: TextStyle(fontSize: 18.sp)),
@@ -130,45 +132,48 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                     ),
                     SizedBox(height: 10.h),
                     // 검색 버튼들을 인라인으로 두어 개별 키 부여
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            key: widget.regionButtonKey,
-                            icon: const Icon(Icons.search),
-                            label: const Text('지역 검색'),
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
-                            onPressed: () {
-                              _validateAndHandleSearchType(() {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => const RegionSelectorsDialog(),
-                                );
-                              });
-                            },
+                    Container(
+                      key: widget.serachKey,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              key: widget.regionButtonKey,
+                              icon: const Icon(Icons.search),
+                              label: const Text('지역 검색'),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+                              onPressed: () {
+                                _validateAndHandleSearchType(() {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => const RegionSelectorsDialog(),
+                                  );
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            key: widget.roadButtonKey,
-                            icon: const Icon(Icons.place),
-                            label: const Text('도로명 검색'),
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                            onPressed: () {
-                              _validateAndHandleSearchType(() async {
-                                RoadNameAddress? result = await showDialog(
-                                  context: context,
-                                  builder: (context) => const RoadNameSearchDialog(),
-                                );
-                                if (result != null) {
-                                  await viewModel.searchByRoadName(result);
-                                }
-                              });
-                            },
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              key: widget.roadButtonKey,
+                              icon: const Icon(Icons.place),
+                              label: const Text('도로명 검색'),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                              onPressed: () {
+                                _validateAndHandleSearchType(() async {
+                                  RoadNameAddress? result = await showDialog(
+                                    context: context,
+                                    builder: (context) => const RoadNameSearchDialog(),
+                                  );
+                                  if (result != null) {
+                                    await viewModel.searchByRoadName(result);
+                                  }
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     SizedBox(height: 10.h),
                   ],

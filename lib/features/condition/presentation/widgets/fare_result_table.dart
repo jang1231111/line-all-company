@@ -202,6 +202,7 @@ class FareResultTable extends ConsumerWidget {
               else
                 Expanded(
                   child: Container(
+                    key: resultsTargetKey, // <-- 전체 결과 영역 키
                     child: ListView.builder(
                       itemCount: results.length,
                       itemBuilder: (context, idx) {

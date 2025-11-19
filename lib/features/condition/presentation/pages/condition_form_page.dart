@@ -19,6 +19,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   static const String _tutorialShownKey = 'condition_tutorial_shown_v1';
   final GlobalKey periodTargetKey = GlobalKey();
   final GlobalKey sectionTargetKey = GlobalKey();
+  final GlobalKey searchKey = GlobalKey();
   final GlobalKey regionButtonKey = GlobalKey();
   final GlobalKey roadButtonKey = GlobalKey();
   final GlobalKey surchargeTargetKey = GlobalKey();
@@ -26,8 +27,9 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
 
   // 추가된 키들
   final GlobalKey selectedBottomKey = GlobalKey();
-  final GlobalKey statsIconKey = GlobalKey();
   final GlobalKey selectedConfirmKey = GlobalKey(); // 확인 버튼 하이라이트용 키
+  final GlobalKey statsIconKey = GlobalKey();
+  final GlobalKey tutorialKey = GlobalKey();
 
   // 튜토리얼 중복 실행 방지 플래그
   bool _tutorialRunning = false;
@@ -74,10 +76,42 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('기간·구간 선택', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp)),
+                      Text(
+                        '기간·구간 선택',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                        ),
+                      ),
                       SizedBox(height: 6.h),
-                      Text('여기에서 검색할 기간과 구간을 먼저 선택하세요. (필수)', style: TextStyle(fontSize: 14.sp)),
+                      Text(
+                        '검색할 기간과 구간을 먼저 선택하세요. \n필수로 입력해야합니다.',
+                        style: TextStyle(fontSize: 14.sp),
+                      ),
                     ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: "search",
+        keyTarget: searchKey,
+        shape: ShapeLightFocus.RRect,
+        radius: 8,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: screenW * 0.75),
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(10.w),
+                  child: Text(
+                    '구간과 기간을 선택했으면 \n주소를 입력하고 운임 건을 검색해보세요.',
+                    style: TextStyle(fontSize: 14.sp),
                   ),
                 ),
               ),
@@ -98,7 +132,10 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text('지역 검색 버튼을 눌러 실제 지역 검색을 체험합니다.', style: TextStyle(fontSize: 14.sp)),
+                  child: Text(
+                    '지역명을 통해 운임 건을 검색해보세요.',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
                 ),
               ),
             ),
@@ -118,7 +155,10 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text('도로명 검색 버튼입니다. 도로명으로 검색해보세요.', style: TextStyle(fontSize: 14.sp)),
+                  child: Text(
+                    '정확한 도로명 주소를 알고 있을때에는\n도로명으로 검색해보세요.',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
                 ),
               ),
             ),
@@ -138,7 +178,10 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text('할증 정보: 조회 결과에 적용되는 할증율과 안내입니다.', style: TextStyle(fontSize: 14.sp)),
+                  child: Text(
+                    '할증 적용 버튼을 누르면\n조회 결과에 적용되는 할증을 추가할 수 있습니다.',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
                 ),
               ),
             ),
@@ -158,7 +201,10 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text('검색 결과: 리스트에서 항목을 선택하면 상세/결제가 가능합니다.', style: TextStyle(fontSize: 14.sp)),
+                  child: Text(
+                    '검색 결과창 입니다. \n운임 건을 검색하여 내 운임 건 목록에 추가해보세요.',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
                 ),
               ),
             ),
@@ -179,7 +225,10 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text('선택한 운임 확인·결제 바: 선택한 항목이 여기에 표시됩니다.', style: TextStyle(fontSize: 14.sp)),
+                  child: Text(
+                    '현재 선택된 운임 건 수가 표시됩니다.',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
                 ),
               ),
             ),
@@ -200,7 +249,10 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text('확인 버튼을 눌러 선택한 운임을 확인해보세요.', style: TextStyle(fontSize: 14.sp)),
+                  child: Text(
+                    '확인 버튼을 눌러 선택한 운임을 확인해보세요.',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
                 ),
               ),
             ),
@@ -211,7 +263,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       TargetFocus(
         identify: "statistics",
         keyTarget: statsIconKey,
-        shape: ShapeLightFocus.Circle,
+        shape: ShapeLightFocus.RRect,
         radius: 6,
         contents: [
           TargetContent(
@@ -221,7 +273,34 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(8.w),
-                  child: Text('통계 아이콘: 누르면 통계 화면으로 이동합니다. 앱 사용 현황을 확인하세요.', style: TextStyle(fontSize: 13.sp)),
+                  child: Text(
+                    '내가 저장한 운임 건 목록을 확인할수 있습니다.\n사용 현황을 확인해보세요.',
+                    style: TextStyle(fontSize: 13.sp),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      // 통계(앱바) 설명
+      TargetFocus(
+        identify: "tutorial",
+        keyTarget: tutorialKey,
+        shape: ShapeLightFocus.RRect,
+        radius: 6,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: screenW * 0.7),
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(8.w),
+                  child: Text(
+                    '사용 방법을 다시 보고싶을 때에는 이 버튼을 눌러주세요.',
+                    style: TextStyle(fontSize: 13.sp),
+                  ),
                 ),
               ),
             ),
@@ -233,22 +312,34 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
     // 화면에 보이도록 스크롤 보정 (존재하면)
     try {
       if (periodTargetKey.currentContext != null) {
-        await Scrollable.ensureVisible(periodTargetKey.currentContext!, duration: const Duration(milliseconds: 300), alignment: 0.2);
+        await Scrollable.ensureVisible(
+          periodTargetKey.currentContext!,
+          duration: const Duration(milliseconds: 300),
+          alignment: 0.2,
+        );
       }
       // 바텀/앱바도 화면에 보이도록(있다면)
       if (selectedBottomKey.currentContext != null) {
-        await Scrollable.ensureVisible(selectedBottomKey.currentContext!, duration: const Duration(milliseconds: 300), alignment: 1.0);
+        await Scrollable.ensureVisible(
+          selectedBottomKey.currentContext!,
+          duration: const Duration(milliseconds: 300),
+          alignment: 1.0,
+        );
       }
       if (statsIconKey.currentContext != null) {
         // 앱바는 이미 보이지만 ensureVisible 호출해도 안전
-        await Scrollable.ensureVisible(statsIconKey.currentContext!, duration: const Duration(milliseconds: 200), alignment: 0.0);
+        await Scrollable.ensureVisible(
+          statsIconKey.currentContext!,
+          duration: const Duration(milliseconds: 200),
+          alignment: 0.0,
+        );
       }
     } catch (_) {}
 
     TutorialCoachMark(
       targets: targets,
       colorShadow: Colors.black54,
-      textSkip: "건너뛰기",
+      textSkip: "",
       textStyleSkip: TextStyle(color: Colors.white),
       paddingFocus: 8,
       pulseEnable: false,
@@ -258,8 +349,8 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
         _tutorialRunning = false;
       },
       onSkip: () {
-        _tutorialRunning = false;
-        return true;
+        // _tutorialRunning = false;
+        return false;
       },
     ).show(context: context);
   }
@@ -330,22 +421,38 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               // 앱 사용법: 아이콘+텍스트의 라운드 버튼 (앱 스타일과 일관성 유지)
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 6.w),
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    if (_tutorialRunning) return;
-                    await _startTutorial();
-                  },
-                  icon: Icon(Icons.help_outline, color: Colors.white, size: 18.sp),
-                  label: Text(
-                    '앱 사용법',
-                    style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                    backgroundColor: Colors.white.withOpacity(0.12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
-                    side: BorderSide(color: Colors.white.withOpacity(0.14)),
+                child: Container(
+                  key: tutorialKey,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      if (_tutorialRunning) return;
+                      await _startTutorial();
+                    },
+                    icon: Icon(
+                      Icons.help_outline,
+                      color: Colors.white,
+                      size: 18.sp,
+                    ),
+                    label: Text(
+                      '앱 사용법',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 8.h,
+                      ),
+                      backgroundColor: Colors.white.withOpacity(0.12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      side: BorderSide(color: Colors.white.withOpacity(0.14)),
+                    ),
                   ),
                 ),
               ),
@@ -384,6 +491,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                         ConditionFormWidget(
                           periodTargetKey: periodTargetKey,
                           sectionTargetKey: sectionTargetKey,
+                          serachKey: searchKey,
                           regionButtonKey: regionButtonKey,
                           roadButtonKey: roadButtonKey,
                         ),
