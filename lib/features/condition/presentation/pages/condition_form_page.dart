@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/condition_form_widget.dart';
 import '../widgets/fare_result_table.dart';
@@ -34,6 +35,9 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   // 튜토리얼 중복 실행 방지 플래그
   bool _tutorialRunning = false;
   List<TargetFocus> targets = [];
+
+  // 열고 싶은 사이트 URL (실제 도메인으로 교체)
+  static const String _companyUrl = 'http://www.lineall.co.kr';
 
   @override
   void initState() {
@@ -355,6 +359,23 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
     ).show(context: context);
   }
 
+  Future<void> _launchWebsite() async {
+    final uri = Uri.parse(_companyUrl);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('웹사이트를 열 수 없습니다.')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('오류: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -386,35 +407,74 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
             ),
             title: Row(
               children: [
-                SizedBox(width: 12.w),
+                SizedBox(width: 10.w),
+
+                // 변경: 로고 + 타이틀을 하나의 '칩'으로 묶어 깔끔하게 표시
                 Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    // color: Colors.white.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(8.r),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 6.h,
                   ),
-                  child: const Icon(Icons.local_shipping, color: Colors.white),
-                ),
-                SizedBox(width: 12.w),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '안전 위탁 운임-차주용',
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.10),
+                    borderRadius: BorderRadius.circular(14.r),
+                    border: Border.all(color: Colors.white.withOpacity(0.06)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.03),
+                        blurRadius: 6.r,
+                        offset: Offset(0, 2.h),
                       ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      '신속하고 정확한 운임 산출',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white70),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 로고: 클릭 영역은 충분히 확보 (이미지 크기 작게)
+                      GestureDetector(
+                        onTap: _launchWebsite,
+                        child: Container(
+                          width: 120.w,
+                          height: 40.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.r),
+                            image: const DecorationImage(
+                              image: AssetImage('lib/assets/lineall_logo.png'),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // SizedBox(width: 10.w),
+
+                      // 타이틀: 메인 + 서브(작게)
+                      // Column(
+                      //   crossAxisAlignment: CrossAxisAlignment.center,
+                      //   mainAxisSize: MainAxisSize.min,
+                      //   children: [
+                      //     Text(
+                      //       '안전 위탁 운임',
+                      //       style: TextStyle(
+                      //         fontSize: 13.sp,
+                      //         fontWeight: FontWeight.w800,
+                      //         color: Colors.white,
+                      //       ),
+                      //     ),
+                      //     Text(
+                      //       '차주용',
+                      //       style: TextStyle(
+                      //         fontSize: 13.sp,
+                      //         fontWeight: FontWeight.w800,
+                      //         color: Colors.white,
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                    ],
+                  ),
                 ),
+
+                SizedBox(width: 12.w),
               ],
             ),
             actions: [
@@ -434,6 +494,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                       size: 18.sp,
                     ),
                     label: Text(
+                      // '앱 사용법',
                       '앱 사용법',
                       style: TextStyle(
                         color: Colors.white,
