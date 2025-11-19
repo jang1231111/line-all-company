@@ -410,114 +410,125 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                 SizedBox(width: 10.w),
 
                 // 변경: 로고 + 타이틀을 하나의 '칩'으로 묶어 깔끔하게 표시
-                Container(
+                Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: 10.w,
                     vertical: 6.h,
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.10),
-                    borderRadius: BorderRadius.circular(14.r),
-                    border: Border.all(color: Colors.white.withOpacity(0.06)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 6.r,
-                        offset: Offset(0, 2.h),
-                      ),
-                    ],
-                  ),
-                  child: Row(
+                  child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // 로고: 클릭 영역은 충분히 확보 (이미지 크기 작게)
                       GestureDetector(
                         onTap: _launchWebsite,
-                        child: Container(
-                          width: 120.w,
-                          height: 40.h,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.r),
-                            image: const DecorationImage(
-                              image: AssetImage('lib/assets/lineall_logo.png'),
-                              fit: BoxFit.cover,
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6.r),
+                              child: Image.asset(
+                                'lib/assets/lineall_logo2.png',
+                                width: 130.w,
+                                height: 20.h,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ),
+
+                            SizedBox(width: 15.w),
+
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6.r),
+                              child: Image.asset(
+                                'lib/assets/laxgp_logo2.png',
+                                width: 80.w,
+                                height: 20.h,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      // SizedBox(width: 10.w),
-
-                      // 타이틀: 메인 + 서브(작게)
-                      // Column(
-                      //   crossAxisAlignment: CrossAxisAlignment.center,
-                      //   mainAxisSize: MainAxisSize.min,
-                      //   children: [
-                      //     Text(
-                      //       '안전 위탁 운임',
-                      //       style: TextStyle(
-                      //         fontSize: 13.sp,
-                      //         fontWeight: FontWeight.w800,
-                      //         color: Colors.white,
-                      //       ),
-                      //     ),
-                      //     Text(
-                      //       '차주용',
-                      //       style: TextStyle(
-                      //         fontSize: 13.sp,
-                      //         fontWeight: FontWeight.w800,
-                      //         color: Colors.white,
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
+                      SizedBox(height: 3.h),
+                      Row(
+                        children: [
+                          const Icon(Icons.local_shipping, color: Colors.white),
+                          SizedBox(width: 7.w),
+                          Text(
+                            '안전 위탁 운임  -  차주용',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
 
-                SizedBox(width: 12.w),
+                SizedBox(width: 4.w),
               ],
             ),
             actions: [
               // 앱 사용법: 아이콘+텍스트의 라운드 버튼 (앱 스타일과 일관성 유지)
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 6.w),
+              // Padding(
+              //   padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 6.w),
+              //   child: Container(
+              //     key: tutorialKey,
+              //     child: ElevatedButton.icon(
+              //       onPressed: () async {
+              //         if (_tutorialRunning) return;
+              //         await _startTutorial();
+              //       },
+              //       icon: Icon(
+              //         Icons.help_outline,
+              //         color: Colors.white,
+              //         size: 18.sp,
+              //       ),
+              //       label: Text(
+              //         '',
+              //         style: TextStyle(
+              //           color: Colors.white,
+              //           fontSize: 14.sp,
+              //           fontWeight: FontWeight.w600,
+              //         ),
+              //       ),
+              //       style: ElevatedButton.styleFrom(
+              //         elevation: 0,
+              //         padding: EdgeInsets.symmetric(
+              //           horizontal: 12.w,
+              //           vertical: 8.h,
+              //         ),
+              //         backgroundColor: Colors.white.withOpacity(0.12),
+              //         shape: RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.circular(10.r),
+              //         ),
+              //         side: BorderSide(color: Colors.white.withOpacity(0.14)),
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              InkWell(
+                onTap: () async {
+                  if (_tutorialRunning) return;
+                  await _startTutorial();
+                },
                 child: Container(
                   key: tutorialKey,
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      if (_tutorialRunning) return;
-                      await _startTutorial();
-                    },
-                    icon: Icon(
-                      Icons.help_outline,
-                      color: Colors.white,
-                      size: 18.sp,
-                    ),
-                    label: Text(
-                      // '앱 사용법',
-                      '앱 사용법',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
-                        vertical: 8.h,
-                      ),
-                      backgroundColor: Colors.white.withOpacity(0.12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      side: BorderSide(color: Colors.white.withOpacity(0.14)),
-                    ),
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: const Icon(
+                    Icons.help_outline,
+                    color: Colors.white,
                   ),
                 ),
               ),
-
+              SizedBox(width: 5.w),
               // 기존 통계 아이콘
               InkWell(
                 onTap: () {
