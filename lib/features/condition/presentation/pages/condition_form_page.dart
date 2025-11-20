@@ -84,13 +84,13 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                         '기간·구간 선택',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16.sp,
+                          fontSize: 20.sp,
                         ),
                       ),
                       SizedBox(height: 6.h),
                       Text(
                         '검색할 기간과 구간을 먼저 선택하세요. \n필수로 입력해야합니다.',
-                        style: TextStyle(fontSize: 14.sp),
+                        style: TextStyle(fontSize: 18.sp),
                       ),
                     ],
                   ),
@@ -113,9 +113,23 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text(
-                    '구간과 기간을 선택했으면 \n주소를 입력하고 운임 건을 검색해보세요.',
-                    style: TextStyle(fontSize: 14.sp),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '운임 건 검색',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        '구간과 기간을 선택했으면 \n주소를 입력해서 운임 건을 검색해보세요.',
+                        style: TextStyle(fontSize: 18.sp),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -136,9 +150,23 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text(
-                    '지역명을 통해 운임 건을 검색해보세요.',
-                    style: TextStyle(fontSize: 14.sp),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '지역 검색',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        '지역명을 통해 운임 건을 검색해보세요.',
+                        style: TextStyle(fontSize: 18.sp),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -159,9 +187,23 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text(
-                    '정확한 도로명 주소를 알고 있을때에는\n도로명으로 검색해보세요.',
-                    style: TextStyle(fontSize: 14.sp),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '도로명 검색',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        '정확한 도로명 주소를 알고 있을때에는\n도로명으로 검색해보세요.',
+                        style: TextStyle(fontSize: 18.sp),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -182,9 +224,23 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text(
-                    '할증 적용 버튼을 누르면\n조회 결과에 적용되는 할증을 추가할 수 있습니다.',
-                    style: TextStyle(fontSize: 14.sp),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '할증 적용',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        '할증 적용 버튼을 누르면\n조회 결과에 적용되는 할증을 추가할 수 있습니다.',
+                        style: TextStyle(fontSize: 18.sp),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -205,9 +261,23 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text(
-                    '검색 결과창 입니다. \n운임 건을 검색하여 내 운임 건 목록에 추가해보세요.',
-                    style: TextStyle(fontSize: 14.sp),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '운임 검색 결과창',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        '검색 결과창 입니다. \n운임 건을 검색하여 내 운임 건 목록에 추가해보세요.',
+                        style: TextStyle(fontSize: 18.sp),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -229,9 +299,23 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text(
-                    '현재 선택된 운임 건 수가 표시됩니다.',
-                    style: TextStyle(fontSize: 14.sp),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '선택된 운임 건 수',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        '현재 선택된 운임 건 수가 표시됩니다.',
+                        style: TextStyle(fontSize: 18.sp),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -253,9 +337,23 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
-                  child: Text(
-                    '확인 버튼을 눌러 선택한 운임을 확인해보세요.',
-                    style: TextStyle(fontSize: 14.sp),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '선택된 운임 건 확인',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        '확인 버튼을 눌러 선택한 운임을 확인해보세요.',
+                        style: TextStyle(fontSize: 18.sp),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -277,9 +375,23 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(8.w),
-                  child: Text(
-                    '내가 저장한 운임 건 목록을 확인할수 있습니다.\n사용 현황을 확인해보세요.',
-                    style: TextStyle(fontSize: 13.sp),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '내 운임 건 통계',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        '내가 저장한 운임 건 목록을 확인할수 있습니다.\n사용 현황을 확인해보세요.',
+                        style: TextStyle(fontSize: 18.sp),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -301,9 +413,23 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(8.w),
-                  child: Text(
-                    '사용 방법을 다시 보고싶을 때에는 이 버튼을 눌러주세요.',
-                    style: TextStyle(fontSize: 13.sp),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '앱 사용법',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        '사용 방법을 다시 보고싶을 때에는 이 버튼을 눌러주세요.',
+                        style: TextStyle(fontSize: 18.sp),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -522,10 +648,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                     color: Colors.white.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
-                  child: const Icon(
-                    Icons.help_outline,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.help_outline, color: Colors.white),
                 ),
               ),
               SizedBox(width: 5.w),
