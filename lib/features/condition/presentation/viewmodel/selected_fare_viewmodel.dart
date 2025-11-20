@@ -53,4 +53,18 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
   Future<void> clearHistoryInDb() async {
     await _localDataSource.clearHistory();
   }
+
+  // id로 특정 항목 삭제 (SelectedFareLocalDataSource의 deleteEntryById 사용)
+  Future<void> deleteEntryById(String id) async {
+    await _localDataSource.deleteEntryById(id);
+  }
+
+  // entry 내 개별 fare 삭제
+  Future<void> deleteFareInEntry(String entryId, String fareId) async {
+    await _localDataSource.deleteFareById(entryId, fareId);
+  }
+
+  Future<void> deleteFareInEntryAt(String entryId, int fareIndex) async {
+    await _localDataSource.deleteFareAt(entryId, fareIndex);
+  }
 }
