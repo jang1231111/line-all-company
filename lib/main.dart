@@ -37,7 +37,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   // initial: laxgp visible immediately
   bool _showLaxgp = true;
   // after delay: show small pair logos above laxgp, and truck below

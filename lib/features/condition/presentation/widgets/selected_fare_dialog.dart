@@ -161,19 +161,18 @@ class SelectedFareDialog extends ConsumerWidget {
                                 ],
                               ),
                               SizedBox(height: 8.h),
-                              Text(
-                                '${fare.row.sido} > ${fare.row.sigungu} > ${fare.row.eupmyeondong}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22.sp,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              SizedBox(height: 8.h),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
+                                  Text(
+                                    '${fare.row.sido}>${fare.row.sigungu}>${fare.row.eupmyeondong}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.sp,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
                                   Container(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 14.w,
@@ -183,9 +182,7 @@ class SelectedFareDialog extends ConsumerWidget {
                                       color: fare.type == FareType.ft20
                                           ? Colors.indigo.shade100
                                           : Colors.deepOrange[50],
-                                      borderRadius: BorderRadius.circular(
-                                        8.r,
-                                      ),
+                                      borderRadius: BorderRadius.circular(8.r),
                                     ),
                                     child: Text(
                                       fare.type == FareType.ft20
@@ -196,20 +193,13 @@ class SelectedFareDialog extends ConsumerWidget {
                                             ? Colors.indigo.shade900
                                             : Colors.deepOrange,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 18.sp,
+                                        fontSize: 16.sp,
                                       ),
-                                    ),
-                                  ),
-                                  Text(
-                                    '할증률: ${(fare.rate * 100).toStringAsFixed(1)}%',
-                                    style: TextStyle(
-                                      fontSize: 18.sp,
-                                      color: Colors.grey[700],
-                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
                               ),
+
                               SizedBox(height: 12.h),
                               if (fare.surchargeLabels.isNotEmpty)
                                 Wrap(
@@ -223,20 +213,29 @@ class SelectedFareDialog extends ConsumerWidget {
                                           ),
                                           backgroundColor: Colors.blue[50],
                                           shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.r),
+                                            borderRadius: BorderRadius.circular(
+                                              10.r,
+                                            ),
                                           ),
                                         ),
                                       )
                                       .toList(),
                                 ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
+                                  Text(
+                                    '할증률: ${(fare.rate * 100).toStringAsFixed(1)}%',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                   Text(
                                     '운임비: ${NumberFormat('#,###').format(fare.price)}원',
                                     style: TextStyle(
-                                      fontSize: 20.sp,
+                                      fontSize: 17.sp,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black87,
                                     ),

@@ -651,7 +651,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                   child: const Icon(Icons.help_outline, color: Colors.white),
                 ),
               ),
-              SizedBox(width: 5.w),
+              SizedBox(width: 12.w),
               // 기존 통계 아이콘
               InkWell(
                 onTap: () {

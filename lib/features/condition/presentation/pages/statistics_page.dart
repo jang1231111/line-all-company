@@ -435,7 +435,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                       .deepOrange,
                                                             fontWeight:
                                                                 FontWeight.bold,
-                                                            fontSize: 18.sp,
+                                                            fontSize: 16.sp,
                                                           ),
                                                         ),
                                                       ),
