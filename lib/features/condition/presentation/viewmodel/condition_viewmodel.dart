@@ -41,13 +41,24 @@ class ConditionViewModel extends StateNotifier<Condition> {
     _ref.read(fareResultViewModelProvider.notifier).setResults(results);
   }
 
+  // searchByRoadName 전용 sido 보정
+  String _normalizeSidoForRoadName(String? sido) {
+    if (sido == null) return '';
+    final s = sido.trim();
+    if (s == '전북특별자치도') return '전라북도';
+    if (s == '강원특별자치도') return '강원도';
+    return s;
+  }
+
   Future<void> searchByRoadName(RoadNameAddress address) async {
-    String sido = address.siNm;
+    // 주소에서 넘어온 sido를 검색용으로 보정
+    String sido = _normalizeSidoForRoadName(address.siNm);
     String sigungu = address.sggNm;
     String? eupmyeondong;
     List<FareResult> results;
 
     _ref.read(fareResultViewModelProvider.notifier).setLoading();
+    
     // hemdNm non-null
     if (address.hemdNm != null) {
       // 읍면동 값 추출

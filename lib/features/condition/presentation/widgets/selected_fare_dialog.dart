@@ -200,7 +200,7 @@ class SelectedFareDialog extends ConsumerWidget {
                                 ],
                               ),
 
-                              SizedBox(height: 12.h),
+                              // SizedBox(height: 2.h),
                               if (fare.surchargeLabels.isNotEmpty)
                                 Wrap(
                                   spacing: 10.w,

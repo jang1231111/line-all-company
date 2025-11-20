@@ -39,7 +39,7 @@ class FareResultRow extends StatelessWidget {
                 SizedBox(width: 4.w),
                 Expanded(
                   child: Text(
-                    '${row.sido} > ${row.sigungu} > ${row.eupmyeondong}',
+                    '${row.sido}>${row.sigungu}>${row.eupmyeondong}',
                     style: TextStyle(
                       fontSize: 22.sp,
                       fontWeight: FontWeight.bold,

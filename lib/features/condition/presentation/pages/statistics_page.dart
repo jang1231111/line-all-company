@@ -468,7 +468,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                       ),
                                                     ],
                                                   ),
-                                                  SizedBox(height: 12.h),
+                                                  // SizedBox(height: 2.h),
                                                   if (fare
                                                       .surchargeLabels
                                                       .isNotEmpty)
