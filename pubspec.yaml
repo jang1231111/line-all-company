@@ -51,6 +51,7 @@ flutter:
     - lib/assets/lineall_logo2.png
     - lib/assets/laxgp_logo.png
     - lib/assets/laxgp_logo2.png
+    - lib/assets/optilo_logo.png
 
 flutter_icons:
   android: true
