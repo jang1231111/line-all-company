@@ -34,7 +34,7 @@ dependencies:
 dev_dependencies:
   build_runner: ^2.4.8
   flutter_gen_runner: ^5.4.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
@@ -46,7 +46,6 @@ flutter:
   assets:
     - lib/assets/destination_hierarchy.json
     - lib/assets/loading.json
-    - lib/assets/app_icon.png
     - lib/assets/lax_logo.png
     - lib/assets/lineall_logo.png
     - lib/assets/lineall_logo2.png
@@ -63,4 +62,4 @@ flutter:
 flutter_icons:
   android: true
   ios: false
-  image_path: "lib/assets/app_icon.png"
+  image_path: "lib/assets/icon/app_icon.png"
