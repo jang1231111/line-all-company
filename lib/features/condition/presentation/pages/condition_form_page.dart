@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/gestures.dart';
 
 import '../widgets/condition_form_widget.dart';
 import '../widgets/fare_result_table.dart';
@@ -35,6 +36,8 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   // 튜토리얼 중복 실행 방지 플래그
   bool _tutorialRunning = false;
   List<TargetFocus> targets = [];
+  TutorialCoachMark? _tutorialCoachMark; // 튜토리얼 인스턴스 보관
+  void Function(PointerEvent)? _globalPointerHandler; // 전역 포인터 핸들러
 
   // 열고 싶은 사이트 URL (실제 도메인으로 교체)
   static const String _companyUrl = 'http://www.lineall.co.kr';
@@ -466,7 +469,16 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       }
     } catch (_) {}
 
-    TutorialCoachMark(
+    // 전역 포인터 라우터 등록: 화면 어디를 눌러도 다음 스텝 진행
+    _globalPointerHandler = (PointerEvent event) {
+      if (!_tutorialRunning) return;
+      if (event is PointerUpEvent) {
+        _tutorialCoachMark?.next();
+      }
+    };
+    GestureBinding.instance.pointerRouter.addGlobalRoute(_globalPointerHandler!);
+
+    _tutorialCoachMark = TutorialCoachMark(
       targets: targets,
       colorShadow: Colors.black54,
       textSkip: "",
@@ -474,15 +486,28 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       paddingFocus: 8,
       pulseEnable: false,
       focusAnimationDuration: const Duration(milliseconds: 0),
-      // 실행 상태 정리
+      // 오버레이/타겟 클릭도 다음으로
+      onClickOverlay: (_) => _tutorialCoachMark?.next(),
+      onClickTarget: (_) => _tutorialCoachMark?.next(),
       onFinish: () {
         _tutorialRunning = false;
+        _tutorialCoachMark = null;
+        if (_globalPointerHandler != null) {
+          GestureBinding.instance.pointerRouter.removeGlobalRoute(_globalPointerHandler!);
+          _globalPointerHandler = null;
+        }
       },
       onSkip: () {
-        // _tutorialRunning = false;
+        _tutorialRunning = false;
+        _tutorialCoachMark = null;
+        if (_globalPointerHandler != null) {
+          GestureBinding.instance.pointerRouter.removeGlobalRoute(_globalPointerHandler!);
+          _globalPointerHandler = null;
+        }
         return false;
       },
-    ).show(context: context);
+    );
+    _tutorialCoachMark!.show(context: context);
   }
 
   Future<void> _launchWebsite() async {
@@ -500,6 +525,15 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
         context,
       ).showSnackBar(SnackBar(content: Text('오류: $e')));
     }
+  }
+
+  @override
+  void dispose() {
+    if (_globalPointerHandler != null) {
+      GestureBinding.instance.pointerRouter.removeGlobalRoute(_globalPointerHandler!);
+      _globalPointerHandler = null;
+    }
+    super.dispose();
   }
 
   @override
