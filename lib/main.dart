@@ -39,8 +39,6 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  // initial: laxgp visible immediately
-  bool _showLaxgp = true;
   // after delay: show small pair logos above laxgp, and truck below
   bool _showPairLogos = false;
   bool _showTruck = false;
@@ -82,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen>
       body: SafeArea(
         child: Center(
           child: Transform.translate(
-            offset: Offset(0, topOffset),
+            offset: Offset(0, topOffset*0.1),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -125,7 +123,7 @@ class _SplashScreenState extends State<SplashScreen>
                   fit: BoxFit.contain,
                 ),
 
-                SizedBox(height: gapBetween * 9),
+                SizedBox(height: gapBetween * 6),
 
                 // 아래: 트럭 이미지 (appear from below)
                 AnimatedSlide(
@@ -138,34 +136,20 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: truckW,
-                          height: truckW * 0.54,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.12),
-                                blurRadius: 10.r,
-                                offset: Offset(0, 4.h),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.local_shipping_rounded,
-                            size: truckW * 0.42,
-                            color: const Color(0xFF1C63D6),
-                          ),
+                        Image.asset(
+                          'lib/assets/truck_image.png',
+                          width: truckW * 2,
+                          height: truckW * 2,
+                          fit: BoxFit.contain,
                         ),
-                        SizedBox(height: 12.h),
+                        SizedBox(height: 3.h),
                         // 설명 텍스트은 트럭 위 또는 아래 원하시는 위치로 조정 가능
                         Text(
                           '간편하고 정확한 운임 조회',
                           style: TextStyle(
                             color: const Color(0xFF4B6EA8),
-                            fontSize: 12.sp,
+                            fontFamily: 'NoonnuFont',
+                            fontSize: 22.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

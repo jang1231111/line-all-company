@@ -13,6 +13,7 @@ class SelectedFareLocalDataSource {
     final now = DateTime.now();
     final id = _uuid.v4(); // entry id
     final savedAt = now.toIso8601String();
+    // final savedAt = '2013-08-17THH:mm:ss.mmmuuuZ'; // 테스트용
 
     final jsonList = fares.map((e) {
       final m = Map<String, dynamic>.from(e.toJson());

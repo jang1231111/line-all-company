@@ -53,6 +53,12 @@ flutter:
     - lib/assets/laxgp_logo.png
     - lib/assets/laxgp_logo2.png
     - lib/assets/optilo_logo.png
+    - lib/assets/truck_image.png
+
+  fonts:
+    - family: NoonnuFont
+      fonts:
+        - asset: lib/assets/fonts/ChangwonDangamRound.ttf
 
 flutter_icons:
   android: true
