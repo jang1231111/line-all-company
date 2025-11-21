@@ -488,13 +488,13 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   Future<void> _launchWebsite() async {
     final uri = Uri.parse(_companyUrl);
     try {
-      if (await canLaunchUrl(uri)) {
+      // if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('웹사이트를 열 수 없습니다.')));
-      }
+      // } else {
+      //   ScaffoldMessenger.of(
+      //     context,
+      //   ).showSnackBar(const SnackBar(content: Text('웹사이트를 열 수 없습니다.')));
+      // }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
