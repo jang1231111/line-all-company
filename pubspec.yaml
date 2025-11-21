@@ -53,6 +53,8 @@ flutter:
     - lib/assets/laxgp_logo2.png
     - lib/assets/optilo_logo.png
     - lib/assets/truck_image.png
+    - lib/assets/laxgp_splash.png
+    - lib/assets/lineall_splash.png
 
   fonts:
     - family: NoonnuFont

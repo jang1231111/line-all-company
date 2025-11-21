@@ -78,88 +78,102 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Center(
-          child: Transform.translate(
-            offset: Offset(0, topOffset*0.1),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 위쪽: small pair logos (appear above laxgp)
-                AnimatedSlide(
-                  offset: _showPairLogos ? Offset.zero : const Offset(0, -0.2),
-                  duration: const Duration(milliseconds: 420),
-                  curve: Curves.easeOut,
-                  child: AnimatedOpacity(
-                    opacity: _showPairLogos ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 420),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          'lib/assets/optilo_logo.png',
-                          width: logo1W,
-                          height: logo1W * 0.42,
-                          fit: BoxFit.contain,
-                        ),
-                        SizedBox(width: 10.w),
-                        Image.asset(
-                          'lib/assets/lineall_logo.png',
-                          width: logo2W,
-                          height: logo2W * 0.32,
-                          fit: BoxFit.contain,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: gapBetween * 2),
-
-                // 가운데: laxgp (항상 보임)
-                Image.asset(
-                  'lib/assets/laxgp_logo2.png',
-                  width: laxgpW,
-                  height: laxgpW * 0.27,
-                  fit: BoxFit.contain,
-                ),
-
-                SizedBox(height: gapBetween * 6),
-
-                // 아래: 트럭 이미지 (appear from below)
-                AnimatedSlide(
-                  offset: _showTruck ? Offset.zero : const Offset(0, 0.2),
-                  duration: const Duration(milliseconds: 420),
-                  curve: Curves.easeOut,
-                  child: AnimatedOpacity(
-                    opacity: _showTruck ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 420),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          'lib/assets/truck_image.png',
-                          width: truckW * 2,
-                          height: truckW * 2,
-                          fit: BoxFit.contain,
-                        ),
-                        SizedBox(height: 3.h),
-                        // 설명 텍스트은 트럭 위 또는 아래 원하시는 위치로 조정 가능
-                        Text(
-                          '간편하고 정확한 운임 조회',
-                          style: TextStyle(
-                            color: const Color(0xFF4B6EA8),
-                            fontFamily: 'NoonnuFont',
-                            fontSize: 22.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 위쪽: small pair logos (appear above laxgp)
+            // AnimatedSlide(
+            //   offset: _showPairLogos ? Offset.zero : const Offset(0, -0.2),
+            //   duration: const Duration(milliseconds: 420),
+            //   curve: Curves.easeOut,
+            //   child: AnimatedOpacity(
+            //     opacity: _showPairLogos ? 1.0 : 0.0,
+            //     duration: const Duration(milliseconds: 420),
+            //     child: Row(
+            //       mainAxisSize: MainAxisSize.min,
+            //       children: [
+            //         Image.asset(
+            //           'lib/assets/optilo_logo.png',
+            //           width: logo1W,
+            //           height: logo1W * 0.42,
+            //           fit: BoxFit.contain,
+            //         ),
+            //         SizedBox(width: 10.w),
+            //         Image.asset(
+            //           'lib/assets/lineall_logo.png',
+            //           width: logo2W,
+            //           height: logo2W * 0.32,
+            //           fit: BoxFit.contain,
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            SizedBox(height: gapBetween * 2),
+            // 가운데: laxgp (항상 보임)
+            Image.asset(
+              'lib/assets/laxgp_splash.png',
+              width: laxgpW * 1.5,
+              height: laxgpW * 0.75,
+              fit: BoxFit.contain,
             ),
-          ),
+
+            // SizedBox(height: gapBetween * 1),
+
+            // 아래: 트럭 이미지 (appear from below)
+            AnimatedSlide(
+              offset: _showTruck ? Offset.zero : const Offset(0, 0.2),
+              duration: const Duration(milliseconds: 420),
+              curve: Curves.easeOut,
+              child: AnimatedOpacity(
+                opacity: _showTruck ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 420),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'lib/assets/lineall_splash.png',
+                      width: truckW * 3.0,
+                      height: truckW ,
+                      fit: BoxFit.contain,
+                    ),
+                    Image.asset(
+                      'lib/assets/truck_image.png',
+                      width: truckW * 2.3,
+                      height: truckW * 1.0,
+                      fit: BoxFit.cover,
+                    ),
+                    SizedBox(height: gapBetween * 2.5),
+                    // 설명 텍스트은 트럭 위 또는 아래 원하시는 위치로 조정 가능
+                    Text(
+                      '간편하고 정확한 운임 조회',
+                      style: TextStyle(
+                        color: const Color(0xFF4B6EA8),
+                        fontFamily: 'NoonnuFont',
+                        fontSize: 30.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: gapBetween * 6),
+                    Text(
+                      'POWERED BY',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Image.asset(
+                      'lib/assets/optilo_logo.png',
+                      width: truckW * 0.7,
+                      height: truckW * 0.3,
+                      fit: BoxFit.contain,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
