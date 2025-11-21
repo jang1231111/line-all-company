@@ -261,13 +261,17 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                     final month = months[idx];
                     final entries = grouped[month] ?? [];
                     // 최신 등록순(내림차순)으로 정렬
-                    final entriesSorted = List<Map<String, dynamic>>.from(entries)
-                      ..sort((a, b) {
-                        final da = DateTime.tryParse(a['saved_at'] ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-                        final db = DateTime.tryParse(b['saved_at'] ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-                        return db.compareTo(da);
-                      });
- 
+                    final entriesSorted =
+                        List<Map<String, dynamic>>.from(entries)..sort((a, b) {
+                          final da =
+                              DateTime.tryParse(a['saved_at'] ?? '') ??
+                              DateTime.fromMillisecondsSinceEpoch(0);
+                          final db =
+                              DateTime.tryParse(b['saved_at'] ?? '') ??
+                              DateTime.fromMillisecondsSinceEpoch(0);
+                          return db.compareTo(da);
+                        });
+
                     return Padding(
                       padding: EdgeInsets.symmetric(
                         vertical: 0,

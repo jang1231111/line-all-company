@@ -557,7 +557,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                                 'lib/assets/lineall_logo2.png',
                                 width: 130.w,
                                 height: 20.h,
-                                fit: BoxFit.cover,
+                                fit: BoxFit.contain,
                               ),
                             ),
 
