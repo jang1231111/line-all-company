@@ -1,3 +1,4 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -476,7 +477,9 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
         _tutorialCoachMark?.next();
       }
     };
-    GestureBinding.instance.pointerRouter.addGlobalRoute(_globalPointerHandler!);
+    GestureBinding.instance.pointerRouter.addGlobalRoute(
+      _globalPointerHandler!,
+    );
 
     _tutorialCoachMark = TutorialCoachMark(
       targets: targets,
@@ -493,7 +496,9 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
         _tutorialRunning = false;
         _tutorialCoachMark = null;
         if (_globalPointerHandler != null) {
-          GestureBinding.instance.pointerRouter.removeGlobalRoute(_globalPointerHandler!);
+          GestureBinding.instance.pointerRouter.removeGlobalRoute(
+            _globalPointerHandler!,
+          );
           _globalPointerHandler = null;
         }
       },
@@ -501,7 +506,9 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
         _tutorialRunning = false;
         _tutorialCoachMark = null;
         if (_globalPointerHandler != null) {
-          GestureBinding.instance.pointerRouter.removeGlobalRoute(_globalPointerHandler!);
+          GestureBinding.instance.pointerRouter.removeGlobalRoute(
+            _globalPointerHandler!,
+          );
           _globalPointerHandler = null;
         }
         return false;
@@ -514,7 +521,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
     final uri = Uri.parse(_companyUrl);
     try {
       // if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
       // } else {
       //   ScaffoldMessenger.of(
       //     context,
@@ -530,7 +537,9 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   @override
   void dispose() {
     if (_globalPointerHandler != null) {
-      GestureBinding.instance.pointerRouter.removeGlobalRoute(_globalPointerHandler!);
+      GestureBinding.instance.pointerRouter.removeGlobalRoute(
+        _globalPointerHandler!,
+      );
       _globalPointerHandler = null;
     }
     super.dispose();

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "266658631850",
+    "project_id": "optilo-3c61e",
+    "storage_bucket": "optilo-3c61e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:266658631850:android:e1bac6567e28e09d5d40d3",
+        "android_client_info": {
+          "package_name": "com.optilo.line_all"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDr4o5HExwDjWsjlIMNu-mB8DksYKSfFBU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

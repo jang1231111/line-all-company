@@ -5,6 +5,8 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 // 서명 관련 코드 (Kotlin DSL)
@@ -63,4 +65,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Firebase BoM (버전은 필요에 따라 업데이트)
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    // ...existing dependencies...
 }

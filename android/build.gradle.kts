@@ -1,3 +1,10 @@
+plugins {
+    // ...existing plugin entries...
+    // Google services & Crashlytics (declare here so 앱 모듈에서 사용 가능)
+    id("com.google.gms.google-services") version "4.3.15" apply false
+    id("com.google.firebase.crashlytics") version "2.9.7" apply false
+}
+
 allprojects {
     repositories {
         google()

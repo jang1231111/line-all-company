@@ -1,4 +1,9 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'firebase_options.dart'; // flutterfire configure가 생성한 파일
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_all/common/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,8 +11,27 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'features/condition/presentation/pages/condition_form_page.dart';
 import 'features/condition/presentation/pages/statistics_page.dart';
 
-void main() {
-  runApp(const ProviderScope(child: MyApp()));
+Future<void> main() async {
+  BindingBase.debugZoneErrorsAreFatal = true;
+
+  runZonedGuarded<Future<void>>(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+      print('Firebase initialized: ${Firebase.apps.length}');
+
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.dumpErrorToConsole(details);
+        FirebaseCrashlytics.instance.recordFlutterError(details);
+      };
+
+      runApp(const ProviderScope(child: MyApp()));
+    },
+    (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    },
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -134,7 +158,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Image.asset(
                       'lib/assets/lineall_splash.png',
                       width: truckW * 3.0,
-                      height: truckW ,
+                      height: truckW,
                       fit: BoxFit.contain,
                     ),
                     Image.asset(
