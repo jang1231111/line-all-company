@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:line_all/features/condition/presentation/widgets/surcharge_dialog.dart';
 import '../data/condition_options.dart';
 import '../models/selected_fare.dart';
 
@@ -369,89 +370,6 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                   ),
                                                 ),
                                               ),
-                                              // Builder(builder: (ctx) {
-                                              //   final viewModel = ref.read(selectedFareProvider.notifier);
-                                              //   final id = (entry['id']?.toString() ?? '');
-                                              //   return IconButton(
-                                              //     padding: EdgeInsets.zero,
-                                              //     constraints: BoxConstraints(minWidth: 32.w, minHeight: 32.h),
-                                              //     icon: Icon(Icons.delete_outline, color: Colors.red.shade400, size: 20.sp),
-                                              //     onPressed: id.isEmpty
-                                              //         ? null
-                                              //         : () async {
-                                              //             final confirmed = await showDialog<bool>(
-                                              //               context: ctx,
-                                              //               builder: (dctx) => AlertDialog(
-                                              //                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-                                              //                 backgroundColor: Colors.white,
-                                              //                 titlePadding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
-                                              //                 contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-                                              //                 title: Row(
-                                              //                   children: [
-                                              //                     Container(
-                                              //                       padding: EdgeInsets.all(8.w),
-                                              //                       decoration: BoxDecoration(
-                                              //                         color: Colors.red.shade50,
-                                              //                         shape: BoxShape.circle,
-                                              //                       ),
-                                              //                       child: Icon(
-                                              //                         Icons.delete_outline,
-                                              //                         color: Colors.redAccent,
-                                              //                         size: 22.sp,
-                                              //                       ),
-                                              //                     ),
-                                              //                     SizedBox(width: 12.w),
-                                              //                     Text(
-                                              //                       '삭제 확인',
-                                              //                       style: TextStyle(
-                                              //                         fontSize: 18.sp,
-                                              //                         fontWeight: FontWeight.w700,
-                                              //                         color: Colors.black87,
-                                              //                       ),
-                                              //                     ),
-                                              //                   ],
-                                              //                 ),
-                                              //                 content: Text(
-                                              //                   '선택한 기록을 삭제하면 복구할 수 없습니다.\n계속 진행하시겠습니까?',
-                                              //                   style: TextStyle(fontSize: 14.sp, color: Colors.black54),
-                                              //                 ),
-                                              //                 actionsPadding: EdgeInsets.only(right: 12.w, bottom: 12.h),
-                                              //                 actions: [
-                                              //                   TextButton(
-                                              //                     style: TextButton.styleFrom(
-                                              //                       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                                              //                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                                              //                     ),
-                                              //                     onPressed: () => Navigator.of(dctx).pop(false),
-                                              //                     child: Text(
-                                              //                       '취소',
-                                              //                       style: TextStyle(fontSize: 14.sp, color: Colors.black87),
-                                              //                     ),
-                                              //                   ),
-                                              //                   ElevatedButton(
-                                              //                     style: ElevatedButton.styleFrom(
-                                              //                       backgroundColor: Colors.redAccent,
-                                              //                       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                                              //                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                                              //                       elevation: 0,
-                                              //                     ),
-                                              //                     onPressed: () => Navigator.of(dctx).pop(true),
-                                              //                     child: Text(
-                                              //                       '삭제',
-                                              //                       style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                                              //                     ),
-                                              //                   ),
-                                              //                 ],
-                                              //               ),
-                                              //             );
-                                              //             if (confirmed != true) return;
-                                              //             await viewModel.deleteEntryById(id);
-                                              //             setState(() {
-                                              //               _historyFuture = viewModel.loadHistoryFromDb();
-                                              //             });
-                                              //           },
-                                              //   );
-                                              // }),
                                             ],
                                           ),
                                           SizedBox(height: 16.h),
@@ -574,24 +492,132 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                         ],
                                                       ),
                                                       SizedBox(height: 8.h),
+
                                                       Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
                                                                 .spaceBetween,
                                                         children: [
-                                                          Text(
-                                                            '할증률: ${(fare.rate * 100).toStringAsFixed(1)}%',
-                                                            style: TextStyle(
-                                                              fontSize: 18.sp,
-                                                              color: Colors
-                                                                  .grey[700],
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                            ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Material(
+                                                                color:
+                                                                    const Color(
+                                                                      0xFFFFF3C2,
+                                                                    ),
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      10.r,
+                                                                    ),
+                                                                child: InkWell(
+                                                                  splashColor: Colors
+                                                                      .orange
+                                                                      .withOpacity(
+                                                                        0.1,
+                                                                      ),
+                                                                  highlightColor:
+                                                                      Colors
+                                                                          .orange
+                                                                          .withOpacity(
+                                                                            0.1,
+                                                                          ),
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        10.r,
+                                                                      ),
+                                                                  onTap: () {
+                                                                    showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      builder: (_) => SurchargeDialog(
+                                                                        fare:
+                                                                            fare,
+                                                                      ),
+                                                                    );
+                                                                  },
+                                                                  child: Container(
+                                                                    decoration: BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            10.r,
+                                                                          ),
+                                                                      border: Border.all(
+                                                                        color: Colors
+                                                                            .orange
+                                                                            .shade200,
+                                                                      ),
+                                                                      boxShadow: [
+                                                                        BoxShadow(
+                                                                          color: Colors.orange.withOpacity(
+                                                                            0.06,
+                                                                          ),
+                                                                          blurRadius:
+                                                                              4.r,
+                                                                          offset: Offset(
+                                                                            0,
+                                                                            1.h,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    padding:
+                                                                        EdgeInsets.all(
+                                                                          1.w,
+                                                                        ),
+                                                                    child: Column(
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        SizedBox(
+                                                                          height:
+                                                                              4.h,
+                                                                        ),
+                                                                        Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.center,
+                                                                          children: [
+                                                                            SizedBox(
+                                                                              width: 10.w,
+                                                                            ),
+                                                                            Text(
+                                                                              '할증률:',
+                                                                              style: TextStyle(
+                                                                                fontWeight: FontWeight.bold,
+                                                                                fontSize: 16.sp,
+                                                                                color: Colors.black87,
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(
+                                                                              width: 5.w,
+                                                                            ),
+                                                                            Text(
+                                                                              '${(fare.rate * 100).toStringAsFixed(1)}%',
+                                                                              style: TextStyle(
+                                                                                fontWeight: FontWeight.bold,
+                                                                                fontSize: 16.sp,
+                                                                                color: Color(
+                                                                                  0xFFD18A00,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(
+                                                                              width: 14.w,
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                           Text(
-                                                            '운임비: ${NumberFormat('#,###').format(fare.price)}원',
+                                                            '${NumberFormat('#,###').format(fare.price)}원',
                                                             style: TextStyle(
                                                               fontSize: 20.sp,
                                                               fontWeight:
@@ -603,35 +629,6 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                           ),
                                                         ],
                                                       ),
-                                                      if (fare
-                                                          .surchargeLabels
-                                                          .isNotEmpty)
-                                                        Wrap(
-                                                          spacing: 10.w,
-                                                          children: fare
-                                                              .surchargeLabels
-                                                              .map(
-                                                                (label) => Chip(
-                                                                  label: Text(
-                                                                    label,
-                                                                    style: TextStyle(
-                                                                      fontSize:
-                                                                          16.sp,
-                                                                    ),
-                                                                  ),
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .blue[50],
-                                                                  shape: RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          10.r,
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                              )
-                                                              .toList(),
-                                                        ),
                                                     ],
                                                   ),
                                                 ),
