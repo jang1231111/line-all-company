@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
+import 'package:line_all/features/condition/presentation/widgets/surcharge_dialog.dart';
 import '../data/condition_options.dart';
 import '../providers/selected_fare_result_provider.dart';
 
@@ -200,42 +201,95 @@ class SelectedFareDialog extends ConsumerWidget {
                                 ],
                               ),
 
-                              // SizedBox(height: 2.h),
-                              if (fare.surchargeLabels.isNotEmpty)
-                                Wrap(
-                                  spacing: 10.w,
-                                  children: fare.surchargeLabels
-                                      .map(
-                                        (label) => Chip(
-                                          label: Text(
-                                            label,
-                                            style: TextStyle(fontSize: 16.sp),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Material(
+                                        color: const Color(0xFFFFF3C2),
+                                        borderRadius: BorderRadius.circular(
+                                          10.r,
+                                        ),
+                                        child: InkWell(
+                                          splashColor: Colors.orange
+                                              .withOpacity(0.1),
+                                          highlightColor: Colors.orange
+                                              .withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            10.r,
                                           ),
-                                          backgroundColor: Colors.blue[50],
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10.r,
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (_) =>
+                                                  SurchargeDialog(fare: fare),
+                                            );
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.r),
+                                              border: Border.all(
+                                                color: Colors.orange.shade200,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.orange
+                                                      .withOpacity(0.06),
+                                                  blurRadius: 4.r,
+                                                  offset: Offset(0, 1.h),
+                                                ),
+                                              ],
+                                            ),
+                                            padding: EdgeInsets.all(1.w),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(height: 4.h),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    SizedBox(width: 10.w),
+                                                    Text(
+                                                      '할증률:',
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 16.sp,
+                                                        color: Colors.black87,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 5.w),
+                                                    Text(
+                                                      '${(fare.rate * 100).toStringAsFixed(1)}%',
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 16.sp,
+                                                        color: Color(
+                                                          0xFFD18A00,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 14.w),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),
-                                      )
-                                      .toList(),
-                                ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '할증률: ${(fare.rate * 100).toStringAsFixed(1)}%',
-                                    style: TextStyle(
-                                      fontSize: 16.sp,
-                                      color: Colors.grey[700],
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                   Text(
-                                    '운임비: ${NumberFormat('#,###').format(fare.price)}원',
+                                    '${NumberFormat('#,###').format(fare.price)}원',
                                     style: TextStyle(
-                                      fontSize: 17.sp,
+                                      fontSize: 20.sp,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black87,
                                     ),
