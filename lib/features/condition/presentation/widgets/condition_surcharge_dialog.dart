@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_all/features/condition/presentation/data/surcharge_calculator.dart';
+import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 
 import '../providers/condition_provider.dart';
 import '../data/surcharge_options.dart';
@@ -365,15 +366,22 @@ class _ConditionSurchargeDialogState
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
+                                  Column(
                                     children: [
-                                      SizedBox(width: 12.w),
                                       Text(
                                         '할증을 적용하시겠습니까?',
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 22.sp,
                                           color: Color(0xFF7A4B00),
+                                        ),
+                                      ),
+                                      Text(
+                                        '기존 선택한 운임 건이 초기화됩니다.',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.sp,
+                                          color: Colors.black,
                                         ),
                                       ),
                                     ],
@@ -502,6 +510,13 @@ class _ConditionSurchargeDialogState
                                               ),
                                             );
                                             viewModel.updateSurcharge();
+
+                                            // 적용 후 선택된 운임들 초기화
+                                            ref
+                                                .read(
+                                                  selectedFareProvider.notifier,
+                                                )
+                                                .clearState();
 
                                             Navigator.of(
                                               context,
