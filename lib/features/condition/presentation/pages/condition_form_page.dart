@@ -39,6 +39,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   List<TargetFocus> targets = [];
   TutorialCoachMark? _tutorialCoachMark; // 튜토리얼 인스턴스 보관
   void Function(PointerEvent)? _globalPointerHandler; // 전역 포인터 핸들러
+  bool _suppressNext = false; // 다음 스텝 중복 호출 방지 플래그
 
   // 열고 싶은 사이트 URL (실제 도메인으로 교체)
   static const String _companyUrl = 'http://www.lineall.co.kr';
@@ -474,6 +475,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
     _globalPointerHandler = (PointerEvent event) {
       if (!_tutorialRunning) return;
       if (event is PointerUpEvent) {
+        if (_suppressNext) return; // 중복 방지
         _tutorialCoachMark?.next();
       }
     };
@@ -490,11 +492,24 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       pulseEnable: false,
       focusAnimationDuration: const Duration(milliseconds: 0),
       // 오버레이/타겟 클릭도 다음으로
-      onClickOverlay: (_) => _tutorialCoachMark?.next(),
-      onClickTarget: (_) => _tutorialCoachMark?.next(),
+      onClickOverlay: (_) {
+        _suppressNext = true;
+        _tutorialCoachMark?.next();
+        Future.delayed(const Duration(milliseconds: 300), () {
+          _suppressNext = false;
+        });
+      },
+      onClickTarget: (_) {
+        _suppressNext = true;
+        _tutorialCoachMark?.next();
+        Future.delayed(const Duration(milliseconds: 300), () {
+          _suppressNext = false;
+        });
+      },
       onFinish: () {
         _tutorialRunning = false;
         _tutorialCoachMark = null;
+        _suppressNext = false;
         if (_globalPointerHandler != null) {
           GestureBinding.instance.pointerRouter.removeGlobalRoute(
             _globalPointerHandler!,
@@ -505,6 +520,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       onSkip: () {
         _tutorialRunning = false;
         _tutorialCoachMark = null;
+        _suppressNext = false;
         if (_globalPointerHandler != null) {
           GestureBinding.instance.pointerRouter.removeGlobalRoute(
             _globalPointerHandler!,
