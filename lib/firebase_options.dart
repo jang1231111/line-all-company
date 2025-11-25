@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDr4o5HExwDjWsjlIMNu-mB8DksYKSfFBU',
-    appId: '1:266658631850:android:e1bac6567e28e09d5d40d3',
+    appId: '1:266658631850:android:d7681507506ff9b75d40d3',
     messagingSenderId: '266658631850',
     projectId: 'optilo-3c61e',
     storageBucket: 'optilo-3c61e.firebasestorage.app',
@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'optilo-3c61e.firebasestorage.app',
     measurementId: 'G-P4YH58J0NH',
   );
+
 }
