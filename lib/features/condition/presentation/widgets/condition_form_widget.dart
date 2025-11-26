@@ -6,19 +6,20 @@ import 'package:line_all/features/condition/presentation/providers/condition_pro
 import 'package:line_all/features/condition/presentation/widgets/period_dropdown_row.dart';
 import 'package:line_all/features/condition/presentation/widgets/region_selectors_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/road_name_search_dialog.dart';
-import 'package:line_all/features/condition/presentation/widgets/search_type_selector_row.dart';
 
 class ConditionFormWidget extends ConsumerStatefulWidget {
-  final GlobalKey? periodTargetKey;
-  final GlobalKey? sectionTargetKey;
+  final GlobalKey periodTargetKey;
+  final GlobalKey typeTargetKey;
+  final GlobalKey sectionTargetKey;
   final GlobalKey? serachKey;
   final GlobalKey? regionButtonKey;
   final GlobalKey? roadButtonKey;
 
   const ConditionFormWidget({
     super.key,
-    this.periodTargetKey,
-    this.sectionTargetKey,
+    required this.periodTargetKey,
+    required this.typeTargetKey,
+    required this.sectionTargetKey,
     this.serachKey,
     this.regionButtonKey,
     this.roadButtonKey,
@@ -35,11 +36,8 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
   final _typeFocusNode = FocusNode();
   final _sectionFocusNode = FocusNode();
 
-  final _periodKey = GlobalKey();
-  final _typeKey = GlobalKey();
-  final _sectionKey = GlobalKey();
-
   bool _periodError = false;
+  bool _typeError = false;
   bool _sectionError = false;
 
   @override
@@ -73,15 +71,32 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
     final condition = ref.read(conditionViewModelProvider);
     setState(() {
       _periodError = condition.period == null || condition.period!.isEmpty;
+      _typeError = condition.type == null || condition.type!.isEmpty;
       _sectionError = condition.section == null || condition.section!.isEmpty;
     });
 
     if (_periodError) {
-      await _focusAndScroll(_periodKey, _periodFocusNode, '기간을 선택해주세요.');
+      await _focusAndScroll(
+        widget.periodTargetKey,
+        _periodFocusNode,
+        '기간을 선택해주세요.',
+      );
+      return;
+    }
+    if (_typeError) {
+      await _focusAndScroll(
+        widget.typeTargetKey,
+        _typeFocusNode,
+        '유형을 선택해주세요.',
+      );
       return;
     }
     if (_sectionError) {
-      await _focusAndScroll(_sectionKey, _sectionFocusNode, '구간을 선택해주세요.');
+      await _focusAndScroll(
+        widget.sectionTargetKey,
+        _sectionFocusNode,
+        '구간을 선택해주세요.',
+      );
       return;
     }
     onValid();
@@ -123,12 +138,12 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                     SizedBox(height: 14.h),
                     // Period (튜토리얼용 key 전달)
                     PeriodDropdownRow(
-                      key: widget.periodTargetKey ?? _periodKey,
+                      key: widget.periodTargetKey,
+                      typeKey: widget.typeTargetKey,
+                      sectionKey: widget.sectionTargetKey,
                       periodFocusNode: _periodFocusNode,
                       typeFocusNode: _typeFocusNode,
                       sectionFocusNode: _sectionFocusNode,
-                      typeKey: _typeKey,
-                      sectionKey: widget.sectionTargetKey ?? _sectionKey,
                     ),
                     SizedBox(height: 10.h),
                     // 검색 버튼들을 인라인으로 두어 개별 키 부여
@@ -141,12 +156,15 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                               key: widget.regionButtonKey,
                               icon: const Icon(Icons.search),
                               label: const Text('지역 검색'),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.indigo,
+                              ),
                               onPressed: () {
                                 _validateAndHandleSearchType(() {
                                   showDialog(
                                     context: context,
-                                    builder: (context) => const RegionSelectorsDialog(),
+                                    builder: (context) =>
+                                        const RegionSelectorsDialog(),
                                   );
                                 });
                               },
@@ -158,12 +176,15 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                               key: widget.roadButtonKey,
                               icon: const Icon(Icons.place),
                               label: const Text('도로명 검색'),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                              ),
                               onPressed: () {
                                 _validateAndHandleSearchType(() async {
                                   RoadNameAddress? result = await showDialog(
                                     context: context,
-                                    builder: (context) => const RoadNameSearchDialog(),
+                                    builder: (context) =>
+                                        const RoadNameSearchDialog(),
                                   );
                                   if (result != null) {
                                     await viewModel.searchByRoadName(result);

@@ -6,19 +6,21 @@ import 'package:line_all/features/condition/presentation/data/condition_options.
 import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
 
 class PeriodDropdownRow extends ConsumerWidget {
+  final Key? periodKey;
+  final Key? typeKey;
+  final Key? sectionKey;
   final FocusNode? periodFocusNode;
   final FocusNode? typeFocusNode;
   final FocusNode? sectionFocusNode;
-  final Key? typeKey;
-  final Key? sectionKey;
 
   const PeriodDropdownRow({
     super.key,
+    this.periodKey,
+    this.typeKey,
+    this.sectionKey,
     this.periodFocusNode,
     this.typeFocusNode,
     this.sectionFocusNode,
-    this.typeKey,
-    this.sectionKey,
   });
 
   @override
@@ -28,14 +30,23 @@ class PeriodDropdownRow extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFB4C8F7), width: 1.2.w),
-        borderRadius: BorderRadius.circular(8.r),
+        color: const Color(0xFFF7FAFF), // 연한 배경으로 가독성 향상
+        border: Border.all(color: const Color(0xFFD6E1FF), width: 1.w),
+        borderRadius: BorderRadius.circular(10.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 6.r,
+            offset: Offset(0, 2.h),
+          ),
+        ],
       ),
-      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 14.w),
+      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
       child: Column(
         children: [
           // 기간 드롭다운
           DropdownField(
+            key: periodKey,
             focusNode: periodFocusNode,
             initialValue: periodOptions
                 .firstWhere(
@@ -45,9 +56,13 @@ class PeriodDropdownRow extends ConsumerWidget {
                 .label,
             items: periodOptions.map((opt) => opt.label).toList(),
             hint: '필수 선택',
-            icon: null,
-            style: TextStyle(fontSize: 20.sp),
-            hintStyle: TextStyle(fontSize: 20.sp, color: Colors.grey),
+            icon: Icons.expand_more,
+            style: TextStyle(fontSize: 16.sp, color: Colors.black87),
+            hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey),
+            contentPadding: EdgeInsets.symmetric(
+              vertical: 10.h,
+              horizontal: 10.w,
+            ),
             onChanged: (v) {
               final selected = periodOptions.firstWhere(
                 (opt) => opt.label == v,
@@ -56,8 +71,36 @@ class PeriodDropdownRow extends ConsumerWidget {
               viewModel.update(condition.copyWith(period: selected.value));
             },
           ),
-          SizedBox(height: 10.h),
-          // 구간 드롭다운
+          SizedBox(height: 8.h),
+          // 유형 드롭다운
+          DropdownField(
+            key: typeKey,
+            focusNode: typeFocusNode,
+            initialValue: typeOptions
+                .firstWhere(
+                  (opt) => opt.value == condition.section,
+                  orElse: () => typeOptions.first,
+                )
+                .label,
+            items: typeOptions.map((opt) => opt.label).toList(),
+            hint: '유형 선택',
+            icon: Icons.expand_more,
+            style: TextStyle(fontSize: 16.sp, color: Colors.black87),
+            hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey),
+            contentPadding: EdgeInsets.symmetric(
+              vertical: 10.h,
+              horizontal: 10.w,
+            ),
+            onChanged: (v) {
+              final selected = typeOptions.firstWhere(
+                (opt) => opt.label == v,
+                orElse: () => typeOptions.first,
+              );
+              viewModel.update(condition.copyWith(type: selected.value));
+            },
+          ),
+          SizedBox(height: 8.h),
+          // 구간 상세 드롭다운
           DropdownField(
             key: sectionKey,
             focusNode: sectionFocusNode,
@@ -69,9 +112,13 @@ class PeriodDropdownRow extends ConsumerWidget {
                 .label,
             items: sectionOptions.map((opt) => opt.label).toList(),
             hint: '구간 선택',
-            icon: null,
-            style: TextStyle(fontSize: 20.sp),
-            hintStyle: TextStyle(fontSize: 20.sp, color: Colors.grey),
+            icon: Icons.expand_more,
+            style: TextStyle(fontSize: 16.sp, color: Colors.black87),
+            hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey),
+            contentPadding: EdgeInsets.symmetric(
+              vertical: 10.h,
+              horizontal: 10.w,
+            ),
             onChanged: (v) {
               final selected = sectionOptions.firstWhere(
                 (opt) => opt.label == v,

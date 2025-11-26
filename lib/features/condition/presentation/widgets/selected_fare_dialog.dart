@@ -348,8 +348,8 @@ class SelectedFareDialog extends ConsumerWidget {
                         selectedFareViewModel.clearState();
                         Navigator.of(context).pop('save');
                       },
-                      icon: Icon(Icons.save_rounded, size: 26.sp),
-                      label: Text('저장', style: TextStyle(fontSize: 20.sp)),
+                      icon: Icon(Icons.mail, size: 26.sp),
+                      label: Text('전송', style: TextStyle(fontSize: 20.sp)),
                     ),
                   ),
                 ],

@@ -47,7 +47,7 @@ const periodOptions = [
 ];
 
 const typeOptions = [
-  DropdownOption(value: '', label: '필수 선택'),
+  DropdownOption(value: '', label: '유형 (필수 선택)'),
   DropdownOption(value: 'transport', label: '안전운송운임'),
   DropdownOption(value: 'driver', label: '운수사업자간운임'),
   DropdownOption(value: 'safe', label: '안전위탁운임'),
@@ -110,7 +110,6 @@ const sidoOptions = [
 ];
 
 // 시군구, 읍면동, 법정동 등은 json에서 동적으로 파싱해서 사용 권장
-
 
 // section label 가져오기 함수
 String getSectionLabel(String value) {

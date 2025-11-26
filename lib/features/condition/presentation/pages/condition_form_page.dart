@@ -21,6 +21,7 @@ class ConditionFormPage extends ConsumerStatefulWidget {
 class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   static const String _tutorialShownKey = 'condition_tutorial_shown_v1';
   final GlobalKey periodTargetKey = GlobalKey();
+  final GlobalKey typeTargetKey = GlobalKey();
   final GlobalKey sectionTargetKey = GlobalKey();
   final GlobalKey searchKey = GlobalKey();
   final GlobalKey regionButtonKey = GlobalKey();
@@ -453,6 +454,13 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
           alignment: 0.2,
         );
       }
+      // if (typeTargetKey.currentContext != null) {
+      //   await Scrollable.ensureVisible(
+      //     typeTargetKey.currentContext!,
+      //     duration: const Duration(milliseconds: 300),
+      //     alignment: 1.0,
+      //   );
+      // }
       // 바텀/앱바도 화면에 보이도록(있다면)
       if (selectedBottomKey.currentContext != null) {
         await Scrollable.ensureVisible(
@@ -640,7 +648,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                           const Icon(Icons.local_shipping, color: Colors.white),
                           SizedBox(width: 7.w),
                           Text(
-                            '안전 위탁 운임  -  차주용',
+                            '안전운임 - 화주 및 운송사용',
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w800,
@@ -744,6 +752,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                       children: [
                         ConditionFormWidget(
                           periodTargetKey: periodTargetKey,
+                          typeTargetKey: typeTargetKey,
                           sectionTargetKey: sectionTargetKey,
                           serachKey: searchKey,
                           regionButtonKey: regionButtonKey,
