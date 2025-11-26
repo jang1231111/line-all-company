@@ -105,7 +105,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                 Text(
                   '운임 통계',
                   style: TextStyle(
-                    fontSize: 18.sp,
+                    fontSize: 16.sp, // -2
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
@@ -113,7 +113,10 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                 SizedBox(height: 2.h),
                 Text(
                   '운임 통계 기록',
-                  style: TextStyle(fontSize: 12.sp, color: Colors.white70),
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: Colors.white70,
+                  ), // -1
                 ),
               ],
             ),
@@ -136,13 +139,13 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                   Icon(
                     Icons.bar_chart_rounded,
                     color: Colors.indigo,
-                    size: 80.sp,
+                    size: 72.sp, // -8
                   ),
                   SizedBox(height: 24.h),
                   Text(
                     '운임 통계 페이지',
                     style: TextStyle(
-                      fontSize: 32.sp,
+                      fontSize: 28.sp, // -4
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2D365C),
                     ),
@@ -150,7 +153,10 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                   SizedBox(height: 12.h),
                   Text(
                     '저장된 운임 데이터가 없습니다.',
-                    style: TextStyle(fontSize: 22.sp, color: Color(0xFF6B7684)),
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      color: Color(0xFF6B7684),
+                    ), // -2
                   ),
                 ],
               ),
@@ -171,7 +177,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                       icon: Icon(
                         Icons.arrow_back_ios,
                         color: Colors.indigo,
-                        size: 32.sp,
+                        size: 30.sp, // -2
                       ),
                       onPressed: _currentPage > 0
                           ? () {
@@ -187,13 +193,13 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                         Icon(
                           Icons.calendar_month,
                           color: Colors.indigo,
-                          size: 36.sp,
+                          size: 34.sp, // -2
                         ),
                         SizedBox(width: 14.w),
                         Text(
                           '${months[_currentPage]}월',
                           style: TextStyle(
-                            fontSize: 20.sp,
+                            fontSize: 18.sp, // -2
                             fontWeight: FontWeight.bold,
                             color: Colors.indigo.shade700,
                           ),
@@ -205,7 +211,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                       icon: Icon(
                         Icons.arrow_forward_ios,
                         color: Colors.indigo,
-                        size: 32.sp,
+                        size: 30.sp, // -2
                       ),
                       onPressed: _currentPage < months.length - 1
                           ? () {
@@ -230,7 +236,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                         Text(
                           '이 달의 운임 합계:',
                           style: TextStyle(
-                            fontSize: 15.sp,
+                            fontSize: 13.sp, // -2
                             // fontWeight: FontWeight.bold,
                             color: Colors.black54,
                           ),
@@ -239,7 +245,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                         Text(
                           '${NumberFormat('#,###').format(getMonthTotal(grouped[months[_currentPage]]!))}원',
                           style: TextStyle(
-                            fontSize: 24.sp,
+                            fontSize: 22.sp, // -2
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -352,7 +358,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                               Icon(
                                                 Icons.access_time,
                                                 color: Colors.indigo.shade300,
-                                                size: 23.sp,
+                                                size: 21.sp, // -2
                                               ),
                                               SizedBox(width: 10.w),
                                               Expanded(
@@ -363,7 +369,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                         ).format(savedAt)
                                                       : '알 수 없음',
                                                   style: TextStyle(
-                                                    fontSize: 18.sp,
+                                                    fontSize: 16.sp, // -2
                                                     fontWeight: FontWeight.bold,
                                                     color:
                                                         Colors.indigo.shade300,
@@ -372,7 +378,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                               ),
                                             ],
                                           ),
-                                          SizedBox(height: 16.h),
+                                          SizedBox(height: 14.h),
 
                                           // fares를 인덱스 기준으로 순회 -> fareMap에서 fare_id 읽어서 개별 삭제 버튼 추가
                                           ...List.generate(fares.length, (i) {
@@ -391,8 +397,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                     vertical: 8.h,
                                                   ),
                                                   padding: EdgeInsets.symmetric(
-                                                    vertical: 14.h,
-                                                    horizontal: 16.w,
+                                                    vertical: 12.h, // -2
+                                                    horizontal: 14.w, // -2
                                                   ),
                                                   decoration: BoxDecoration(
                                                     color:
@@ -417,7 +423,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                               fare.row.section,
                                                             ),
                                                             style: TextStyle(
-                                                              fontSize: 20.sp,
+                                                              fontSize:
+                                                                  18.sp, // -2
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold,
@@ -436,7 +443,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                           Text(
                                                             '${fare.row.sido}>${fare.row.sigungu}>${fare.row.eupmyeondong}',
                                                             style: TextStyle(
-                                                              fontSize: 18.sp,
+                                                              fontSize:
+                                                                  16.sp, // -2
                                                               color: Colors
                                                                   .black87,
                                                               fontWeight:
@@ -447,8 +455,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                           Container(
                                                             padding:
                                                                 EdgeInsets.symmetric(
-                                                                  horizontal:
-                                                                      14.w,
+                                                                  horizontal: 12
+                                                                      .w, // -2
                                                                   vertical: 6.h,
                                                                 ),
                                                             decoration: BoxDecoration(
@@ -485,7 +493,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,
-                                                                fontSize: 16.sp,
+                                                                fontSize:
+                                                                    14.sp, // -2
                                                               ),
                                                             ),
                                                           ),
@@ -532,10 +541,11 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                     showDialog(
                                                                       context:
                                                                           context,
-                                                                      builder: (_) => SurchargeDialog(
-                                                                        fare:
-                                                                            fare,
-                                                                      ),
+                                                                      builder: (_) =>
+                                                                          SurchargeDialog(
+                                                                            fare:
+                                                                                fare,
+                                                                          ),
                                                                     );
                                                                   },
                                                                   child: Container(
@@ -587,7 +597,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                               '할증률:',
                                                                               style: TextStyle(
                                                                                 fontWeight: FontWeight.bold,
-                                                                                fontSize: 16.sp,
+                                                                                fontSize: 14.sp, // -2
                                                                                 color: Colors.black87,
                                                                               ),
                                                                             ),
@@ -598,7 +608,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                               '${(fare.rate * 100).toStringAsFixed(1)}%',
                                                                               style: TextStyle(
                                                                                 fontWeight: FontWeight.bold,
-                                                                                fontSize: 16.sp,
+                                                                                fontSize: 14.sp, // -2
                                                                                 color: Color(
                                                                                   0xFFD18A00,
                                                                                 ),
@@ -619,7 +629,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                           Text(
                                                             '${NumberFormat('#,###').format(fare.price)}원',
                                                             style: TextStyle(
-                                                              fontSize: 20.sp,
+                                                              fontSize:
+                                                                  18.sp, // -2
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold,
@@ -636,7 +647,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                 // 개별 삭제 버튼 (작은 원형), 우측 상단
                                                 Positioned(
                                                   right: 10.w,
-                                                  top: 20.h,
+                                                  top: 18.h, // -2
                                                   child: GestureDetector(
                                                     onTap:
                                                         (entryId.isEmpty ||
@@ -688,8 +699,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                             .delete_outline,
                                                                         color: Colors
                                                                             .redAccent,
-                                                                        size: 22
-                                                                            .sp,
+                                                                        size: 20
+                                                                            .sp, // -2
                                                                       ),
                                                                     ),
                                                                     SizedBox(
@@ -700,7 +711,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                       '삭제 확인',
                                                                       style: TextStyle(
                                                                         fontSize:
-                                                                            24.sp,
+                                                                            22.sp, // -2
                                                                         fontWeight:
                                                                             FontWeight.w700,
                                                                         color: Colors
@@ -712,8 +723,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                 content: Text(
                                                                   '항목을 삭제하면 복구할 수 없습니다.\n계속 진행하시겠습니까?',
                                                                   style: TextStyle(
-                                                                    fontSize:
-                                                                        18.sp,
+                                                                    fontSize: 16
+                                                                        .sp, // -2
                                                                     color: Colors
                                                                         .black87,
                                                                     height: 1.4,
@@ -731,16 +742,16 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                     style: OutlinedButton.styleFrom(
                                                                       padding: EdgeInsets.symmetric(
                                                                         horizontal:
-                                                                            16.w,
+                                                                            14.w,
                                                                         vertical:
-                                                                            10.h,
+                                                                            8.h,
                                                                       ),
                                                                       side: BorderSide(
                                                                         color: Colors
                                                                             .grey
                                                                             .shade300,
                                                                         width:
-                                                                            1.2.w,
+                                                                            1.w,
                                                                       ),
                                                                       shape: RoundedRectangleBorder(
                                                                         borderRadius:
@@ -762,7 +773,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                       '취소',
                                                                       style: TextStyle(
                                                                         fontSize:
-                                                                            19.sp,
+                                                                            17.sp, // -2
                                                                         color: Colors
                                                                             .black87,
                                                                       ),
@@ -776,9 +787,9 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                               .redAccent,
                                                                       padding: EdgeInsets.symmetric(
                                                                         horizontal:
-                                                                            18.w,
+                                                                            16.w,
                                                                         vertical:
-                                                                            10.h,
+                                                                            8.h,
                                                                       ),
                                                                       shape: RoundedRectangleBorder(
                                                                         borderRadius:
@@ -799,7 +810,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                                       '삭제',
                                                                       style: TextStyle(
                                                                         fontSize:
-                                                                            19.sp,
+                                                                            17.sp, // -2
                                                                         color: Colors
                                                                             .white,
                                                                       ),
@@ -826,8 +837,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                             });
                                                           },
                                                     child: Container(
-                                                      width: 28.w,
-                                                      height: 28.h,
+                                                      width: 26.w, // -2
+                                                      height: 26.h, // -2
                                                       decoration: BoxDecoration(
                                                         color: Colors.white
                                                             .withOpacity(0.9),
@@ -835,7 +846,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                       ),
                                                       child: Icon(
                                                         Icons.delete_outline,
-                                                        size: 20.sp,
+                                                        size: 18.sp, // -2
                                                         color: Colors.redAccent,
                                                       ),
                                                     ),
@@ -852,14 +863,14 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 22.h), // -2
                           Padding(
                             padding: EdgeInsets.only(bottom: 24.h),
                             child: Center(
                               child: Container(
                                 padding: EdgeInsets.symmetric(
-                                  vertical: 10.h,
-                                  horizontal: 24.w,
+                                  vertical: 8.h, // -2
+                                  horizontal: 20.w, // -4
                                 ),
                                 decoration: BoxDecoration(
                                   color: Colors.indigo.shade50,
@@ -872,7 +883,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                 child: Text(
                                   '${_currentPage + 1} / ${months.length}',
                                   style: TextStyle(
-                                    fontSize: 22.sp,
+                                    fontSize: 20.sp, // -2
                                     fontWeight: FontWeight.bold,
                                     color: Colors.indigo.shade700,
                                   ),

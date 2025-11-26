@@ -8,7 +8,11 @@ class SelectedFareBottomBar extends ConsumerWidget {
   final VoidCallback? onConfirm;
   final GlobalKey? confirmButtonKey; // 추가
 
-  const SelectedFareBottomBar({super.key, this.onConfirm, this.confirmButtonKey}); // 생성자에 추가
+  const SelectedFareBottomBar({
+    super.key,
+    this.onConfirm,
+    this.confirmButtonKey,
+  }); // 생성자에 추가
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,14 +47,14 @@ class SelectedFareBottomBar extends ConsumerWidget {
                   Icon(
                     Icons.check_circle,
                     color: const Color(0xFF1C63D6),
-                    size: 28.sp,
+                    size: 20.sp,
                   ),
                   SizedBox(width: 8.w),
                   Text(
                     '선택: $selectedCount건',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18.sp,
+                      fontSize: 15.sp,
                       color: const Color(0xFF232323),
                     ),
                   ),
@@ -81,11 +85,8 @@ class SelectedFareBottomBar extends ConsumerWidget {
                           if (onConfirm != null) onConfirm!();
                         }
                       : null,
-                  icon: Icon(Icons.visibility, size: 22.sp),
-                  label: Text(
-                    '확인',
-                    style: TextStyle(fontSize: 15.sp),
-                  ),
+                  icon: Icon(Icons.visibility, size: 20.sp),
+                  label: Text('확인', style: TextStyle(fontSize: 14.sp)),
                 ),
               ),
             ],

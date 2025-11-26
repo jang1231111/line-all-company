@@ -41,7 +41,7 @@ class PeriodDropdownRow extends ConsumerWidget {
           ),
         ],
       ),
-      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
+      padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 8.w),
       child: Column(
         children: [
           // 기간 드롭다운
@@ -57,8 +57,8 @@ class PeriodDropdownRow extends ConsumerWidget {
             items: periodOptions.map((opt) => opt.label).toList(),
             hint: '필수 선택',
             icon: Icons.expand_more,
-            style: TextStyle(fontSize: 16.sp, color: Colors.black87),
-            hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey),
+            style: TextStyle(fontSize: 15.sp, color: Colors.black87),
+            hintStyle: TextStyle(fontSize: 15.sp, color: Colors.grey),
             contentPadding: EdgeInsets.symmetric(
               vertical: 10.h,
               horizontal: 10.w,
@@ -85,8 +85,8 @@ class PeriodDropdownRow extends ConsumerWidget {
             items: typeOptions.map((opt) => opt.label).toList(),
             hint: '유형 선택',
             icon: Icons.expand_more,
-            style: TextStyle(fontSize: 16.sp, color: Colors.black87),
-            hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey),
+            style: TextStyle(fontSize: 15.sp, color: Colors.black87),
+            hintStyle: TextStyle(fontSize: 15.sp, color: Colors.grey),
             contentPadding: EdgeInsets.symmetric(
               vertical: 10.h,
               horizontal: 10.w,
@@ -113,8 +113,8 @@ class PeriodDropdownRow extends ConsumerWidget {
             items: sectionOptions.map((opt) => opt.label).toList(),
             hint: '구간 선택',
             icon: Icons.expand_more,
-            style: TextStyle(fontSize: 16.sp, color: Colors.black87),
-            hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey),
+            style: TextStyle(fontSize: 15.sp, color: Colors.black87),
+            hintStyle: TextStyle(fontSize: 15.sp, color: Colors.grey),
             contentPadding: EdgeInsets.symmetric(
               vertical: 10.h,
               horizontal: 10.w,

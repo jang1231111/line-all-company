@@ -33,25 +33,26 @@ class DropdownField extends StatelessWidget {
   });
 
   InputDecoration _decoration() => InputDecoration(
-        hintText: hint,
-        hintStyle: hintStyle,
-        filled: true,
-        fillColor: enabled ? Colors.white : Colors.grey.shade100,
-        contentPadding:
-            contentPadding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.blue.shade100),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.blue.shade100),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.blue.shade300, width: 1.5),
-        ),
-      );
+    hintText: hint,
+    hintStyle: hintStyle,
+    filled: true,
+    fillColor: enabled ? Colors.white : Colors.grey.shade100,
+    contentPadding:
+        contentPadding ??
+        const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: Colors.blue.shade100),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: Colors.blue.shade100),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: Colors.blue.shade300, width: 1.5),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +94,8 @@ class DropdownField extends StatelessWidget {
             ),
           ),
           contentPadding:
-              contentPadding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              contentPadding ??
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         ),
         dropdownColor: Colors.white, // 드롭다운 목록 배경색 명확히 지정
         items: items
@@ -102,7 +104,8 @@ class DropdownField extends StatelessWidget {
                 value: e,
                 child: Text(
                   e,
-                  style: style?.copyWith(color: Colors.black) ??
+                  style:
+                      style?.copyWith(color: Colors.black) ??
                       TextStyle(
                         fontSize: 14,
                         color: Colors.black, // 목록은 항상 검정색으로!
@@ -122,7 +125,8 @@ class DropdownField extends StatelessWidget {
             : null,
         validator: validator,
         onSaved: onSaved,
-        style: style ??
+        style:
+            style ??
             TextStyle(
               fontSize: 14,
               color: isDisabled ? Colors.grey : Colors.black,
