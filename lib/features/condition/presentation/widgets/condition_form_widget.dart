@@ -129,13 +129,31 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                     ),
                   ],
                 ),
-                margin: EdgeInsets.zero,
-                padding: EdgeInsets.all(10.w),
+                margin: EdgeInsets.symmetric(horizontal: 10.w),
+                padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 10.w),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 14.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.receipt_long,
+                          color: Colors.indigo,
+                          size: 20.sp,
+                        ),
+                        SizedBox(width: 5.w),
+                        Text(
+                          '운임 계산 조건 설정',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 3.h),
                     // Period (튜토리얼용 key 전달)
                     PeriodDropdownRow(
                       key: widget.periodTargetKey,
