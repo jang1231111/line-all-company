@@ -6,6 +6,7 @@ import 'package:line_all/features/condition/presentation/models/selected_fare.da
 import 'package:line_all/features/condition/presentation/widgets/surcharge_dialog.dart';
 import '../data/condition_options.dart';
 import '../providers/selected_fare_result_provider.dart';
+import 'send_fare_input_dialog.dart';
 
 class SelectedFareDialog extends ConsumerWidget {
   const SelectedFareDialog({super.key});
@@ -19,6 +20,9 @@ class SelectedFareDialog extends ConsumerWidget {
       (sum, fare) => sum + fare.price,
     );
     final priceFmt = NumberFormat('#,###');
+
+    // 서버 전송은 ViewModel.sendSelectedFares로 처리합니다.
+    // (선택한 항목 저장/상태 초기화는 ViewModel 내부에서 수행됩니다.)
 
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 28.h),
@@ -342,19 +346,45 @@ class SelectedFareDialog extends ConsumerWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      onPressed: selectedFares.isNotEmpty
-                          ? () async {
-                              await selectedFareViewModel.saveCurrentToDb();
-                              selectedFareViewModel.clearState();
-                              Navigator.of(context).pop('save');
-                            }
-                          : null,
+                      onPressed: () async {
+                        // 1) 사용자 입력 다이얼로그 표시
+                        final input = await SendFareInputDialog.show(context);
+                        if (input == null) return; // 취소됨
+
+                        // 2) 진행 표시
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) =>
+                              const Center(child: CircularProgressIndicator()),
+                        );
+
+                        // 3) ViewModel에 전체 input 전달하여 처리 위임
+                        final success = await selectedFareViewModel
+                            .sendSelectedFares(input);
+
+                        // 4) 진행 표시 닫기
+                        Navigator.of(context).pop();
+
+                        if (success) {
+                          Navigator.of(context).pop('save');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('전송이 완료되었습니다.')),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('전송에 실패했습니다. 다시 시도하세요.'),
+                            ),
+                          );
+                        }
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.send, size: 16.sp),
                           SizedBox(width: 8.w),
-                          Text('전송'),
+                          Text('확인'),
                         ],
                       ),
                     ),
