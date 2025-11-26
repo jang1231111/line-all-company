@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // 반응형 패키지 추가
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:line_all/features/condition/presentation/data/condition_options.dart';
 
 import '../../domain/models/fare_result.dart';
 
@@ -26,113 +27,160 @@ class FareResultRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 14.h),
-      child: Container(
-        // ...decoration 생략...
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final priceFmt = NumberFormat('#,###');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 헤더: 아이콘 + 위치 + 거리
+        Row(
           children: [
-            Row(
-              children: [
-                Icon(Icons.place, color: Colors.teal, size: 22.sp),
-                SizedBox(width: 4.w),
-                Expanded(
-                  child: Text(
-                    '${row.sido}>${row.sigungu}>${row.eupmyeondong}',
-                    style: TextStyle(
-                      fontSize: 22.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+            Icon(
+              Icons.local_shipping,
+              color: Colors.indigo,
+              size: 17.sp, // 아이콘 약간 확대
             ),
-            SizedBox(height: 14.h),
+            SizedBox(width: 8.w),
+            Expanded(
+              child: Text(
+                getSectionLabel(row.section),
+                style: TextStyle(
+                  fontSize: 16.sp, // 폰트 크기 +2
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF666666),
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             Row(
               children: [
-                Expanded(
-                  child: FareSelectButton(
-                    selected: is20Selected,
-                    label: '20FT',
-                    price: ft20WithSurcharge,
-                    selectedColor: Colors.indigo[700]!,
-                    unselectedColor: Colors.indigo[50]!,
-                    onTap: on20Tap,
-                  ),
-                ),
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: FareSelectButton(
-                    selected: is40Selected,
-                    label: '40FT',
-                    price: ft40WithSurcharge,
-                    selectedColor: Colors.deepOrange,
-                    unselectedColor: Colors.deepOrange[50]!,
-                    onTap: on40Tap,
+                Icon(Icons.route, size: 15.sp, color: Colors.black87),
+                SizedBox(width: 2.w),
+                Text(
+                  '${row.distance}km',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF666666),
                   ),
                 ),
               ],
             ),
           ],
         ),
-      ),
+
+        SizedBox(height: 8.h),
+
+        // 서브 위치(작게)
+        Row(
+          children: [
+            Icon(Icons.place, size: 18.sp, color: Colors.green.shade700),
+            SizedBox(width: 6.w),
+            Expanded(
+              child: Text(
+                '${row.sido} > ${row.sigungu} > ${row.eupmyeondong}',
+                style: TextStyle(
+                  fontSize: 18.sp, // +1 폰트
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: 10.h),
+
+        // 가격 선택 버튼들 (20FT / 40FT)
+        Row(
+          children: [
+            Expanded(
+              child: _PricePill(
+                label: '20FT',
+                price: priceFmt.format(ft20WithSurcharge),
+                selected: is20Selected,
+                selectedColor: Colors.indigo.shade700,
+                onTap: on20Tap,
+              ),
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: _PricePill(
+                label: '40FT',
+                price: priceFmt.format(ft40WithSurcharge),
+                selected: is40Selected,
+                selectedColor: Colors.deepOrange.shade400,
+                onTap: on40Tap,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
 
-class FareSelectButton extends StatelessWidget {
-  final bool selected;
+class _PricePill extends StatelessWidget {
   final String label;
-  final int price;
+  final String price;
+  final bool selected;
   final Color selectedColor;
-  final Color unselectedColor;
   final VoidCallback onTap;
 
-  const FareSelectButton({
-    super.key,
-    required this.selected,
+  const _PricePill({
     required this.label,
     required this.price,
+    required this.selected,
     required this.selectedColor,
-    required this.unselectedColor,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: selected ? selectedColor : unselectedColor,
-        foregroundColor: selected ? Colors.white : selectedColor,
-        elevation: selected ? 4 : 0,
-        padding: EdgeInsets.symmetric(vertical: 20.h),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-        textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
-      ),
-      onPressed: onTap,
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: selected ? Colors.white : selectedColor,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-            ),
+    final bg = selected ? selectedColor : selectedColor.withOpacity(0.18);
+    final textColor = selected ? Colors.white : selectedColor;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10.r),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          vertical: 12.h,
+          horizontal: 14.w,
+        ), // 약간 여유증가
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(
+            color: selected
+                ? selectedColor.withOpacity(0.9)
+                : Colors.transparent,
+            width: selected ? 0 : 0,
           ),
-          SizedBox(height: 6.h),
-          Text(
-            '${NumberFormat('#,###').format(price)}원',
-            style: TextStyle(
-              color: selected ? Colors.white : selectedColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 22.sp,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 17.sp, // +1
+                fontWeight: FontWeight.w700,
+                color: textColor,
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 6.h),
+            Text(
+              '$price원',
+              style: TextStyle(
+                fontSize: 18.sp, // +2
+                fontWeight: FontWeight.w800,
+                color: textColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

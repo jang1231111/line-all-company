@@ -34,18 +34,21 @@ class FareResultTable extends ConsumerWidget {
         constraints: BoxConstraints(maxWidth: 600.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(22.r),
-          border: Border.all(color: Colors.indigo.shade100, width: 2.w),
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: Colors.indigo.shade900.withOpacity(0.2),
+            width: 2.w,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.indigo.withOpacity(0.08),
-              blurRadius: 18.r,
-              offset: Offset(0, 6.h),
+              color: Colors.indigo.withOpacity(0.05),
+              blurRadius: 10.r,
+              offset: Offset(0, 4.h),
             ),
           ],
         ),
-        margin: EdgeInsets.zero,
-        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+        margin: EdgeInsets.symmetric(horizontal: 10.w),
+        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 10.w),
         child: resultsAsync.when(
           loading: () => SizedBox(
             height: 300.h,
@@ -58,86 +61,122 @@ class FareResultTable extends ConsumerWidget {
           error: (err, stack) => Center(
             child: Text(
               '오류가 발생했습니다.\n$err',
-              style: TextStyle(fontSize: 20.sp, color: Colors.red),
+              style: TextStyle(fontSize: 14.sp, color: Colors.red),
               textAlign: TextAlign.center,
             ),
           ),
           data: (results) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 할증 정보 박스에 키 추가
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Material(
-                    key: surchargeTargetKey, // <-- key 전달
-                    color: const Color(0xFFFFF3C2),
-                    borderRadius: BorderRadius.circular(10.r),
-                    child: InkWell(
-                      splashColor: Colors.orange.withOpacity(0.1),
-                      highlightColor: Colors.orange.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10.r),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) =>
-                              const ConditionSurchargeDialog(),
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.r),
-                          border: Border.all(color: Colors.orange.shade200),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.orange.withOpacity(0.06),
-                              blurRadius: 4.r,
-                              offset: Offset(0, 1.h),
-                            ),
-                          ],
-                        ),
-                        padding: EdgeInsets.all(1.w),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+              // 설명 텍스트 추가: 사용자 안내용
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
                           children: [
-                            SizedBox(height: 4.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.warning_amber_rounded,
-                                  color: Colors.orange[700],
-                                  size: 32.sp,
-                                ),
-                                SizedBox(width: 10.w),
-                                Text(
-                                  '할증 적용 ',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.sp,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                SizedBox(width: 5.w),
-                                Text(
-                                  '${(surchargeRate * 100).toStringAsFixed(0)}%',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.sp,
-                                    color: Color(0xFFD18A00),
-                                  ),
-                                ),
-                                SizedBox(width: 14.w),
-                              ],
+                            Icon(
+                              Icons.bar_chart,
+                              color: Colors.indigo,
+                              size: 20.sp,
+                            ),
+                            SizedBox(width: 5.w),
+                            Text(
+                              '운임 계산 결과',
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Material(
+                              key: surchargeTargetKey, // <-- key 전달
+                              color: const Color(0xFFFFF3C2),
+                              borderRadius: BorderRadius.circular(8.r),
+                              child: InkWell(
+                                splashColor: Colors.orange.withOpacity(0.1),
+                                highlightColor: Colors.orange.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10.r),
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) =>
+                                        const ConditionSurchargeDialog(),
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    border: Border.all(
+                                      color: Colors.orange.shade100,
+                                    ),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 4.h,
+                                    horizontal: 4.w,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.warning_amber_rounded,
+                                        color: Colors.orange[700],
+                                        size: 24.sp,
+                                      ),
+                                      SizedBox(width: 8.w),
+                                      Text(
+                                        '할증 적용',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15.sp,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      SizedBox(width: 6.w),
+                                      Text(
+                                        '${(surchargeRate * 100).toStringAsFixed(0)}%',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15.sp,
+                                          color: Color(0xFFD18A00),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 5.h),
+                    Text(
+                      '컨테이너 사이즈별 가격을 클릭하여 선택하세요.',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              Divider(height: 24.h, thickness: 3.w, color: Color(0xFFE0E7EF)),
+
+              // 할증 정보 박스에 키 추가
+              SizedBox(height: 5.h),
+              Divider(height: 5.h, thickness: 2.5.w, color: Color(0xFFEAF0F6)),
+              SizedBox(height: 4.h),
+
               if (results.isEmpty)
                 // ...empty UI...
                 Padding(
@@ -149,19 +188,19 @@ class FareResultTable extends ConsumerWidget {
                     child: Container(
                       key: resultsTargetKey, // <-- 전체 결과 영역 키
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(18.r),
+                        borderRadius: BorderRadius.circular(14.r),
                         border: Border.all(
-                          color: Colors.indigo.shade100,
-                          width: 1.5.w,
+                          color: Colors.indigo.shade50,
+                          width: 1.w,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.indigo.withOpacity(0.07),
-                            blurRadius: 16.r,
-                            offset: Offset(0, 4.h),
+                            color: Colors.indigo.withOpacity(0.04),
+                            blurRadius: 10.r,
+                            offset: Offset(0, 3.h),
                           ),
                         ],
                       ),
@@ -170,28 +209,28 @@ class FareResultTable extends ConsumerWidget {
                         children: [
                           Icon(
                             Icons.sentiment_dissatisfied_rounded,
-                            color: Colors.indigo.shade300,
-                            size: 54.sp,
+                            color: Colors.indigo.shade200,
+                            size: 46.sp,
                           ),
-                          SizedBox(height: 18.h),
+                          SizedBox(height: 12.h),
                           Text(
                             '검색 결과가 없습니다.',
                             style: TextStyle(
                               color: Color(0xFF3A4374),
-                              fontSize: 22.sp,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.2,
                             ),
                           ),
-                          SizedBox(height: 8.h),
+                          SizedBox(height: 6.h),
                           Text(
                             '조건을 다시 입력해주세요.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.indigo.shade200,
-                              fontSize: 17.sp,
+                              fontSize: 14.sp,
                               fontWeight: FontWeight.w500,
-                              height: 1.5,
+                              height: 1.4,
                             ),
                           ),
                         ],
@@ -227,23 +266,23 @@ class FareResultTable extends ConsumerWidget {
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16.r),
+                            borderRadius: BorderRadius.circular(12.r),
                             border: Border.all(
-                              color: Colors.indigo.shade100,
+                              color: Colors.indigo.shade900.withOpacity(0.2),
                               width: 1.5.w,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.indigo.withOpacity(0.06),
-                                blurRadius: 8.r,
+                                color: Colors.indigo.withOpacity(0.03),
+                                blurRadius: 6.r,
                                 offset: Offset(0, 2.h),
                               ),
                             ],
                           ),
                           child: Padding(
                             padding: EdgeInsets.symmetric(
-                              vertical: 14.h,
-                              horizontal: 12.w,
+                              vertical: 12.h,
+                              horizontal: 10.w,
                             ),
                             child: FareResultRow(
                               row: row,
