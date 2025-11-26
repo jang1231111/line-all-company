@@ -290,7 +290,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                             child: Container(
                               margin: EdgeInsets.symmetric(
                                 vertical: 0,
-                                horizontal: 0,
+                                horizontal: 10.w,
                               ),
                               padding: EdgeInsets.symmetric(
                                 vertical: 8.h,
@@ -418,18 +418,22 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                             MainAxisAlignment
                                                                 .spaceBetween,
                                                         children: [
-                                                          Text(
-                                                            getSectionLabel(
-                                                              fare.row.section,
-                                                            ),
-                                                            style: TextStyle(
-                                                              fontSize:
-                                                                  18.sp, // -2
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color:
-                                                                  Colors.indigo,
+                                                          Expanded(
+                                                            child: Text(
+                                                              getSectionLabel(
+                                                                fare
+                                                                    .row
+                                                                    .section,
+                                                              ),
+                                                              style: TextStyle(
+                                                                fontSize:
+                                                                    16.sp, // -2
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .indigo,
+                                                              ),
                                                             ),
                                                           ),
                                                         ],
@@ -440,16 +444,18 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                             MainAxisAlignment
                                                                 .spaceBetween,
                                                         children: [
-                                                          Text(
-                                                            '${fare.row.sido}>${fare.row.sigungu}>${fare.row.eupmyeondong}',
-                                                            style: TextStyle(
-                                                              fontSize:
-                                                                  16.sp, // -2
-                                                              color: Colors
-                                                                  .black87,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
+                                                          Expanded(
+                                                            child: Text(
+                                                              '${fare.row.sido}>${fare.row.sigungu}>${fare.row.eupmyeondong}',
+                                                              style: TextStyle(
+                                                                fontSize:
+                                                                    16.sp, // -2
+                                                                color: Colors
+                                                                    .black87,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
                                                             ),
                                                           ),
                                                           Container(
@@ -883,7 +889,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                 child: Text(
                                   '${_currentPage + 1} / ${months.length}',
                                   style: TextStyle(
-                                    fontSize: 20.sp, // -2
+                                    fontSize: 15.sp, // -2
                                     fontWeight: FontWeight.bold,
                                     color: Colors.indigo.shade700,
                                   ),
