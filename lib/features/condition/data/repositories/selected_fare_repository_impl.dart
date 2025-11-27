@@ -104,352 +104,271 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       final total = fares.fold<int>(0, (s, f) => s + f.price);
 
       doc.addPage(
-        pw.Page(
+        pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(18),
           build: (pw.Context ctx) {
-            return pw.Container(
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(color: PdfColors.grey700, width: 0.9),
-              ),
-              padding: const pw.EdgeInsets.all(16),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Center(child: pw.Text('운 임 견 적 서', style: titleStyle)),
-                  pw.SizedBox(height: 18),
-
-                  // 상단: 좌(문구) 우(수신/발신)
-                  pw.Row(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Expanded(
-                        flex: 2,
-                        child: pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.start,
-                          children: [
-                            pw.Text(
-                              '일자: ${_formatDate(DateTime.now())}',
-                              style: pw.TextStyle(font: ttf, fontSize: 12),
-                            ),
-                            pw.SizedBox(height: 25),
-                            pw.Text(
-                              '1. 귀사의 일익 번창하심을 기원합니다.',
-                              style: pw.TextStyle(font: ttf, fontSize: 10),
-                            ),
-                            pw.SizedBox(height: 6),
-                            pw.Text(
-                              '2. 문의하신 컨테이너 내륙 운송료 견적드립니다.',
-                              style: pw.TextStyle(font: ttf, fontSize: 10),
-                            ),
-                          ],
-                        ),
-                      ),
-                      pw.SizedBox(width: 12),
-
-                      // 우측 카드: 3열(레이블, 수신인, 발신인)
-                      pw.Container(
-                        width: 280,
-                        decoration: pw.BoxDecoration(
-                          border: pw.Border.all(
-                            color: PdfColors.grey400,
-                            width: 0.8,
+            return [
+              // 상단 박스: 제목 / 안내문 / 수신정보 등 (테이블과 분리)
+              pw.Container(
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey700, width: 0.9),
+                ),
+                padding: const pw.EdgeInsets.all(16),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Center(child: pw.Text('운 임 견 적 서', style: titleStyle)),
+                    pw.SizedBox(height: 18),
+                    pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Expanded(
+                          flex: 2,
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text(
+                                '일자: ${_formatDate(DateTime.now())}',
+                                style: pw.TextStyle(font: ttf, fontSize: 12),
+                              ),
+                              pw.SizedBox(height: 25),
+                              pw.Text(
+                                '1. 귀사의 일익 번창하심을 기원합니다.',
+                                style: pw.TextStyle(font: ttf, fontSize: 10),
+                              ),
+                              pw.SizedBox(height: 6),
+                              pw.Text(
+                                '2. 문의하신 컨테이너 내륙 운송료 견적드립니다.',
+                                style: pw.TextStyle(font: ttf, fontSize: 10),
+                              ),
+                            ],
                           ),
-                          borderRadius: pw.BorderRadius.circular(1),
                         ),
-                        child: pw.Table(
-                          columnWidths: {
-                            0: const pw.FixedColumnWidth(50),
-                            1: const pw.FlexColumnWidth(),
-                            2: const pw.FlexColumnWidth(),
-                          },
+                        pw.SizedBox(width: 12),
+                        pw.Container(
+                          width: 280,
+                          decoration: pw.BoxDecoration(
+                            border: pw.Border.all(
+                              color: PdfColors.grey400,
+                              width: 0.8,
+                            ),
+                            borderRadius: pw.BorderRadius.circular(1),
+                          ),
+                          child: pw.Table(
+                            columnWidths: {
+                              0: const pw.FixedColumnWidth(50),
+                              1: const pw.FlexColumnWidth(),
+                              2: const pw.FlexColumnWidth(),
+                            },
+                            children: [
+                              buildRow(['-', '수신인', '발신인'], header: true),
+                              pw.TableRow(
+                                children: [
+                                  cell('상호', isHeader: true),
+                                  cell('-'),
+                                  cell('-'),
+                                ],
+                              ),
+                              pw.TableRow(
+                                children: [
+                                  cell('성명', isHeader: true),
+                                  cell(consignor),
+                                  cell('-'),
+                                ],
+                              ),
+                              pw.TableRow(
+                                children: [
+                                  cell('연락처', isHeader: true),
+                                  cell('-'),
+                                  cell('-'),
+                                ],
+                              ),
+                              pw.TableRow(
+                                children: [
+                                  cell('E-mail', isHeader: true),
+                                  cell(email),
+                                  cell('-'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
 
-                          children: [
-                            buildRow(['-', '수신인', '발신인'], header: true),
-                            pw.TableRow(
-                              children: [
-                                cell('상호', isHeader: true),
-                                cell('-'),
-                                cell('-'),
-                              ],
-                            ),
-                            pw.TableRow(
-                              children: [
-                                cell('성명', isHeader: true),
-                                cell(consignor),
-                                cell('-'),
-                              ],
-                            ),
-                            pw.TableRow(
-                              children: [
-                                cell('연락처', isHeader: true),
-                                cell('-'),
-                                cell('-'),
-                              ],
-                            ),
-                            pw.TableRow(
-                              children: [
-                                cell('E-mail', isHeader: true),
-                                cell(email),
-                                cell('-'),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+              pw.SizedBox(height: 18),
+
+              // 견적 내역 제목 (표와 시각적으로 구분)
+              pw.Container(
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey400, width: 0.8),
+                  borderRadius: pw.BorderRadius.circular(1),
+                  color: PdfColors.grey200,
+                ),
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
+                child: pw.Center(
+                  child: pw.Text(
+                    '견적 내역',
+                    style: pw.TextStyle(
+                      font: ttf,
+                      fontSize: 15,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
                   ),
+                ),
+              ),
 
-                  pw.SizedBox(height: 18),
+              // --- 표: Table.fromTextArray로 교체 (페이지 넘어갈 때 헤더 반복)
+              (() {
+                final pageW = PdfPageFormat.a4.width;
+                final outerMargin = 18.0;
+                final outerPadding = 16.0;
+                final availableW =
+                    pageW - (outerMargin * 2) - (outerPadding * 2);
 
-                  // 견적 내역 제목
+                final w0 = 28.0;
+                final w1 = 80.0;
+                final w2 = 130.0;
+                final w3 = 40.0;
+                final w4 = 50.0;
+                final w5 = 65.0;
+                final fixedSum = w0 + w1 + w2 + w3 + w4 + w5;
+                final w6 = (availableW - fixedSum).clamp(80.0, 400.0);
+
+                final headers = [
+                  'No',
+                  '항구',
+                  '지역',
+                  '규격',
+                  '할증률',
+                  '가격(원)',
+                  '비고(할증)',
+                ];
+
+                final data = fares.map<List<String>>((f) {
+                  final region =
+                      '${f.row.sido}${f.row.sigungu.isNotEmpty ? ' ${f.row.sigungu}' : ''}${f.row.eupmyeondong.isNotEmpty ? ' ${f.row.eupmyeondong}' : ''}';
+                  final surcharge = f.surchargeLabels.isNotEmpty
+                      ? f.surchargeLabels.join(', ')
+                      : '';
+                  return [
+                    '${fares.indexOf(f) + 1}',
+                    getSectionLabelSafe(f.row.section),
+                    region,
+                    f.type == FareType.ft20 ? '20FT' : '40FT',
+                    '${(f.rate * 100).toStringAsFixed(2)}%',
+                    _formatNumber(f.price),
+                    surcharge,
+                  ];
+                }).toList();
+
+                return pw.Container(
+                  // 내부 셀별로 경계를 주기 때문에 외부 박스는 지양
+                  child: pw.Table.fromTextArray(
+                    headers: headers,
+                    data: data,
+                    headerStyle: pw.TextStyle(
+                      font: ttf,
+                      fontSize: 10,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                    cellStyle: pw.TextStyle(font: ttf, fontSize: 9),
+                    headerDecoration: const pw.BoxDecoration(
+                      color: PdfColors.grey300,
+                    ),
+                    cellAlignment: pw.Alignment.center,
+                    headerAlignments: {
+                      0: pw.Alignment.center,
+                      1: pw.Alignment.center,
+                      2: pw.Alignment.center,
+                      3: pw.Alignment.center,
+                      4: pw.Alignment.center,
+                      5: pw.Alignment.centerRight,
+                      6: pw.Alignment.center,
+                    },
+                    columnWidths: {
+                      0: pw.FixedColumnWidth(w0),
+                      1: pw.FixedColumnWidth(w1),
+                      2: pw.FixedColumnWidth(w2),
+                      3: pw.FixedColumnWidth(w3),
+                      4: pw.FixedColumnWidth(w4),
+                      5: pw.FixedColumnWidth(w5),
+                      6: pw.FixedColumnWidth(w6),
+                    },
+                    cellPadding: const pw.EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 6,
+                    ),
+                    border: pw.TableBorder.all(
+                      color: PdfColors.grey400,
+                      width: 0.8,
+                    ),
+                  ),
+                );
+              }()),
+
+              pw.SizedBox(height: 10),
+
+              // 총합계 및 VAT 주석: 표 아래에 위치
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.end,
+                children: [
                   pw.Container(
+                    padding: const pw.EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 6,
+                    ),
                     decoration: pw.BoxDecoration(
                       border: pw.Border.all(
                         color: PdfColors.grey400,
                         width: 0.8,
                       ),
-                      borderRadius: pw.BorderRadius.circular(1),
-                      color: PdfColors.grey200,
+                      color: PdfColors.grey50,
                     ),
-                    padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                    child: pw.Center(
-                      child: pw.Text(
-                        '견적 내역',
-                        style: pw.TextStyle(
-                          font: ttf,
-                          fontSize: 15,
-                          fontWeight: pw.FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // --- 커스텀 표: row-기반으로 각 행 높이를 "행 내에서 가장 큰 셀 높이"로 맞춤 ---
-                  // 컬럼 폭 정의 (flex 칼럼은 나머지 너비를 차지)
-                  (() {
-                    final pageW = PdfPageFormat.a4.width;
-                    final outerMargin = 18.0; // pw.Page margin
-                    final outerPadding = 16.0; // 본문 Container padding
-                    final availableW =
-                        pageW - (outerMargin * 2) - (outerPadding * 2);
-
-                    // 고정/대체 폭 (총합이 availableW 가 되도록 flex 컬럼 계산)
-                    final w0 = 28.0;
-                    final w1 = 80.0;
-                    final w2 = 130.0;
-                    final w3 = 40.0;
-                    final w4 = 50.0;
-                    final w5 = 65.0;
-                    final fixedSum = w0 + w1 + w3 + w4 + w5 + w2;
-                    final w6 = (availableW - fixedSum).clamp(80.0, 400.0);
-                    final colWidths = [w0, w1, w2, w3, w4, w5, w6];
-
-                    // 텍스트 높이(근사) 계산: 글자 수 기반으로 줄 수 추정
-                    double estimateTextHeight(
-                      String text,
-                      double width,
-                      double fontSize,
-                    ) {
-                      if (text.isEmpty) return fontSize * 1.6;
-                      final avgCharWidth = fontSize * 0.55; // 근사값
-                      final charsPerLine = (width / avgCharWidth).floor().clamp(
-                        6,
-                        300,
-                      );
-                      final lines = (text.length / charsPerLine).ceil();
-                      final lineHeight = fontSize * 1.15;
-                      final paddingV = 12.0;
-                      return lines * lineHeight + paddingV + 20;
-                    }
-
-                    // 셀 빌더 (height 고정)
-                    pw.Widget buildCell(
-                      String text,
-                      double w,
-
-                      double height, {
-                      bool isHeader = false,
-                    }) {
-                      final bg = isHeader ? PdfColors.grey100 : PdfColors.white;
-                      final style = isHeader
-                          ? pw.TextStyle(
-                              font: ttf,
-                              fontSize: 10,
-                              fontWeight: pw.FontWeight.bold,
-                            )
-                          : pw.TextStyle(font: ttf, fontSize: 9);
-                      return pw.Container(
-                        width: w,
-                        height: height,
-                        padding: const pw.EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: pw.BoxDecoration(
-                          color: bg,
-                          border: pw.Border.all(
-                            color: PdfColors.grey400,
-                            width: 0.8,
-                          ),
-                        ),
-                        child: pw.Align(
-                          alignment: pw.Alignment.center,
-
-                          child: pw.Text(
-                            text,
-                            style: style,
-                            textAlign: pw.TextAlign.center,
-                          ),
-                        ),
-                      );
-                    }
-
-                    // 헤더 행 렌더러
-                    final headerHeight = 32.0;
-                    final headerRow = pw.Row(
+                    child: pw.Row(
                       children: [
-                        for (var i = 0; i < 7; i++)
-                          buildCell(
-                            [
-                              'No',
-                              '항구',
-                              '지역',
-                              '규격',
-                              '할증률',
-                              '가격(원)',
-                              '비고(할증)',
-                            ][i],
-                            colWidths[i],
-                            headerHeight,
-                            isHeader: true,
-                          ),
-                      ],
-                    );
-
-                    // 데이터 행들: 각 셀 예상 높이를 구해 그 중 최대값으로 통일
-                    final dataRows = fares.map<pw.Widget>((f) {
-                      final region =
-                          '${f.row.sido}${f.row.sigungu.isNotEmpty ? ' ${f.row.sigungu}' : ''}${f.row.eupmyeondong.isNotEmpty ? ' ${f.row.eupmyeondong}' : ''}';
-                      final surcharge = f.surchargeLabels.isNotEmpty
-                          ? f.surchargeLabels.join(', ')
-                          : '';
-                      final cols = [
-                        '${fares.indexOf(f) + 1}',
-                        getSectionLabelSafe(f.row.section),
-                        region,
-                        f.type == FareType.ft20 ? '20FT' : '40FT',
-                        '${(f.rate * 100).toStringAsFixed(2)}%',
-                        _formatNumber(f.price),
-                        surcharge,
-                      ];
-
-                      // 각 컬럼별 예상 높이
-                      final estHeights = List<double>.generate(7, (i) {
-                        final txt = cols[i];
-                        return estimateTextHeight(
-                          txt,
-                          colWidths[i] - 16 /*padding 양쪽*/,
-                          i == 5 ? 10 : 9,
-                        );
-                      });
-                      final rowH = estHeights
-                          .reduce((a, b) => a > b ? a : b)
-                          .clamp(36.0, 999.0);
-
-                      return pw.Row(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: List.generate(7, (i) {
-                          return buildCell(cols[i], colWidths[i], rowH);
-                        }),
-                      );
-                    }).toList();
-
-                    // 총합계 바 (표 바로 아래에 가로로)
-                    final totalBar = pw.Container(
-                      decoration: pw.BoxDecoration(
-                        border: pw.Border(
-                          top: pw.BorderSide(
-                            color: PdfColors.grey700,
-                            width: 1,
-                          ),
-                          left: pw.BorderSide(
-                            color: PdfColors.grey400,
-                            width: 0.8,
-                          ),
-                          right: pw.BorderSide(
-                            color: PdfColors.grey400,
-                            width: 0.8,
-                          ),
-                          bottom: pw.BorderSide(
-                            color: PdfColors.grey400,
-                            width: 0.8,
+                        pw.Text(
+                          '총 합계: ',
+                          style: pw.TextStyle(
+                            font: ttf,
+                            fontSize: 11,
+                            fontWeight: pw.FontWeight.bold,
                           ),
                         ),
-                        color: PdfColors.grey50,
-                      ),
-                      padding: const pw.EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 6,
-                      ),
-                      width: colWidths.reduce((a, b) => a + b),
-                      child: pw.Row(
-                        children: [
-                          pw.SizedBox(width: colWidths[6] - colWidths[5]),
-                          pw.Expanded(
-                            child: pw.Text(
-                              '총 합계',
-                              style: pw.TextStyle(
-                                font: ttf,
-                                fontSize: 10,
-                                fontWeight: pw.FontWeight.bold,
-                              ),
-                            ),
+                        pw.SizedBox(width: 8),
+                        pw.Text(
+                          _formatNumber(total),
+                          style: pw.TextStyle(
+                            font: ttf,
+                            fontSize: 11,
+                            fontWeight: pw.FontWeight.bold,
                           ),
-                          pw.Text(
-                            _formatNumber(total),
-                            style: pw.TextStyle(
-                              font: ttf,
-                              fontSize: 11,
-                              fontWeight: pw.FontWeight.bold,
-                            ),
-                            textAlign: pw.TextAlign.right,
-                          ),
-                          pw.SizedBox(width: colWidths[6] - colWidths[5]),
-                        ],
-                      ),
-                    );
-
-                    return pw.Column(
-                      children: [
-                        // 외곽 상단 경계
-                        headerRow,
-                        for (final r in dataRows) r,
-                        // 총합계
-                        pw.SizedBox(height: 4),
-                        totalBar,
+                        ),
                       ],
-                    );
-                  }()),
-
-                  // --- end custom table ---
-                  pw.SizedBox(height: 10),
-
-                  // VAT 주석
-                  pw.Align(
-                    alignment: pw.Alignment.centerRight,
-                    child: pw.Text(
-                      '*부가가치세(VAT) 별도.',
-                      style: pw.TextStyle(
-                        font: ttf,
-                        fontSize: 9,
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColors.grey700,
-                      ),
                     ),
                   ),
                 ],
               ),
-            );
+
+              pw.SizedBox(height: 8),
+
+              pw.Align(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Text(
+                  '*부가가치세(VAT) 별도.',
+                  style: pw.TextStyle(
+                    font: ttf,
+                    fontSize: 9,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey700,
+                  ),
+                ),
+              ),
+            ];
           },
         ),
       );
