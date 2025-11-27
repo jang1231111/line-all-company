@@ -8,7 +8,8 @@ class SelectedFareLocalDataSource {
   final Uuid _uuid = const Uuid();
 
   // 저장: 새로운 목록을 추가 (각 항목에 고유 id 포함, 각 fare에도 fare_id 추가)
-  Future<void> addHistory(List<SelectedFare> fares) async {
+  // consignor를 함께 저장하도록 변경 (기존 호출과 호환되도록 기본값은 빈 문자열)
+  Future<void> addHistory(List<SelectedFare> fares, String consignor) async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
     final id = _uuid.v4(); // entry id
@@ -21,7 +22,13 @@ class SelectedFareLocalDataSource {
       return m;
     }).toList();
 
-    final newEntry = {'id': id, 'saved_at': savedAt, 'fares': jsonList};
+    // consignor 필드를 추가
+    final newEntry = {
+      'id': id,
+      'saved_at': savedAt,
+      'consignor': consignor,
+      'fares': jsonList,
+    };
 
     final raw = prefs.getString(_historyKey);
     List<dynamic> history = raw != null ? jsonDecode(raw) : [];
@@ -71,11 +78,15 @@ class SelectedFareLocalDataSource {
     final raw = prefs.getString(_historyKey);
     if (raw == null) return;
     final List<dynamic> history = jsonDecode(raw);
-    final idx = history.indexWhere((e) => e is Map && (e['id']?.toString() ?? '') == entryId);
+    final idx = history.indexWhere(
+      (e) => e is Map && (e['id']?.toString() ?? '') == entryId,
+    );
     if (idx == -1) return;
     final entry = Map<String, dynamic>.from(history[idx]);
     final fares = List<dynamic>.from(entry['fares'] ?? []);
-    fares.removeWhere((f) => f is Map && (f['fare_id']?.toString() ?? '') == fareId);
+    fares.removeWhere(
+      (f) => f is Map && (f['fare_id']?.toString() ?? '') == fareId,
+    );
     if (fares.isEmpty) {
       // fares가 비면 entry 자체를 삭제
       history.removeAt(idx);
@@ -92,7 +103,9 @@ class SelectedFareLocalDataSource {
     final raw = prefs.getString(_historyKey);
     if (raw == null) return;
     final List<dynamic> history = jsonDecode(raw);
-    final idx = history.indexWhere((e) => e is Map && (e['id']?.toString() ?? '') == entryId);
+    final idx = history.indexWhere(
+      (e) => e is Map && (e['id']?.toString() ?? '') == entryId,
+    );
     if (idx == -1) return;
     final entry = Map<String, dynamic>.from(history[idx]);
     final fares = List<dynamic>.from(entry['fares'] ?? []);

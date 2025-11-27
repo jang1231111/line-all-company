@@ -316,6 +316,10 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                   final savedAt = DateTime.tryParse(
                                     entry['saved_at'] ?? '',
                                   );
+                                  // consignor 읽기
+                                  final consignorText =
+                                      (entry['consignor']?.toString() ?? '')
+                                          .trim();
                                   // 원시 Map 리스트와 SelectedFare 리스트를 같이 만듭+안전 처리
                                   final faresRaw =
                                       List<Map<String, dynamic>>.from(
@@ -352,7 +356,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          // header: 시간 + 우측 상단 삭제 버튼 (entry 전체 삭제)
+                                          // header: 시간 + 우측에 화주(일관된 칩) + 우측 상단 삭제 버튼 (entry 전체 삭제)
                                           Row(
                                             children: [
                                               Icon(
@@ -376,6 +380,25 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                                                   ),
                                                 ),
                                               ),
+                                              if (consignorText.isNotEmpty)
+                                                SizedBox(width: 8.w),
+                                              if (consignorText.isNotEmpty)
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                    right: 4.w,
+                                                  ),
+                                                  child: Text(
+                                                    '$consignorText',
+                                                    style: TextStyle(
+                                                      fontSize: 13.sp,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors
+                                                          .indigo
+                                                          .shade700,
+                                                    ),
+                                                  ),
+                                                ),
                                             ],
                                           ),
                                           SizedBox(height: 14.h),

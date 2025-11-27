@@ -39,9 +39,9 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
     return state.any((e) => e.row == row && e.type == type);
   }
 
-  // 내부DB 저장
-  Future<void> saveCurrentToDb() async {
-    await _localDataSource.addHistory(state);
+  // 내부DB 저장 (consignor 함께 저장)
+  Future<void> saveCurrentToDb(String consignor) async {
+    await _localDataSource.addHistory(state, consignor);
   }
 
   // 내부DB 불러오기
@@ -88,7 +88,7 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
       );
       if (success) {
         // 전송 성공 시 기존 루틴: DB 저장 및 상태 초기화
-        await saveCurrentToDb();
+        await saveCurrentToDb(consignor);
         clearState();
       }
       return success;
