@@ -181,6 +181,58 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
   // Keep existing _pickDate but can be minimal: showDateRangePicker and set _rangeStart/_rangeEnd
   Future<void> _pickDate(BuildContext context) async {
     final now = DateTime.now();
+    final preset = await showModalBottomSheet<String?>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(title: Text('프리셋 선택')),
+            ListTile(
+              title: Text('이번달'),
+              onTap: () => Navigator.of(ctx).pop('this'),
+            ),
+            ListTile(
+              title: Text('지난달'),
+              onTap: () => Navigator.of(ctx).pop('last'),
+            ),
+            ListTile(
+              title: Text('최근 3개월'),
+              onTap: () => Navigator.of(ctx).pop('3m'),
+            ),
+            ListTile(
+              title: Text('직접 선택'),
+              onTap: () => Navigator.of(ctx).pop('custom'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (preset == null) return;
+    if (preset == 'this') {
+      setState(() {
+        _rangeStart = DateTime(now.year, now.month, 1);
+        _rangeEnd = DateTime(now.year, now.month + 1, 0);
+      });
+      return;
+    }
+    if (preset == 'last') {
+      final last = DateTime(now.year, now.month - 1, 1);
+      setState(() {
+        _rangeStart = DateTime(last.year, last.month, 1);
+        _rangeEnd = DateTime(last.year, last.month + 1, 0);
+      });
+      return;
+    }
+    if (preset == '3m') {
+      final end = DateTime(now.year, now.month + 1, 0);
+      final start = DateTime(now.year, now.month - 2, 1);
+      setState(() {
+        _rangeStart = start;
+        _rangeEnd = end;
+      });
+      return;
+    }
+    // custom: 기존 데이트레인지 피커
     final picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
@@ -235,8 +287,9 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
 
           return Column(
             children: [
-              // range label removed (기간은 아래 버튼에서만 표시/설정)
+              // controls (search / date / reset)
               _buildSearchAndDateControls(),
+              _buildActiveFilterChips(),
               Padding(
                 padding: EdgeInsets.only(right: 18.w, top: 8.h),
                 child: Row(
@@ -354,114 +407,324 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
     );
   }
 
+  // Consolidated filter panel: small consignor search button + wide date button (date text shown here)
   Widget _buildSearchAndDateControls() {
-    // shows active filter chips above controls + compact controls row
+    final hasSearch = _searchQuery.isNotEmpty;
+    final hasRange = _rangeStart != null && _rangeEnd != null;
+
+    String rangeLabel() {
+      if (!hasRange) return '기간검색';
+      if (_rangeStart == _rangeEnd)
+        return DateFormat('yyyy.MM.dd').format(_rangeStart!);
+      return '${DateFormat('yyyy.MM.dd').format(_rangeStart!)} — ${DateFormat('yyyy.MM.dd').format(_rangeEnd!)}';
+    }
+
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 8.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Active filter chips (shown only when active)
-          if (_searchQuery.isNotEmpty ||
-              (_rangeStart != null && _rangeEnd != null))
-            Padding(
-              padding: EdgeInsets.only(bottom: 8.h),
-              child: Wrap(
-                spacing: 8.w,
-                runSpacing: 6.h,
+      // padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
+      padding: EdgeInsets.only(left: 18.w, right: 18.w, top: 12.h),
+      child: Material(
+        color: Colors.white,
+        elevation: 2,
+        borderRadius: BorderRadius.circular(14.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(14.r)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  if (_searchQuery.isNotEmpty)
-                    InputChip(
-                      label: Text(
-                        '화주: $_searchQuery',
-                        overflow: TextOverflow.ellipsis,
+                  // small icon-only consignor search button
+                  SizedBox(
+                    width: 44.w,
+                    height: 44.h,
+                    child: ElevatedButton(
+                      onPressed: () => _showSearchModal(context),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        backgroundColor: Colors.indigo,
+                        elevation: 0,
                       ),
-                      onDeleted: () => setState(() {
-                        _searchQuery = '';
-                        _searchController.clear();
-                      }),
-                    ),
-                  if (_rangeStart != null && _rangeEnd != null)
-                    InputChip(
-                      label: Text(
-                        '${DateFormat('yyyy.MM.dd').format(_rangeStart!)} — ${DateFormat('yyyy.MM.dd').format(_rangeEnd!)}',
+                      child: Icon(
+                        Icons.person_search,
+                        color: Colors.white,
+                        size: 20.sp,
                       ),
-                      onDeleted: _clearDateFilter,
                     ),
+                  ),
+
+                  SizedBox(width: 12.w),
+
+                  // wide date button (shows full date text)
+                  Expanded(
+                    child: SizedBox(
+                      height: 44.h,
+                      child: OutlinedButton(
+                        onPressed: () => _pickDate(context),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          side: BorderSide(color: Colors.indigo.shade50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 12.w),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              color: Colors.indigo,
+                              size: 18.sp,
+                            ),
+                            SizedBox(width: 10.w),
+                            Expanded(
+                              child: Text(
+                                rangeLabel(),
+                                style: TextStyle(
+                                  color: Colors.indigo.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Icon(Icons.arrow_drop_down, color: Colors.indigo),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // no reset here — reset will appear next to chips when a consignor is applied
                 ],
+              ),
+
+              // separator spacing
+              // if (hasSearch) SizedBox(height: 10.h),
+
+              // // active filter chips — only consignor chip (date removed) + reset placed at right inside same container
+              // if (hasSearch)
+              //   Row(
+              //     children: [
+              //       Expanded(
+              //         child: SingleChildScrollView(
+              //           scrollDirection: Axis.horizontal,
+              //           child: Row(
+              //             children: [
+              //               Padding(
+              //                 padding: EdgeInsets.only(right: 8.w),
+              //                 child: Container(
+              //                   padding: EdgeInsets.symmetric(
+              //                     horizontal: 10.w,
+              //                     vertical: 6.h,
+              //                   ),
+              //                   decoration: BoxDecoration(
+              //                     color: Colors.indigo.withOpacity(0.06),
+              //                     borderRadius: BorderRadius.circular(18.r),
+              //                     border: Border.all(
+              //                       color: Colors.indigo.withOpacity(0.12),
+              //                     ),
+              //                   ),
+              //                   child: Row(
+              //                     mainAxisSize: MainAxisSize.min,
+              //                     children: [
+              //                       Icon(
+              //                         Icons.person,
+              //                         size: 14.sp,
+              //                         color: Colors.indigo.shade700,
+              //                       ),
+              //                       SizedBox(width: 8.w),
+              //                       ConstrainedBox(
+              //                         constraints: BoxConstraints(
+              //                           maxWidth: 160.w,
+              //                         ),
+              //                         child: Text(
+              //                           '화주: $_searchQuery',
+              //                           overflow: TextOverflow.ellipsis,
+              //                           style: TextStyle(
+              //                             color: Colors.indigo.shade900,
+              //                             fontWeight: FontWeight.w600,
+              //                           ),
+              //                         ),
+              //                       ),
+              //                       SizedBox(width: 8.w),
+              //                       GestureDetector(
+              //                         onTap: () => setState(() {
+              //                           _searchQuery = '';
+              //                           _searchController.clear();
+              //                         }),
+              //                         child: Icon(
+              //                           Icons.close,
+              //                           size: 16.sp,
+              //                           color: Colors.indigo.shade300,
+              //                         ),
+              //                       ),
+              //                     ],
+              //                   ),
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //         ),
+              //       ),
+
+              //       // reset button appears only when a consignor (화주) is set
+              //       SizedBox(width: 8.w),
+              //       if (hasSearch)
+              //         SizedBox(
+              //           width: 40.w,
+              //           height: 40.h,
+              //           child: OutlinedButton(
+              //             onPressed: () => setState(() {
+              //               _searchQuery = '';
+              //               _searchController.clear();
+              //               _initDefaultRange();
+              //             }),
+              //             style: OutlinedButton.styleFrom(
+              //               padding: EdgeInsets.zero,
+              //               shape: RoundedRectangleBorder(
+              //                 borderRadius: BorderRadius.circular(10.r),
+              //               ),
+              //               side: BorderSide(color: Colors.grey.shade200),
+              //               backgroundColor: Colors.white,
+              //             ),
+              //             child: Icon(
+              //               Icons.refresh,
+              //               color: Colors.black54,
+              //               size: 20.sp,
+              //             ),
+              //           ),
+              //         ),
+              // ],
+              // ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Active chips container: chips on the left, reset button fixed on the right.
+  // Reset button is visible only when a real filter is applied (화주 입력 OR 날짜가 기본값과 다를 때).
+  Widget _buildActiveFilterChips() {
+    final hasSearch = _searchQuery.isNotEmpty;
+    final hasRange = _rangeStart != null && _rangeEnd != null;
+
+    // Detect if current range equals the default (this month). If so, consider it NOT an active range filter.
+    final now = DateTime.now();
+    final defaultStart = DateTime(now.year, now.month, 1);
+    final defaultEnd = DateTime(now.year, now.month + 1, 0);
+    final isRangeDefault =
+        hasRange &&
+        _rangeStart!.year == defaultStart.year &&
+        _rangeStart!.month == defaultStart.month &&
+        _rangeStart!.day == defaultStart.day &&
+        _rangeEnd!.year == defaultEnd.year &&
+        _rangeEnd!.month == defaultEnd.month &&
+        _rangeEnd!.day == defaultEnd.day;
+
+    final hasActiveRange = hasRange && !isRangeDefault;
+    final anyFilterActive = hasSearch || hasActiveRange;
+
+    if (!anyFilterActive) return SizedBox.shrink();
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(18.w, 0.h, 18.w, 0.h),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
+
+        child: Row(
+          children: [
+            // left: horizontally scrollable chips (only consignor chip shown here)
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    if (hasSearch)
+                      Padding(
+                        padding: EdgeInsets.only(right: 8.w),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.w,
+                            vertical: 6.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.indigo.withOpacity(0.06),
+                            borderRadius: BorderRadius.circular(18.r),
+                            border: Border.all(
+                              color: Colors.indigo.withOpacity(0.12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.person,
+                                size: 14.sp,
+                                color: Colors.indigo.shade700,
+                              ),
+                              SizedBox(width: 8.w),
+                              ConstrainedBox(
+                                constraints: BoxConstraints(maxWidth: 160.w),
+                                child: Text(
+                                  '화주: $_searchQuery',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.indigo.shade900,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              GestureDetector(
+                                onTap: () => setState(() {
+                                  _searchQuery = '';
+                                  _searchController.clear();
+                                }),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 16.sp,
+                                  color: Colors.indigo.shade300,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    // (날짜칩을 더이상 여기 표시하지 않음 — 날짜는 날짜 버튼에서 보여짐)
+                  ],
+                ),
               ),
             ),
 
-          // Controls row
-          Row(
-            children: [
-              // Search button: simple, always shows as a button (doesn't display current query)
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _showSearchModal(context),
-                  icon: Icon(Icons.search, color: Colors.white),
-                  label: Text(
-                    '화주 검색',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo,
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 14.w,
-                      vertical: 12.h,
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(width: 12.w),
-
-              // Date range button
-              SizedBox(
-                height: 44.h,
-                child: OutlinedButton.icon(
-                  onPressed: () => _pickDate(context),
-                  icon: Icon(Icons.date_range, color: Colors.indigo),
-                  label: Row(
-                    children: [
-                      Text(
-                        (_rangeStart != null && _rangeEnd != null)
-                            ? '${DateFormat('yyyy.MM.dd').format(_rangeStart!)}'
-                            : '기간',
-                        style: TextStyle(color: Colors.indigo),
-                      ),
-                      SizedBox(width: 6.w),
-                      Icon(Icons.arrow_drop_down, color: Colors.indigo),
-                    ],
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.indigo.shade50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 12.w),
-                  ),
-                ),
-              ),
-
-              SizedBox(width: 8.w),
-
-              // reset shortcut
-              IconButton(
-                onPressed: _clearDateFilter,
-                icon: Icon(Icons.refresh, color: Colors.black45),
-              ),
-            ],
-          ),
-        ],
+            // right: reset button — only shown when anyFilterActive is true (we already return shrink otherwise)
+            SizedBox(width: 8.w),
+            // SizedBox(
+            //   width: 40.w,
+            //   height: 40.h,
+            //   child: OutlinedButton(
+            //     onPressed: () => setState(() {
+            //       _searchQuery = '';
+            //       _searchController.clear();
+            //       _initDefaultRange();
+            //     }),
+            //     style: OutlinedButton.styleFrom(
+            //       padding: EdgeInsets.zero,
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(10.r),
+            //       ),
+            //       side: BorderSide(color: Colors.grey.shade200),
+            //       backgroundColor: Colors.white,
+            //     ),
+            //     child: Icon(Icons.refresh, color: Colors.black54, size: 20.sp),
+            //   ),
+            // ),
+          ],
+        ),
       ),
     );
   }
