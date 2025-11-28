@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -101,318 +103,340 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
 
     final controller = TextEditingController(text: _searchQuery);
 
+    // ensure sheet moves up when keyboard opens: use AnimatedPadding with MediaQuery.viewInsets
     final result = await showModalBottomSheet<String?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
-            child: DraggableScrollableSheet(
-              expand: false,
-              initialChildSize: 0.48,
-              minChildSize: 0.32,
-              maxChildSize: 0.9,
-              builder: (_, scrollCtl) {
-                return StatefulBuilder(
-                  builder: (stCtx, setSt) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      padding: EdgeInsets.fromLTRB(
-                        16.w,
-                        12.h,
-                        16.w,
-                        MediaQuery.of(ctx).viewInsets.bottom + 16.h,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // drag handle
-                          Center(
-                            child: Container(
-                              width: 40.w,
-                              height: 4.h,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(2.r),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10.h),
-
-                          // header
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                '화주 검색',
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w700,
+          child: AnimatedPadding(
+            // padding follows viewInsets (keyboard) so modal content shifts up automatically
+            padding: MediaQuery.of(ctx).viewInsets,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4.w),
+              child: DraggableScrollableSheet(
+                expand: false,
+                // increase initial height so input stays visible when keyboard opens
+                initialChildSize: 0.72,
+                minChildSize: 0.32,
+                maxChildSize: 0.9,
+                builder: (_, scrollCtl) {
+                  return StatefulBuilder(
+                    builder: (stCtx, setSt) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        // keep a small bottom padding (keyboard handled by AnimatedPadding)
+                        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // drag handle
+                            Center(
+                              child: Container(
+                                width: 40.w,
+                                height: 4.h,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(2.r),
                                 ),
                               ),
-                              IconButton(
-                                icon: Icon(Icons.close, color: Colors.black54),
-                                onPressed: () => Navigator.of(ctx).pop(null),
-                              ),
-                            ],
-                          ),
+                            ),
+                            SizedBox(height: 10.h),
 
-                          // search input (rounded, subtle shadow)
-                          SizedBox(height: 6.h),
-                          Material(
-                            elevation: 1,
-                            borderRadius: BorderRadius.circular(12.r),
-                            child: TextField(
-                              controller: controller,
-                              autofocus: true,
-                              onChanged: (v) => setSt(() {}),
-                              onSubmitted: (v) =>
-                                  Navigator.of(ctx).pop(v.trim()),
-                              decoration: InputDecoration(
-                                hintText: '화주명 입력',
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.only(
-                                    left: 8.w,
-                                    right: 8.w,
-                                  ),
-                                  child: Icon(
-                                    Icons.search,
-                                    color: Colors.indigo,
+                            // header
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '화주 검색',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                                prefixIconConstraints: BoxConstraints(
-                                  minWidth: 40.w,
-                                ),
-                                suffixIcon: controller.text.isNotEmpty
-                                    ? GestureDetector(
-                                        onTap: () {
-                                          controller.clear();
-                                          setSt(() {});
-                                        },
-                                        child: Padding(
-                                          padding: EdgeInsets.only(right: 12.w),
-                                          child: Icon(
-                                            Icons.close,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      )
-                                    : null,
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 14.h,
-                                  horizontal: 12.w,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(12.r),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(height: 12.h),
-
-                          // recent / suggestion pills (visually distinct pill style)
-                          if (suggestions.isNotEmpty) ...[
-                            Text(
-                              '최근 화주',
-                              style: TextStyle(
-                                color: Colors.black54,
-                                fontSize: 12.sp,
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            SizedBox(
-                              height: 40.h,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: suggestions.length,
-                                separatorBuilder: (_, __) =>
-                                    SizedBox(width: 8.w),
-                                itemBuilder: (c, i) {
-                                  final s = suggestions[i];
-                                  return GestureDetector(
-                                    onTap: () => Navigator.of(ctx).pop(s),
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 12.w,
-                                        vertical: 8.h,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.indigo.withOpacity(0.06),
-                                        borderRadius: BorderRadius.circular(
-                                          18.r,
-                                        ),
-                                        border: Border.all(
-                                          color: Colors.indigo.withOpacity(
-                                            0.12,
-                                          ),
-                                        ),
-                                      ),
-
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.person,
-                                            size: 14.sp,
-                                            color: Colors.indigo.shade700,
-                                          ),
-                                          SizedBox(width: 8.w),
-
-                                          ConstrainedBox(
-                                            constraints: BoxConstraints(
-                                              maxWidth: 120.w,
-                                            ),
-                                            child: Text(
-                                              s,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                color: Colors.indigo.shade900,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            SizedBox(height: 12.h),
-                          ],
-
-                          // optional list of matches (simple filtered list)
-                          Expanded(
-                            child: Builder(
-                              builder: (_) {
-                                final q = controller.text.trim();
-                                final list = q.isEmpty
-                                    ? <String>[]
-                                    : suggestions
-                                          .where(
-                                            (e) => e.toLowerCase().contains(
-                                              q.toLowerCase(),
-                                            ),
-                                          )
-                                          .toList();
-                                if (q.isEmpty) {
-                                  return Center(
-                                    child: Text(
-                                      '검색어를 입력하면 결과가 표시됩니다.',
-                                      style: TextStyle(color: Colors.black45),
-                                    ),
-                                  );
-                                }
-                                if (list.isEmpty) {
-                                  return Center(
-                                    child: Text(
-                                      '검색 결과가 없습니다.',
-                                      style: TextStyle(color: Colors.black45),
-                                    ),
-                                  );
-                                }
-                                return ListView.separated(
-                                  controller: scrollCtl,
-                                  itemCount: list.length,
-                                  separatorBuilder: (_, __) =>
-                                      Divider(height: 1.h),
-                                  itemBuilder: (_, i) {
-                                    final val = list[i];
-                                    return ListTile(
-                                      leading: Icon(
-                                        Icons.person_outline,
-                                        color: Colors.indigo,
-                                      ),
-                                      title: Text(
-                                        val,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      onTap: () => Navigator.of(ctx).pop(val),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-
-                          // actions
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () => Navigator.of(ctx).pop(null),
+                                IconButton(
                                   icon: Icon(
                                     Icons.close,
                                     color: Colors.black54,
                                   ),
-                                  label: Text(
-                                    '취소',
-                                    style: TextStyle(color: Colors.black87),
+                                  onPressed: () => Navigator.of(ctx).pop(null),
+                                ),
+                              ],
+                            ),
+
+                            // search input (rounded, subtle shadow)
+                            SizedBox(height: 6.h),
+                            Material(
+                              elevation: 1,
+                              borderRadius: BorderRadius.circular(12.r),
+                              child: TextField(
+                                controller: controller,
+                                autofocus: false,
+                                onChanged: (v) => setSt(() {}),
+                                onSubmitted: (v) =>
+                                    Navigator.of(ctx).pop(v.trim()),
+                                decoration: InputDecoration(
+                                  hintText: '화주명 입력',
+                                  prefixIcon: Padding(
+                                    padding: EdgeInsets.only(
+                                      left: 8.w,
+                                      right: 8.w,
+                                    ),
+                                    child: Icon(
+                                      Icons.search,
+                                      color: Colors.indigo,
+                                    ),
                                   ),
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    side: BorderSide(
-                                      color: Colors.grey.shade200,
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 12.h,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.r),
-                                    ),
+                                  prefixIconConstraints: BoxConstraints(
+                                    minWidth: 40.w,
+                                  ),
+                                  suffixIcon: controller.text.isNotEmpty
+                                      ? GestureDetector(
+                                          onTap: () {
+                                            controller.clear();
+                                            setSt(() {});
+                                          },
+                                          child: Padding(
+                                            padding: EdgeInsets.only(
+                                              right: 12.w,
+                                            ),
+                                            child: Icon(
+                                              Icons.close,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        )
+                                      : null,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 14.h,
+                                    horizontal: 12.w,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.circular(12.r),
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 10.w),
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: controller.text.trim().isEmpty
-                                      ? null
-                                      : () => Navigator.of(
-                                          ctx,
-                                        ).pop(controller.text.trim()),
-                                  icon: Icon(Icons.search, color: Colors.white),
-                                  label: Text(
-                                    '검색',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    elevation: 2,
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 12.h,
-                                    ),
-                                    backgroundColor:
-                                        controller.text.trim().isEmpty
-                                        ? Colors.indigo.shade100
-                                        : Colors.indigo,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.r),
-                                    ),
-                                  ),
+                            ),
+
+                            SizedBox(height: 12.h),
+
+                            // recent / suggestion pills (visually distinct pill style)
+                            if (suggestions.isNotEmpty) ...[
+                              Text(
+                                '최근 화주',
+                                style: TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 12.sp,
                                 ),
                               ),
+                              SizedBox(height: 8.h),
+                              SizedBox(
+                                height: 40.h,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: suggestions.length,
+                                  separatorBuilder: (_, __) =>
+                                      SizedBox(width: 8.w),
+                                  itemBuilder: (c, i) {
+                                    final s = suggestions[i];
+                                    return GestureDetector(
+                                      onTap: () => Navigator.of(ctx).pop(s),
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 12.w,
+                                          vertical: 8.h,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.indigo.withOpacity(
+                                            0.06,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            18.r,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.indigo.withOpacity(
+                                              0.12,
+                                            ),
+                                          ),
+                                        ),
+
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.person,
+                                              size: 14.sp,
+                                              color: Colors.indigo.shade700,
+                                            ),
+                                            SizedBox(width: 8.w),
+
+                                            ConstrainedBox(
+                                              constraints: BoxConstraints(
+                                                maxWidth: 120.w,
+                                              ),
+                                              child: Text(
+                                                s,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: Colors.indigo.shade900,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(height: 12.h),
                             ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
+
+                            // optional list of matches (simple filtered list)
+                            Expanded(
+                              child: Builder(
+                                builder: (_) {
+                                  final q = controller.text.trim();
+                                  final list = q.isEmpty
+                                      ? <String>[]
+                                      : suggestions
+                                            .where(
+                                              (e) => e.toLowerCase().contains(
+                                                q.toLowerCase(),
+                                              ),
+                                            )
+                                            .toList();
+                                  if (q.isEmpty) {
+                                    return Center(
+                                      child: Text(
+                                        '검색어를 입력하면 결과가 표시됩니다.',
+                                        style: TextStyle(color: Colors.black45),
+                                      ),
+                                    );
+                                  }
+                                  if (list.isEmpty) {
+                                    return Center(
+                                      child: Text(
+                                        '검색 결과가 없습니다.',
+                                        style: TextStyle(color: Colors.black45),
+                                      ),
+                                    );
+                                  }
+                                  return ListView.separated(
+                                    controller: scrollCtl,
+                                    itemCount: list.length,
+                                    separatorBuilder: (_, __) =>
+                                        Divider(height: 1.h),
+                                    itemBuilder: (_, i) {
+                                      final val = list[i];
+                                      return ListTile(
+                                        leading: Icon(
+                                          Icons.person_outline,
+                                          color: Colors.indigo,
+                                        ),
+                                        title: Text(
+                                          val,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        onTap: () => Navigator.of(ctx).pop(val),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+
+                            // actions
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(null),
+                                    icon: Icon(
+                                      Icons.close,
+                                      color: Colors.black54,
+                                    ),
+                                    label: Text(
+                                      '취소',
+                                      style: TextStyle(color: Colors.black87),
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      side: BorderSide(
+                                        color: Colors.grey.shade200,
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 12.h,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          10.r,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 10.w),
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed: controller.text.trim().isEmpty
+                                        ? null
+                                        : () => Navigator.of(
+                                            ctx,
+                                          ).pop(controller.text.trim()),
+                                    icon: Icon(
+                                      Icons.search,
+                                      color: Colors.white,
+                                    ),
+                                    label: Text(
+                                      '검색',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 2,
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 12.h,
+                                      ),
+                                      backgroundColor:
+                                          controller.text.trim().isEmpty
+                                          ? Colors.indigo.shade100
+                                          : Colors.indigo,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          10.r,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         );
       },
     );
+
+    // dispose focus node once bottom sheet is dismissed
+    // try { focusNode.dispose(); } catch (_) {}
 
     if (result != null) {
       setState(() {
