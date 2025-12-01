@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FareResult {
 
- String get section; String get sido; String get sigungu; String get eupmyeondong; int get distance; int get unnotice;@JsonKey(name: 'ft20_safe') int get ft20Safe;@JsonKey(name: 'ft40_safe') int get ft40Safe;
+ String get section; String get sido; String get sigungu; String get eupmyeondong; int get distance; int get unnotice; int get ft20; int get ft40;
 /// Create a copy of FareResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $FareResultCopyWith<FareResult> get copyWith => _$FareResultCopyWithImpl<FareRes
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FareResult&&(identical(other.section, section) || other.section == section)&&(identical(other.sido, sido) || other.sido == sido)&&(identical(other.sigungu, sigungu) || other.sigungu == sigungu)&&(identical(other.eupmyeondong, eupmyeondong) || other.eupmyeondong == eupmyeondong)&&(identical(other.distance, distance) || other.distance == distance)&&(identical(other.unnotice, unnotice) || other.unnotice == unnotice)&&(identical(other.ft20Safe, ft20Safe) || other.ft20Safe == ft20Safe)&&(identical(other.ft40Safe, ft40Safe) || other.ft40Safe == ft40Safe));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FareResult&&(identical(other.section, section) || other.section == section)&&(identical(other.sido, sido) || other.sido == sido)&&(identical(other.sigungu, sigungu) || other.sigungu == sigungu)&&(identical(other.eupmyeondong, eupmyeondong) || other.eupmyeondong == eupmyeondong)&&(identical(other.distance, distance) || other.distance == distance)&&(identical(other.unnotice, unnotice) || other.unnotice == unnotice)&&(identical(other.ft20, ft20) || other.ft20 == ft20)&&(identical(other.ft40, ft40) || other.ft40 == ft40));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,section,sido,sigungu,eupmyeondong,distance,unnotice,ft20Safe,ft40Safe);
+int get hashCode => Object.hash(runtimeType,section,sido,sigungu,eupmyeondong,distance,unnotice,ft20,ft40);
 
 @override
 String toString() {
-  return 'FareResult(section: $section, sido: $sido, sigungu: $sigungu, eupmyeondong: $eupmyeondong, distance: $distance, unnotice: $unnotice, ft20Safe: $ft20Safe, ft40Safe: $ft40Safe)';
+  return 'FareResult(section: $section, sido: $sido, sigungu: $sigungu, eupmyeondong: $eupmyeondong, distance: $distance, unnotice: $unnotice, ft20: $ft20, ft40: $ft40)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $FareResultCopyWith<$Res>  {
   factory $FareResultCopyWith(FareResult value, $Res Function(FareResult) _then) = _$FareResultCopyWithImpl;
 @useResult
 $Res call({
- String section, String sido, String sigungu, String eupmyeondong, int distance, int unnotice,@JsonKey(name: 'ft20_safe') int ft20Safe,@JsonKey(name: 'ft40_safe') int ft40Safe
+ String section, String sido, String sigungu, String eupmyeondong, int distance, int unnotice, int ft20, int ft40
 });
 
 
@@ -65,7 +65,7 @@ class _$FareResultCopyWithImpl<$Res>
 
 /// Create a copy of FareResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? section = null,Object? sido = null,Object? sigungu = null,Object? eupmyeondong = null,Object? distance = null,Object? unnotice = null,Object? ft20Safe = null,Object? ft40Safe = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? section = null,Object? sido = null,Object? sigungu = null,Object? eupmyeondong = null,Object? distance = null,Object? unnotice = null,Object? ft20 = null,Object? ft40 = null,}) {
   return _then(_self.copyWith(
 section: null == section ? _self.section : section // ignore: cast_nullable_to_non_nullable
 as String,sido: null == sido ? _self.sido : sido // ignore: cast_nullable_to_non_nullable
@@ -73,8 +73,8 @@ as String,sigungu: null == sigungu ? _self.sigungu : sigungu // ignore: cast_nul
 as String,eupmyeondong: null == eupmyeondong ? _self.eupmyeondong : eupmyeondong // ignore: cast_nullable_to_non_nullable
 as String,distance: null == distance ? _self.distance : distance // ignore: cast_nullable_to_non_nullable
 as int,unnotice: null == unnotice ? _self.unnotice : unnotice // ignore: cast_nullable_to_non_nullable
-as int,ft20Safe: null == ft20Safe ? _self.ft20Safe : ft20Safe // ignore: cast_nullable_to_non_nullable
-as int,ft40Safe: null == ft40Safe ? _self.ft40Safe : ft40Safe // ignore: cast_nullable_to_non_nullable
+as int,ft20: null == ft20 ? _self.ft20 : ft20 // ignore: cast_nullable_to_non_nullable
+as int,ft40: null == ft40 ? _self.ft40 : ft40 // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -160,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String section,  String sido,  String sigungu,  String eupmyeondong,  int distance,  int unnotice, @JsonKey(name: 'ft20_safe')  int ft20Safe, @JsonKey(name: 'ft40_safe')  int ft40Safe)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String section,  String sido,  String sigungu,  String eupmyeondong,  int distance,  int unnotice,  int ft20,  int ft40)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FareResult() when $default != null:
-return $default(_that.section,_that.sido,_that.sigungu,_that.eupmyeondong,_that.distance,_that.unnotice,_that.ft20Safe,_that.ft40Safe);case _:
+return $default(_that.section,_that.sido,_that.sigungu,_that.eupmyeondong,_that.distance,_that.unnotice,_that.ft20,_that.ft40);case _:
   return orElse();
 
 }
@@ -181,10 +181,10 @@ return $default(_that.section,_that.sido,_that.sigungu,_that.eupmyeondong,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String section,  String sido,  String sigungu,  String eupmyeondong,  int distance,  int unnotice, @JsonKey(name: 'ft20_safe')  int ft20Safe, @JsonKey(name: 'ft40_safe')  int ft40Safe)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String section,  String sido,  String sigungu,  String eupmyeondong,  int distance,  int unnotice,  int ft20,  int ft40)  $default,) {final _that = this;
 switch (_that) {
 case _FareResult():
-return $default(_that.section,_that.sido,_that.sigungu,_that.eupmyeondong,_that.distance,_that.unnotice,_that.ft20Safe,_that.ft40Safe);case _:
+return $default(_that.section,_that.sido,_that.sigungu,_that.eupmyeondong,_that.distance,_that.unnotice,_that.ft20,_that.ft40);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +201,10 @@ return $default(_that.section,_that.sido,_that.sigungu,_that.eupmyeondong,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String section,  String sido,  String sigungu,  String eupmyeondong,  int distance,  int unnotice, @JsonKey(name: 'ft20_safe')  int ft20Safe, @JsonKey(name: 'ft40_safe')  int ft40Safe)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String section,  String sido,  String sigungu,  String eupmyeondong,  int distance,  int unnotice,  int ft20,  int ft40)?  $default,) {final _that = this;
 switch (_that) {
 case _FareResult() when $default != null:
-return $default(_that.section,_that.sido,_that.sigungu,_that.eupmyeondong,_that.distance,_that.unnotice,_that.ft20Safe,_that.ft40Safe);case _:
+return $default(_that.section,_that.sido,_that.sigungu,_that.eupmyeondong,_that.distance,_that.unnotice,_that.ft20,_that.ft40);case _:
   return null;
 
 }
@@ -216,7 +216,7 @@ return $default(_that.section,_that.sido,_that.sigungu,_that.eupmyeondong,_that.
 @JsonSerializable()
 
 class _FareResult implements FareResult {
-  const _FareResult({required this.section, required this.sido, required this.sigungu, required this.eupmyeondong, required this.distance, required this.unnotice, @JsonKey(name: 'ft20_safe') required this.ft20Safe, @JsonKey(name: 'ft40_safe') required this.ft40Safe});
+  const _FareResult({required this.section, required this.sido, required this.sigungu, required this.eupmyeondong, required this.distance, required this.unnotice, required this.ft20, required this.ft40});
   factory _FareResult.fromJson(Map<String, dynamic> json) => _$FareResultFromJson(json);
 
 @override final  String section;
@@ -225,8 +225,8 @@ class _FareResult implements FareResult {
 @override final  String eupmyeondong;
 @override final  int distance;
 @override final  int unnotice;
-@override@JsonKey(name: 'ft20_safe') final  int ft20Safe;
-@override@JsonKey(name: 'ft40_safe') final  int ft40Safe;
+@override final  int ft20;
+@override final  int ft40;
 
 /// Create a copy of FareResult
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +241,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FareResult&&(identical(other.section, section) || other.section == section)&&(identical(other.sido, sido) || other.sido == sido)&&(identical(other.sigungu, sigungu) || other.sigungu == sigungu)&&(identical(other.eupmyeondong, eupmyeondong) || other.eupmyeondong == eupmyeondong)&&(identical(other.distance, distance) || other.distance == distance)&&(identical(other.unnotice, unnotice) || other.unnotice == unnotice)&&(identical(other.ft20Safe, ft20Safe) || other.ft20Safe == ft20Safe)&&(identical(other.ft40Safe, ft40Safe) || other.ft40Safe == ft40Safe));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FareResult&&(identical(other.section, section) || other.section == section)&&(identical(other.sido, sido) || other.sido == sido)&&(identical(other.sigungu, sigungu) || other.sigungu == sigungu)&&(identical(other.eupmyeondong, eupmyeondong) || other.eupmyeondong == eupmyeondong)&&(identical(other.distance, distance) || other.distance == distance)&&(identical(other.unnotice, unnotice) || other.unnotice == unnotice)&&(identical(other.ft20, ft20) || other.ft20 == ft20)&&(identical(other.ft40, ft40) || other.ft40 == ft40));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,section,sido,sigungu,eupmyeondong,distance,unnotice,ft20Safe,ft40Safe);
+int get hashCode => Object.hash(runtimeType,section,sido,sigungu,eupmyeondong,distance,unnotice,ft20,ft40);
 
 @override
 String toString() {
-  return 'FareResult(section: $section, sido: $sido, sigungu: $sigungu, eupmyeondong: $eupmyeondong, distance: $distance, unnotice: $unnotice, ft20Safe: $ft20Safe, ft40Safe: $ft40Safe)';
+  return 'FareResult(section: $section, sido: $sido, sigungu: $sigungu, eupmyeondong: $eupmyeondong, distance: $distance, unnotice: $unnotice, ft20: $ft20, ft40: $ft40)';
 }
 
 
@@ -261,7 +261,7 @@ abstract mixin class _$FareResultCopyWith<$Res> implements $FareResultCopyWith<$
   factory _$FareResultCopyWith(_FareResult value, $Res Function(_FareResult) _then) = __$FareResultCopyWithImpl;
 @override @useResult
 $Res call({
- String section, String sido, String sigungu, String eupmyeondong, int distance, int unnotice,@JsonKey(name: 'ft20_safe') int ft20Safe,@JsonKey(name: 'ft40_safe') int ft40Safe
+ String section, String sido, String sigungu, String eupmyeondong, int distance, int unnotice, int ft20, int ft40
 });
 
 
@@ -278,7 +278,7 @@ class __$FareResultCopyWithImpl<$Res>
 
 /// Create a copy of FareResult
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? section = null,Object? sido = null,Object? sigungu = null,Object? eupmyeondong = null,Object? distance = null,Object? unnotice = null,Object? ft20Safe = null,Object? ft40Safe = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? section = null,Object? sido = null,Object? sigungu = null,Object? eupmyeondong = null,Object? distance = null,Object? unnotice = null,Object? ft20 = null,Object? ft40 = null,}) {
   return _then(_FareResult(
 section: null == section ? _self.section : section // ignore: cast_nullable_to_non_nullable
 as String,sido: null == sido ? _self.sido : sido // ignore: cast_nullable_to_non_nullable
@@ -286,8 +286,8 @@ as String,sigungu: null == sigungu ? _self.sigungu : sigungu // ignore: cast_nul
 as String,eupmyeondong: null == eupmyeondong ? _self.eupmyeondong : eupmyeondong // ignore: cast_nullable_to_non_nullable
 as String,distance: null == distance ? _self.distance : distance // ignore: cast_nullable_to_non_nullable
 as int,unnotice: null == unnotice ? _self.unnotice : unnotice // ignore: cast_nullable_to_non_nullable
-as int,ft20Safe: null == ft20Safe ? _self.ft20Safe : ft20Safe // ignore: cast_nullable_to_non_nullable
-as int,ft40Safe: null == ft40Safe ? _self.ft40Safe : ft40Safe // ignore: cast_nullable_to_non_nullable
+as int,ft20: null == ft20 ? _self.ft20 : ft20 // ignore: cast_nullable_to_non_nullable
+as int,ft40: null == ft40 ? _self.ft40 : ft40 // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

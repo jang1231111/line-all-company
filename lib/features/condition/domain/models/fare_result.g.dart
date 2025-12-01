@@ -13,8 +13,8 @@ _FareResult _$FareResultFromJson(Map<String, dynamic> json) => _FareResult(
   eupmyeondong: json['eupmyeondong'] as String,
   distance: (json['distance'] as num).toInt(),
   unnotice: (json['unnotice'] as num).toInt(),
-  ft20Safe: (json['ft20_safe'] as num).toInt(),
-  ft40Safe: (json['ft40_safe'] as num).toInt(),
+  ft20: (json['ft20'] as num).toInt(),
+  ft40: (json['ft40'] as num).toInt(),
 );
 
 Map<String, dynamic> _$FareResultToJson(_FareResult instance) =>
@@ -25,6 +25,6 @@ Map<String, dynamic> _$FareResultToJson(_FareResult instance) =>
       'eupmyeondong': instance.eupmyeondong,
       'distance': instance.distance,
       'unnotice': instance.unnotice,
-      'ft20_safe': instance.ft20Safe,
-      'ft40_safe': instance.ft40Safe,
+      'ft20': instance.ft20,
+      'ft40': instance.ft40,
     };

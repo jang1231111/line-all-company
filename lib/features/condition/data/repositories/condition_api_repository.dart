@@ -68,7 +68,14 @@ class ConditionApiRepository implements ConditionRepository {
         // 여기서 타입 캐스팅
         final data = response.data['data'];
         if (data is List) {
-          return data.map((item) => FareResult.fromJson(item)).toList();
+          return data
+              .map(
+                (item) => FareResult.fromApiJson(
+                  Map<String, dynamic>.from(item as Map<String, dynamic>),
+                  type,
+                ),
+              )
+              .toList();
         } else {
           throw Exception('API 데이터 형식 오류');
         }
@@ -111,7 +118,14 @@ class ConditionApiRepository implements ConditionRepository {
       if (response.statusCode == 200) {
         final data = response.data['data'];
         if (data is List) {
-          return data.map((item) => FareResult.fromJson(item)).toList();
+          return data
+              .map(
+                (item) => FareResult.fromApiJson(
+                  Map<String, dynamic>.from(item as Map<String, dynamic>),
+                  type,
+                ),
+              )
+              .toList();
         } else {
           throw Exception('API 데이터 형식 오류');
         }

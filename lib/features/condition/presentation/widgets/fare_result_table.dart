@@ -247,13 +247,13 @@ class FareResultTable extends ConsumerWidget {
                       itemBuilder: (context, idx) {
                         final row = results[idx];
                         final ft20WithSurcharge =
-                            ((row.ft20Safe * (1 + surchargeRate)) *
+                            ((row.ft20 * (1 + surchargeRate)) *
                                     cancellationFeeAmount /
                                     100)
                                 .round() *
                             100;
                         final ft40WithSurcharge =
-                            ((row.ft40Safe * (1 + surchargeRate)) *
+                            ((row.ft40 * (1 + surchargeRate)) *
                                     cancellationFeeAmount /
                                     100)
                                 .round() *
