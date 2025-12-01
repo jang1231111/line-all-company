@@ -9,6 +9,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:intl/intl.dart';
 
 import 'package:line_all/features/condition/domain/repositories/selected_fare_repository.dart';
 import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
@@ -375,19 +376,32 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
 
       final bytes = await doc.save();
       final tempDir = await getTemporaryDirectory();
-      final file = File(
-        '${tempDir.path}/fare_${DateTime.now().millisecondsSinceEpoch}.pdf',
-      );
+      // 더 깔끔한 파일명: FareQuote_<consignor>_YYYYMMDD_HHMM.pdf
+      final safeConsignor = consignor
+          .replaceAll(RegExp(r'[^\w\s-]'), '')
+          .trim()
+          .replaceAll(RegExp(r'\s+'), '_');
+      final timestamp = DateFormat('yyyyMMdd_HHmm').format(DateTime.now());
+      final pdfFileName = 'FareQuote_${safeConsignor}_$timestamp.pdf';
+      final file = File('${tempDir.path}/$pdfFileName');
       await file.writeAsBytes(bytes);
       return file;
     }
 
     // 메일 기본 텍스트 (본문)
     final body = StringBuffer()
+      ..writeln(
+        '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now())} 기준 운임 견적서 전송',
+      )
+      ..writeln('')
       ..writeln('화주: $consignor')
       ..writeln('수신: $email')
+      ..writeln('건수: ${fares.length}건')
       ..writeln('')
-      ..writeln('첨부된 견적서를 확인하세요.');
+      ..writeln('안녕하세요, 첨부된 PDF 파일은 선택하신 운임견적 내역을 정리한 문서입니다.')
+      ..writeln('문의나 수정 요청이 있으시면 회신 부탁드립니다.')
+      ..writeln('')
+      ..writeln('감사합니다.');
 
     final smtpServer = SmtpServer(
       host,
@@ -397,15 +411,19 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     );
 
     final message = Message()
-      ..from = Address(username ?? '', '운임 전송')
+      ..from = Address(username ?? '', 'LINE All - 운임 견적')
       ..recipients.add(email)
-      ..subject = '운임 전송 - $consignor'
+      ..subject =
+          '운임 견적서 ${DateFormat('yyyy.MM.dd').format(DateTime.now())} — $consignor'
       ..text = body.toString();
 
     try {
       // PDF 생성 및 첨부
       final pdfFile = await _createPdfFile();
-      message.attachments.add(FileAttachment(pdfFile));
+      // 첨부 파일명 지정
+      message.attachments.add(
+        FileAttachment(pdfFile)..fileName = pdfFile.path.split('/').last,
+      );
     } catch (e) {
       // PDF 생성 실패 시 로그 남기고 본문만 전송 시도
       print('PDF 생성 실패: $e');
