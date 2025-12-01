@@ -7,6 +7,7 @@ import 'package:line_all/features/condition/data/repositories/selected_fare_repo
 final selectedFareProvider =
     StateNotifierProvider<SelectedFareViewModel, List<SelectedFare>>(
       (ref) => SelectedFareViewModel(
+        ref,
         SelectedFareLocalDataSource(),
         SelectedFareRepositoryImpl(),
       ),

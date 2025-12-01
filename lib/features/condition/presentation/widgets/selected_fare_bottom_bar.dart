@@ -5,14 +5,9 @@ import '../providers/selected_fare_result_provider.dart';
 import 'selected_fare_dialog.dart';
 
 class SelectedFareBottomBar extends ConsumerWidget {
-  final VoidCallback? onConfirm;
   final GlobalKey? confirmButtonKey; // 추가
 
-  const SelectedFareBottomBar({
-    super.key,
-    this.onConfirm,
-    this.confirmButtonKey,
-  }); // 생성자에 추가
+  const SelectedFareBottomBar({super.key, this.confirmButtonKey});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -82,7 +77,6 @@ class SelectedFareBottomBar extends ConsumerWidget {
                             context: context,
                             builder: (context) => const SelectedFareDialog(),
                           );
-                          if (onConfirm != null) onConfirm!();
                         }
                       : null,
                   icon: Icon(Icons.visibility, size: 20.sp),

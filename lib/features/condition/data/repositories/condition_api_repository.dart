@@ -34,21 +34,21 @@ class ConditionApiRepository implements ConditionRepository {
 
   @override
   Future<List<FareResult>> searchByRegion({
-    String? period,
-    String? section,
+    required String period,
+    required String type,
+    required String section,
     String? sido,
     String? sigungu,
     String? eupmyeondong,
     String? dong,
     String? destinationSearch,
-    String? type,
     int? unnotice,
     String? mode,
   }) async {
     final queryParameters = {
-      if (period != null && period.isNotEmpty) 'period': period,
-      'type': 'safe', // 타입 Safe(안전 위탁 운임) 고정
-      if (section != null && section.isNotEmpty) 'section': section,
+      'period': period,
+      'type': type,
+      'section': section,
       if (sido != null && sido.isNotEmpty) 'sido': sido,
       if (sigungu != null && sigungu.isNotEmpty) 'sigungu': sigungu,
       if (eupmyeondong != null && eupmyeondong.isNotEmpty)
@@ -85,6 +85,7 @@ class ConditionApiRepository implements ConditionRepository {
   @override
   Future<List<FareResult>> searchByRoadName({
     required String period,
+    required String type,
     required String section,
     required String sido,
     required String sigungu,
@@ -94,8 +95,8 @@ class ConditionApiRepository implements ConditionRepository {
   }) async {
     final queryParameters = {
       'period': period,
+      'type': type,
       'section': section,
-      'type': 'safe',
       'sido': sido,
       'sigungu': sigungu,
       if (eupmyeondong != null) 'eupmyeondong': eupmyeondong,

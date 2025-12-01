@@ -78,7 +78,7 @@ class PeriodDropdownRow extends ConsumerWidget {
             focusNode: typeFocusNode,
             initialValue: typeOptions
                 .firstWhere(
-                  (opt) => opt.value == condition.section,
+                  (opt) => opt.value == condition.type,
                   orElse: () => typeOptions.first,
                 )
                 .label,

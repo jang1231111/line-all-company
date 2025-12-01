@@ -1,14 +1,20 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
 import 'package:line_all/features/condition/domain/repositories/selected_fare_repository.dart';
+import 'package:line_all/features/condition/presentation/providers/fare_result_provider.dart';
+import 'package:line_all/features/condition/presentation/providers/road_name_search_provider.dart';
 import '../../domain/models/fare_result.dart';
 import '../models/selected_fare.dart';
 import '../data/selected_fare_local_data_source.dart';
 
 class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
+  final Ref ref; // ref 주입하여 다른 provider 접근
   final SelectedFareLocalDataSource _localDataSource;
   final SelectedFareRepository _repository;
 
-  SelectedFareViewModel(this._localDataSource, this._repository) : super([]);
+  SelectedFareViewModel(this.ref, this._localDataSource, this._repository)
+    : super([]);
 
   void toggle({
     required FareResult row,
@@ -89,7 +95,15 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
       if (success) {
         // 전송 성공 시 기존 루틴: DB 저장 및 상태 초기화
         await saveCurrentToDb(consignor);
-        clearState();
+        // 모든 상태 초기화 처리 
+        try {
+          clearState();
+          ref.read(conditionViewModelProvider.notifier).reset();
+          ref.read(roadNameSearchViewModelProvider.notifier).clearKeyword();
+          ref.read(fareResultViewModelProvider.notifier).clear();
+        } catch (_) {
+          // 안전하게 무시(ConditionViewModel에 reset이 없거나 provider 이름이 다를 경우)
+        }
       }
       return success;
     } catch (_) {
