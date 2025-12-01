@@ -427,6 +427,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     } catch (e) {
       // PDF 생성 실패 시 로그 남기고 본문만 전송 시도
       print('PDF 생성 실패: $e');
+      return false;
     }
 
     try {
