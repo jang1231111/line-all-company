@@ -10,6 +10,16 @@ class RoadNameSearchViewModel extends StateNotifier<RoadNameSearchState> {
     state = state.copyWith(keyword: keyword);
   }
 
+  /// 키워드와 검색 결과를 초기화합니다.
+  void clearKeyword() {
+    state = state.copyWith(
+      keyword: '',
+      results: [],
+      totalCount: 0,
+      error: null,
+    );
+  }
+
   Future<void> search(String keyword) async {
     state = state.copyWith(isLoading: true, error: null);
     try {

@@ -7,6 +7,7 @@ import 'firebase_options.dart'; // flutterfire configure가 생성한 파일
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_all/common/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'features/condition/presentation/pages/condition_form_page.dart';
 import 'features/condition/presentation/pages/statistics_page.dart';
@@ -17,7 +18,13 @@ Future<void> main() async {
   runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+      // .env 파일 로드 (루트에 .env 두고 사용)
+      await dotenv.load(fileName: '.env');
+
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
       print('Firebase initialized: ${Firebase.apps.length}');
 

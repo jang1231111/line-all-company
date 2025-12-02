@@ -13,6 +13,12 @@ class ConditionViewModel extends StateNotifier<Condition> {
 
   final ConditionRepository _repository;
   final Ref _ref;
+
+  // 명시적 초기화 메서드 (UI에서 호출)
+  void reset() {
+    state = const Condition();
+  }
+
   void update(Condition condition) {
     state = condition;
   }
@@ -20,12 +26,12 @@ class ConditionViewModel extends StateNotifier<Condition> {
   Future<void> searchByRegion() async {
     _ref.read(fareResultViewModelProvider.notifier).setLoading();
     final results = await _repository.searchByRegion(
-      period: state.period,
-      section: state.section,
+      period: state.period!,
+      type: state.type!,
+      section: state.section!,
       sido: state.sido,
       sigungu: state.sigungu,
       eupmyeondong: state.eupmyeondong,
-      type: state.type,
     );
 
     // 가나다(오름차순) 정렬: sido > sigungu > eupmyeondong
@@ -58,7 +64,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
     List<FareResult> results;
 
     _ref.read(fareResultViewModelProvider.notifier).setLoading();
-    
+
     // hemdNm non-null
     if (address.hemdNm != null) {
       // 읍면동 값 추출
@@ -71,6 +77,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
       // 1차 검색
       results = await _repository.searchByRoadName(
         period: state.period!,
+        type: state.type!,
         section: state.section!,
         sido: sido,
         sigungu: sigungu,
@@ -81,6 +88,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
       if (results.isEmpty && eupmyeondong != null && eupmyeondong.length >= 4) {
         results = await _repository.searchByRoadName(
           period: state.period!,
+          type: state.type!,
           section: state.section!,
           sido: sido,
           sigungu: sigungu,
@@ -93,6 +101,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
     else {
       results = await _repository.searchByRoadName(
         period: state.period!,
+        type: state.type!,
         section: state.section!,
         sido: sido,
         sigungu: sigungu,

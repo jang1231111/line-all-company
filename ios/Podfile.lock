@@ -128,6 +128,9 @@ PODS:
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - PromisesObjC (2.4.0)
   - PromisesSwift (2.4.0):
     - PromisesObjC (= 2.4.0)
@@ -142,6 +145,7 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
   - Flutter (from `Flutter`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
@@ -173,6 +177,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_crashlytics/ios"
   Flutter:
     :path: Flutter
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   url_launcher_ios:
@@ -197,6 +203,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
+  path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7

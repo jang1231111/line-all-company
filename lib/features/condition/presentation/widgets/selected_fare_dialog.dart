@@ -6,6 +6,7 @@ import 'package:line_all/features/condition/presentation/models/selected_fare.da
 import 'package:line_all/features/condition/presentation/widgets/surcharge_dialog.dart';
 import '../data/condition_options.dart';
 import '../providers/selected_fare_result_provider.dart';
+import 'send_fare_input_dialog.dart';
 
 class SelectedFareDialog extends ConsumerWidget {
   const SelectedFareDialog({super.key});
@@ -18,344 +19,380 @@ class SelectedFareDialog extends ConsumerWidget {
       0,
       (sum, fare) => sum + fare.price,
     );
+    final priceFmt = NumberFormat('#,###');
+
+    // 서버 전송은 ViewModel.sendSelectedFares로 처리합니다.
+    // (선택한 항목 저장/상태 초기화는 ViewModel 내부에서 수행됩니다.)
 
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+      insetPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 28.h),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       backgroundColor: Colors.white,
-      child: SizedBox(
-        width: 700.w, // width 넓게 조정
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
-              child: Row(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 640.w),
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // header
+              Row(
                 children: [
-                  Icon(
-                    Icons.list_alt_rounded,
-                    color: Colors.indigo,
-                    size: 36.sp,
+                  Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: Colors.indigo.shade50,
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Icon(
+                      Icons.list_alt_rounded,
+                      color: Colors.indigo,
+                      size: 28.sp,
+                    ),
                   ),
                   SizedBox(width: 12.w),
-                  Text(
-                    '선택된 운임 목록',
-                    style: TextStyle(
-                      fontSize: 28.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2D365C),
-                      letterSpacing: 0.2,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '선택된 운임 목록',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF2D365C),
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          selectedFares.isEmpty
+                              ? '선택된 항목이 없습니다.'
+                              : '선택된 운임을 확인하고 전송하세요.',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                    icon: Icon(Icons.close, size: 20.sp, color: Colors.black54),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: 10.h),
-            if (selectedFares.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 28.w),
-                child: Container(
-                  margin: EdgeInsets.only(bottom: 5.h),
+
+              SizedBox(height: 12.h),
+
+              // total box (if any)
+              if (selectedFares.isNotEmpty)
+                Container(
+                  width: double.infinity,
                   padding: EdgeInsets.symmetric(
-                    vertical: 16.h,
-                    horizontal: 18.w,
+                    vertical: 10.h,
+                    horizontal: 12.w,
                   ),
+                  margin: EdgeInsets.only(bottom: 10.h),
                   decoration: BoxDecoration(
                     color: Colors.indigo.shade50,
-                    borderRadius: BorderRadius.circular(16.r),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(color: Colors.indigo.shade100),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Row(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            '총 합계',
-                            style: TextStyle(
-                              fontSize: 22.sp,
-                              color: Colors.indigo.shade700,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      Expanded(
+                        child: Text(
+                          '총 합계',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.indigo.shade700,
+                            fontWeight: FontWeight.w700,
                           ),
-                        ],
+                        ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            '${NumberFormat('#,###').format(totalPrice)}원',
-                            style: TextStyle(
-                              fontSize: 28.sp,
-                              color: Color(0xFF1A237E),
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        '${priceFmt.format(totalPrice)}원',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF1A237E),
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            Divider(height: 15.h, thickness: 1.4.w),
-            if (selectedFares.isEmpty)
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 48.h),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.inbox_rounded,
-                      color: Colors.indigo.shade100,
-                      size: 64.sp,
-                    ),
-                    SizedBox(height: 18.h),
-                    Text(
-                      '선택된 항목이 없습니다.',
-                      style: TextStyle(
-                        color: Color(0xFF6B7684),
-                        fontSize: 22.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else
-              Flexible(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: selectedFares.length,
-                    separatorBuilder: (_, __) => SizedBox(height: 5.h),
-                    itemBuilder: (context, idx) {
-                      final fare = selectedFares[idx];
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 8.h),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14.r),
-                          border: Border.all(
-                            color: Colors.indigo.shade200,
-                            width: 2.w,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 14.h,
-                            horizontal: 18.w,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    getSectionLabel(fare.row.section),
-                                    style: TextStyle(
-                                      fontSize: 20.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.indigo,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8.h),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${fare.row.sido}>${fare.row.sigungu}>${fare.row.eupmyeondong}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18.sp,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 14.w,
-                                      vertical: 6.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: fare.type == FareType.ft20
-                                          ? Colors.indigo.shade100
-                                          : Colors.deepOrange[50],
-                                      borderRadius: BorderRadius.circular(8.r),
-                                    ),
-                                    child: Text(
-                                      fare.type == FareType.ft20
-                                          ? '20FT'
-                                          : '40FT',
-                                      style: TextStyle(
-                                        color: fare.type == FareType.ft20
-                                            ? Colors.indigo.shade900
-                                            : Colors.deepOrange,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16.sp,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
 
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+              // list or empty
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: selectedFares.isEmpty ? 120.h : 320.h,
+                ),
+                child: selectedFares.isEmpty
+                    ? Column(
+                        children: [
+                          SizedBox(height: 8.h),
+                          Icon(
+                            Icons.inbox_rounded,
+                            color: Colors.indigo.shade100,
+                            size: 56.sp,
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            '선택된 항목이 없습니다.',
+                            style: TextStyle(
+                              color: Color(0xFF6B7684),
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                        ],
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: selectedFares.length,
+                        separatorBuilder: (_, __) => SizedBox(height: 8.h),
+                        itemBuilder: (context, idx) {
+                          final fare = selectedFares[idx];
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12.r),
+                              border: Border.all(
+                                color: Colors.indigo.shade100,
+                                width: 1.w,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.02),
+                                  blurRadius: 4.r,
+                                  offset: Offset(0, 1.h),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 10.h,
+                                horizontal: 12.w,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // title + type tag
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Material(
-                                        color: const Color(0xFFFFF3C2),
-                                        borderRadius: BorderRadius.circular(
-                                          10.r,
-                                        ),
-                                        child: InkWell(
-                                          splashColor: Colors.orange
-                                              .withOpacity(0.1),
-                                          highlightColor: Colors.orange
-                                              .withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(
-                                            10.r,
+                                      Expanded(
+                                        child: Text(
+                                          getSectionLabel(fare.row.section),
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.indigo,
                                           ),
-                                          onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (_) =>
-                                                  SurchargeDialog(fare: fare),
-                                            );
-                                          },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.r),
-                                              border: Border.all(
-                                                color: Colors.orange.shade200,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.orange
-                                                      .withOpacity(0.06),
-                                                  blurRadius: 4.r,
-                                                  offset: Offset(0, 1.h),
-                                                ),
-                                              ],
-                                            ),
-                                            padding: EdgeInsets.all(1.w),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(height: 4.h),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    SizedBox(width: 10.w),
-                                                    Text(
-                                                      '할증률:',
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 16.sp,
-                                                        color: Colors.black87,
-                                                      ),
-                                                    ),
-                                                    SizedBox(width: 5.w),
-                                                    Text(
-                                                      '${(fare.rate * 100).toStringAsFixed(1)}%',
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 16.sp,
-                                                        color: Color(
-                                                          0xFFD18A00,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(width: 14.w),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 10.w,
+                                          vertical: 6.h,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: fare.type == FareType.ft20
+                                              ? Colors.indigo.shade100
+                                              : Colors.deepOrange.shade50,
+                                          borderRadius: BorderRadius.circular(
+                                            8.r,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          fare.type == FareType.ft20
+                                              ? '20FT'
+                                              : '40FT',
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w800,
+                                            color: fare.type == FareType.ft20
+                                                ? Colors.indigo.shade900
+                                                : Colors.deepOrange,
                                           ),
                                         ),
                                       ),
                                     ],
                                   ),
+                                  SizedBox(height: 8.h),
+                                  // location + price + surcharge
                                   Text(
-                                    '${NumberFormat('#,###').format(fare.price)}원',
+                                    '${fare.row.sido} > ${fare.row.sigungu} > ${fare.row.eupmyeondong}',
                                     style: TextStyle(
-                                      fontSize: 20.sp,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17.sp,
                                       color: Colors.black87,
+                                      fontWeight: FontWeight.w600,
                                     ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (_) =>
+                                                SurchargeDialog(fare: fare),
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 8.w,
+                                            vertical: 6.h,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFF3C2),
+                                            borderRadius: BorderRadius.circular(
+                                              8.r,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                '할증률',
+                                                style: TextStyle(
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                              SizedBox(width: 6.w),
+                                              Text(
+                                                '${(fare.rate * 100).toStringAsFixed(1)}%',
+                                                style: TextStyle(
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFFD18A00),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        '${priceFmt.format(fare.price)}원',
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                            ),
+                          );
+                        },
+                      ),
               ),
-            Padding(
-              padding: EdgeInsets.only(left: 8.w, right: 8.w, bottom: 8.h),
-              child: Row(
+
+              SizedBox(height: 12.h),
+
+              // action buttons
+              Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade200,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
                         foregroundColor: Colors.black87,
+                        side: BorderSide(color: Colors.grey.shade300),
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.r),
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 20.h),
-                        elevation: 0,
                         textStyle: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(Icons.close_rounded, size: 26.sp),
-                      label: Text('닫기', style: TextStyle(fontSize: 20.sp)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.close_rounded, size: 16.sp),
+                          SizedBox(width: 8.w),
+                          Text('닫기'),
+                        ],
+                      ),
                     ),
                   ),
-                  SizedBox(width: 18.w),
+                  SizedBox(width: 12.w),
                   Expanded(
-                    child: ElevatedButton.icon(
+                    child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.indigo,
-                        foregroundColor: Colors.white,
+                        backgroundColor: selectedFares.isNotEmpty
+                            ? Colors.indigo
+                            : Colors.grey.shade300,
+                        foregroundColor: selectedFares.isNotEmpty
+                            ? Colors.white
+                            : Colors.black38,
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.r),
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 20.h),
                         textStyle: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       onPressed: () async {
-                        await selectedFareViewModel.saveCurrentToDb();
-                        selectedFareViewModel.clearState();
-                        Navigator.of(context).pop('save');
+                        // 1) 사용자 입력 다이얼로그 표시
+                        final input = await SendFareInputDialog.show(context);
+                        if (input == null) return; // 취소됨
+
+                        // 2) 진행 표시
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) =>
+                              const Center(child: CircularProgressIndicator()),
+                        );
+
+                        // 3) ViewModel에 전체 input 전달하여 처리 위임
+                        final success = await selectedFareViewModel
+                            .sendSelectedFares(input);
+
+                        // 4) 진행 표시 닫기
+                        Navigator.of(context).pop();
+
+                        if (success) {
+                          Navigator.of(context).pop('save');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('전송이 완료되었습니다.')),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('전송에 실패했습니다. 다시 시도하세요.'),
+                            ),
+                          );
+                        }
                       },
-                      icon: Icon(Icons.save_rounded, size: 26.sp),
-                      label: Text('저장', style: TextStyle(fontSize: 20.sp)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.send, size: 16.sp),
+                          SizedBox(width: 8.w),
+                          Text('확인'),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

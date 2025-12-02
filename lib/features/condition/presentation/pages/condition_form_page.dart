@@ -21,6 +21,7 @@ class ConditionFormPage extends ConsumerStatefulWidget {
 class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   static const String _tutorialShownKey = 'condition_tutorial_shown_v1';
   final GlobalKey periodTargetKey = GlobalKey();
+  final GlobalKey typeTargetKey = GlobalKey();
   final GlobalKey sectionTargetKey = GlobalKey();
   final GlobalKey searchKey = GlobalKey();
   final GlobalKey regionButtonKey = GlobalKey();
@@ -39,6 +40,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   List<TargetFocus> targets = [];
   TutorialCoachMark? _tutorialCoachMark; // 튜토리얼 인스턴스 보관
   void Function(PointerEvent)? _globalPointerHandler; // 전역 포인터 핸들러
+  bool _suppressNext = false; // 다음 스텝 중복 호출 방지 플래그
 
   // 열고 싶은 사이트 URL (실제 도메인으로 교체)
   static const String _companyUrl = 'http://www.lineall.co.kr';
@@ -452,6 +454,13 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
           alignment: 0.2,
         );
       }
+      // if (typeTargetKey.currentContext != null) {
+      //   await Scrollable.ensureVisible(
+      //     typeTargetKey.currentContext!,
+      //     duration: const Duration(milliseconds: 300),
+      //     alignment: 1.0,
+      //   );
+      // }
       // 바텀/앱바도 화면에 보이도록(있다면)
       if (selectedBottomKey.currentContext != null) {
         await Scrollable.ensureVisible(
@@ -474,6 +483,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
     _globalPointerHandler = (PointerEvent event) {
       if (!_tutorialRunning) return;
       if (event is PointerUpEvent) {
+        if (_suppressNext) return; // 중복 방지
         _tutorialCoachMark?.next();
       }
     };
@@ -490,11 +500,24 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       pulseEnable: false,
       focusAnimationDuration: const Duration(milliseconds: 0),
       // 오버레이/타겟 클릭도 다음으로
-      onClickOverlay: (_) => _tutorialCoachMark?.next(),
-      onClickTarget: (_) => _tutorialCoachMark?.next(),
+      onClickOverlay: (_) {
+        _suppressNext = true;
+        _tutorialCoachMark?.next();
+        Future.delayed(const Duration(milliseconds: 300), () {
+          _suppressNext = false;
+        });
+      },
+      onClickTarget: (_) {
+        _suppressNext = true;
+        _tutorialCoachMark?.next();
+        Future.delayed(const Duration(milliseconds: 300), () {
+          _suppressNext = false;
+        });
+      },
       onFinish: () {
         _tutorialRunning = false;
         _tutorialCoachMark = null;
+        _suppressNext = false;
         if (_globalPointerHandler != null) {
           GestureBinding.instance.pointerRouter.removeGlobalRoute(
             _globalPointerHandler!,
@@ -505,6 +528,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       onSkip: () {
         _tutorialRunning = false;
         _tutorialCoachMark = null;
+        _suppressNext = false;
         if (_globalPointerHandler != null) {
           GestureBinding.instance.pointerRouter.removeGlobalRoute(
             _globalPointerHandler!,
@@ -624,7 +648,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                           const Icon(Icons.local_shipping, color: Colors.white),
                           SizedBox(width: 7.w),
                           Text(
-                            '안전 위탁 운임  -  차주용',
+                            '안전운임 - 화주 및 운송사용',
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w800,
@@ -728,6 +752,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                       children: [
                         ConditionFormWidget(
                           periodTargetKey: periodTargetKey,
+                          typeTargetKey: typeTargetKey,
                           sectionTargetKey: sectionTargetKey,
                           serachKey: searchKey,
                           regionButtonKey: regionButtonKey,
