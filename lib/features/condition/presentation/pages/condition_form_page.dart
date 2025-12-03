@@ -39,8 +39,9 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   bool _tutorialRunning = false;
   List<TargetFocus> targets = [];
   TutorialCoachMark? _tutorialCoachMark; // 튜토리얼 인스턴스 보관
-  void Function(PointerEvent)? _globalPointerHandler; // 전역 포인터 핸들러
-  bool _suppressNext = false; // 다음 스텝 중복 호출 방지 플래그
+
+  // Overlay로 전역 터치 흡수 처리
+  OverlayEntry? _tutorialBlockingOverlay;
 
   // 열고 싶은 사이트 URL (실제 도메인으로 교체)
   static const String _companyUrl = 'http://www.lineall.co.kr';
@@ -454,14 +455,6 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
           alignment: 0.2,
         );
       }
-      // if (typeTargetKey.currentContext != null) {
-      //   await Scrollable.ensureVisible(
-      //     typeTargetKey.currentContext!,
-      //     duration: const Duration(milliseconds: 300),
-      //     alignment: 1.0,
-      //   );
-      // }
-      // 바텀/앱바도 화면에 보이도록(있다면)
       if (selectedBottomKey.currentContext != null) {
         await Scrollable.ensureVisible(
           selectedBottomKey.currentContext!,
@@ -470,7 +463,6 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
         );
       }
       if (statsIconKey.currentContext != null) {
-        // 앱바는 이미 보이지만 ensureVisible 호출해도 안전
         await Scrollable.ensureVisible(
           statsIconKey.currentContext!,
           duration: const Duration(milliseconds: 200),
@@ -479,18 +471,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       }
     } catch (_) {}
 
-    // 전역 포인터 라우터 등록: 화면 어디를 눌러도 다음 스텝 진행
-    _globalPointerHandler = (PointerEvent event) {
-      if (!_tutorialRunning) return;
-      if (event is PointerUpEvent) {
-        if (_suppressNext) return; // 중복 방지
-        _tutorialCoachMark?.next();
-      }
-    };
-    GestureBinding.instance.pointerRouter.addGlobalRoute(
-      _globalPointerHandler!,
-    );
-
+    // TutorialCoachMark는 내부 클릭 콜백에서 직접 next()를 호출하지 않음.
     _tutorialCoachMark = TutorialCoachMark(
       targets: targets,
       colorShadow: Colors.black54,
@@ -499,46 +480,53 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       paddingFocus: 8,
       pulseEnable: false,
       focusAnimationDuration: const Duration(milliseconds: 0),
-      // 오버레이/타겟 클릭도 다음으로
-      onClickOverlay: (_) {
-        _suppressNext = true;
-        _tutorialCoachMark?.next();
-        Future.delayed(const Duration(milliseconds: 300), () {
-          _suppressNext = false;
-        });
-      },
-      onClickTarget: (_) {
-        _suppressNext = true;
-        _tutorialCoachMark?.next();
-        Future.delayed(const Duration(milliseconds: 300), () {
-          _suppressNext = false;
-        });
-      },
+      // onClick* 은 빈 구현으로 두고 오버레이에서 next() 처리
+      onClickOverlay: (_) {},
+      onClickTarget: (_) {},
       onFinish: () {
         _tutorialRunning = false;
         _tutorialCoachMark = null;
-        _suppressNext = false;
-        if (_globalPointerHandler != null) {
-          GestureBinding.instance.pointerRouter.removeGlobalRoute(
-            _globalPointerHandler!,
-          );
-          _globalPointerHandler = null;
+        if (_tutorialBlockingOverlay != null) {
+          _tutorialBlockingOverlay!.remove();
+          _tutorialBlockingOverlay = null;
         }
       },
       onSkip: () {
         _tutorialRunning = false;
         _tutorialCoachMark = null;
-        _suppressNext = false;
-        if (_globalPointerHandler != null) {
-          GestureBinding.instance.pointerRouter.removeGlobalRoute(
-            _globalPointerHandler!,
-          );
-          _globalPointerHandler = null;
+        if (_tutorialBlockingOverlay != null) {
+          _tutorialBlockingOverlay!.remove();
+          _tutorialBlockingOverlay = null;
         }
         return false;
       },
     );
     _tutorialCoachMark!.show(context: context);
+
+    // 튜토리얼 오버레이 위에 최상단 overlay를 한 번 더 넣어 모든 터치를 흡수하고
+    // onPointerUp에서 next()를 호출하도록 함.
+    _tutorialBlockingOverlay = OverlayEntry(
+      builder: (ctx) => Positioned.fill(
+        child: Listener(
+          behavior: HitTestBehavior.opaque,
+          onPointerUp: (event) {
+            if (!_tutorialRunning) return;
+            try {
+              _tutorialCoachMark?.next();
+            } catch (_) {}
+          },
+          child: Container(color: Colors.transparent),
+        ),
+      ),
+    );
+
+    // show 이후에 삽입하도록 소량 딜레이
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (!_tutorialRunning) return;
+      try {
+        Overlay.of(context)?.insert(_tutorialBlockingOverlay!);
+      } catch (_) {}
+    });
   }
 
   Future<void> _launchWebsite() async {
@@ -560,11 +548,9 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
 
   @override
   void dispose() {
-    if (_globalPointerHandler != null) {
-      GestureBinding.instance.pointerRouter.removeGlobalRoute(
-        _globalPointerHandler!,
-      );
-      _globalPointerHandler = null;
+    if (_tutorialBlockingOverlay != null) {
+      _tutorialBlockingOverlay!.remove();
+      _tutorialBlockingOverlay = null;
     }
     super.dispose();
   }
