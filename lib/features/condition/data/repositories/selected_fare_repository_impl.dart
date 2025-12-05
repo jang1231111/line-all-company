@@ -418,15 +418,28 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       ..text = body.toString();
 
     try {
-      // PDF 생성 및 첨부
+      // PDF 생성 및 첨부 (디버그 검사 추가)
       final pdfFile = await _createPdfFile();
-      // 첨부 파일명 지정
+
+      final bytes = await pdfFile.readAsBytes();
+      debugPrint('DEBUG: pdf path=${pdfFile.path}, size=${bytes.length}');
+      final header = bytes.length >= 4
+          ? String.fromCharCodes(bytes.take(4))
+          : '';
+      debugPrint('DEBUG: pdf header="$header"');
+      if (!header.startsWith('%PDF')) {
+        print('PDF 형식 오류: 파일 헤더가 올바르지 않습니다.');
+        return false;
+      }
+
+      // 첨부할 때 MIME 타입은 문자열로 전달
       message.attachments.add(
-        FileAttachment(pdfFile)..fileName = pdfFile.path.split('/').last,
+        FileAttachment(pdfFile, contentType: 'application/pdf')
+          ..fileName = pdfFile.path.split('/').last,
       );
     } catch (e) {
       // PDF 생성 실패 시 로그 남기고 본문만 전송 시도
-      print('PDF 생성 실패: $e');
+      print('PDF 생성/첨부 실패: $e');
       return false;
     }
 
