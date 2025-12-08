@@ -10,6 +10,7 @@ import 'package:flutter/gestures.dart';
 import '../widgets/condition_form_widget.dart';
 import '../widgets/fare_result_table.dart';
 import '../widgets/selected_fare_bottom_bar.dart';
+import '../widgets/user_info_dialog.dart';
 
 class ConditionFormPage extends ConsumerStatefulWidget {
   const ConditionFormPage({super.key});
@@ -49,7 +50,10 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeStartTutorial());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _maybeShowUserInfoDialog(); // 최초 사용자 정보 입력(필수)
+      _maybeStartTutorial();
+    });
   }
 
   Future<void> _maybeStartTutorial() async {
@@ -480,7 +484,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       paddingFocus: 8,
       pulseEnable: false,
       focusAnimationDuration: const Duration(milliseconds: 0),
-      // onClick* 은 빈 구현으로 두고 오버레이에서 next() 처리
+      // onClick* 은 빈 구현으로 두고 o버레이에서 next() 처리
       onClickOverlay: (_) {},
       onClickTarget: (_) {},
       onFinish: () {
@@ -544,6 +548,15 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
         context,
       ).showSnackBar(SnackBar(content: Text('오류: $e')));
     }
+  }
+
+  // 파일 맨 아래 근처에 추가 (조건: dialog가 로컬 prefs에 저장되어 있지 않으면 강제 표시)
+  Future<void> _maybeShowUserInfoDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shown = prefs.getBool('user_info_saved_v1') ?? false;
+    if (shown) return;
+    // barrierDismissible=false 이므로 사용자가 반드시 입력해야 닫힘
+    await UserInfoDialog.showRequired(context);
   }
 
   @override
