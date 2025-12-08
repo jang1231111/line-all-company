@@ -10,6 +10,7 @@ import 'package:pdf/pdf.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:line_all/features/condition/domain/repositories/selected_fare_repository.dart';
 import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
@@ -410,11 +411,26 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       password: password,
     );
 
+    // 저장된 발신사(앱의 user_company) 불러와서 제목에 포함
+    final prefs = await SharedPreferences.getInstance();
+    final storedCompany = prefs.getString('user_company') ?? '';
+
+    String _safeForHeader(String s, {int maxLen = 40}) {
+      var t = s.replaceAll(RegExp(r'[\r\n]+'), ' ').trim();
+      t = t.replaceAll(RegExp(r'[^\x20-\x7E\u0080-\uFFFF]'), ''); // 제어문자 제거
+      if (t.length > maxLen) t = t.substring(0, maxLen) + '…';
+      return t;
+    }
+
+    final safeSender = storedCompany.isNotEmpty ? _safeForHeader(storedCompany) : '발신자';
+    final safeConsignor = _safeForHeader(consignor);
+    final date = DateFormat('yyyy.MM.dd').format(DateTime.now());
+    final subject = '운임 견적서 — $safeSender → $safeConsignor — $date';
+
     final message = Message()
-      ..from = Address(username ?? '', 'LINE All - 운임 견적')
+      ..from = Address(username, '운임 견적')
       ..recipients.add(email)
-      ..subject =
-          '운임 견적서 ${DateFormat('yyyy.MM.dd').format(DateTime.now())} — $consignor'
+      ..subject = subject
       ..text = body.toString();
 
     try {
