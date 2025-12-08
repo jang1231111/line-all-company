@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -22,7 +21,11 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   @override
   Future<bool> sendSelectedFares({
     required String consignor,
-    required String email,
+    required String recipient,
+    required String recipientEmail,
+    required String recipientCompany,
+    required String recipientPhone,
+    required String note,
     required List<SelectedFare> fares,
   }) async {
     final host = dotenv.env['SMTP_SERVER'];
@@ -43,6 +46,13 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         'lib/assets/fonts/NotoSansKR-Regular.ttf',
       );
       final ttf = pw.Font.ttf(fontData);
+
+      // SharedPreferences에서 발신사(앱 저장값) 불러오기
+      final prefs = await SharedPreferences.getInstance();
+      final senderCompany = prefs.getString('user_company') ?? '';
+      final senderName = prefs.getString('user_name') ?? '';
+      final senderPhone = prefs.getString('user_phone') ?? '';
+      final senderEmail = prefs.getString('user_email') ?? '';
 
       // 단일 셀 헬퍼: minHeight == 0 이면 내용에 따라 높이 자동 확장
       pw.Widget cell(
@@ -165,32 +175,55 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                             },
                             children: [
                               buildRow(['-', '수신인', '발신인'], header: true),
+                              // 수신인 / 발신인 컬럼에 각 정보를 명확하게 배치
                               pw.TableRow(
                                 children: [
                                   cell('상호', isHeader: true),
-                                  cell('-'),
-                                  cell('-'),
+                                  cell(
+                                    recipientCompany?.isNotEmpty == true
+                                        ? recipientCompany
+                                        : '-',
+                                  ),
+                                  cell(
+                                    senderCompany.isNotEmpty
+                                        ? senderCompany
+                                        : '-',
+                                  ),
                                 ],
                               ),
                               pw.TableRow(
                                 children: [
                                   cell('성명', isHeader: true),
-                                  cell(consignor),
-                                  cell('-'),
+                                  cell(recipient.isNotEmpty ? recipient : '-'),
+                                  cell(
+                                    senderName.isNotEmpty ? senderName : '-',
+                                  ),
                                 ],
                               ),
                               pw.TableRow(
                                 children: [
                                   cell('연락처', isHeader: true),
-                                  cell('-'),
-                                  cell('-'),
+                                  cell(
+                                    recipientPhone?.isNotEmpty == true
+                                        ? recipientPhone
+                                        : '-',
+                                  ),
+                                  cell(
+                                    senderPhone.isNotEmpty ? senderPhone : '-',
+                                  ),
                                 ],
                               ),
                               pw.TableRow(
                                 children: [
                                   cell('E-mail', isHeader: true),
-                                  cell(email),
-                                  cell('-'),
+                                  cell(
+                                    recipientEmail.isNotEmpty
+                                        ? recipientEmail
+                                        : '-',
+                                  ),
+                                  cell(
+                                    senderEmail.isNotEmpty ? senderEmail : '-',
+                                  ),
                                 ],
                               ),
                             ],
@@ -396,7 +429,8 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       )
       ..writeln('')
       ..writeln('화주: $consignor')
-      ..writeln('수신: $email')
+      ..writeln('수신인: $recipient')
+      ..writeln('수신인 이메일: $recipientEmail')
       ..writeln('건수: ${fares.length}건')
       ..writeln('')
       ..writeln('안녕하세요, 첨부된 PDF 파일은 선택하신 운임견적 내역을 정리한 문서입니다.')
@@ -422,14 +456,16 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       return t;
     }
 
-    final safeSender = storedCompany.isNotEmpty ? _safeForHeader(storedCompany) : '발신자';
+    final safeSender = storedCompany.isNotEmpty
+        ? _safeForHeader(storedCompany)
+        : '발신자';
     final safeConsignor = _safeForHeader(consignor);
     final date = DateFormat('yyyy.MM.dd').format(DateTime.now());
     final subject = '운임 견적서 — $safeSender → $safeConsignor — $date';
 
     final message = Message()
       ..from = Address(username, '운임 견적')
-      ..recipients.add(email)
+      ..recipients.add(recipientEmail)
       ..subject = subject
       ..text = body.toString();
 

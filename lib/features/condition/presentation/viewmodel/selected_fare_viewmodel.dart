@@ -80,22 +80,32 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
   Future<bool> sendSelectedFares(Map<String, String> input) async {
     if (state.isEmpty) return false;
 
-    final consignor = (input['consignor'] ?? '').trim();
-    final email = (input['email'] ?? '').trim();
+    final consignor = (input['consignor'] ?? '-').trim();
+    final recipient = (input['recipient'] ?? '-').trim();
+    final recipient_email = (input['recipient_email'] ?? '-').trim();
+    final recipient_company = (input['recipient_company'] ?? '-').trim();
+    final recipient_phone = (input['recipient_phone'] ?? '-').trim();
+    final note = (input['note'] ?? '-').trim();
 
     // 간단 검증: 필수값 체크
-    if (consignor.isEmpty || email.isEmpty) return false;
+    if (consignor.isEmpty || recipient.isEmpty || recipient_email.isEmpty) {
+      return false;
+    }
 
     try {
       final success = await _repository.sendSelectedFares(
         consignor: consignor,
-        email: email,
+        recipient: recipient,
+        recipientEmail: recipient_email,
+        recipientCompany: recipient_company,
+        recipientPhone: recipient_phone,
+        note: note,
         fares: state,
       );
       if (success) {
         // 전송 성공 시 기존 루틴: DB 저장 및 상태 초기화
         await saveCurrentToDb(consignor);
-        // 모든 상태 초기화 처리 
+        // 모든 상태 초기화 처리
         try {
           clearState();
           ref.read(conditionViewModelProvider.notifier).reset();
