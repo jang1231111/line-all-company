@@ -424,7 +424,7 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '추가 정보(선택)',
+                            '수신인    정보(선택)',
                             style: TextStyle(color: textPrimary),
                           ),
                           Icon(

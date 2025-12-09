@@ -144,6 +144,11 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                                 '일자: ${_formatDate(DateTime.now())}',
                                 style: pw.TextStyle(font: ttf, fontSize: 12),
                               ),
+                              pw.SizedBox(height: 6),
+                              pw.Text(
+                                '화주명: $consignor',
+                                style: pw.TextStyle(font: ttf, fontSize: 11),
+                              ),
                               pw.SizedBox(height: 25),
                               pw.Text(
                                 '1. 귀사의 일익 번창하심을 기원합니다.',
@@ -400,6 +405,43 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                     fontSize: 9,
                     fontWeight: pw.FontWeight.bold,
                     color: PdfColors.grey700,
+                  ),
+                ),
+              ),
+
+              // 참고 사항
+              pw.Container(
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey400, width: 0.8),
+                  borderRadius: pw.BorderRadius.circular(1),
+                  color: PdfColors.grey200,
+                ),
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
+                child: pw.Center(
+                  child: pw.Text(
+                    '참고 사항',
+                    style: pw.TextStyle(
+                      font: ttf,
+                      fontSize: 15,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              pw.Container(
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey400, width: 0.8),
+                  borderRadius: pw.BorderRadius.circular(1),
+                ),
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
+                child: pw.Center(
+                  child: pw.Text(
+                    note,
+                    style: pw.TextStyle(
+                      font: ttf,
+                      fontSize: 10,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
