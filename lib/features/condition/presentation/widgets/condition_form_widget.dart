@@ -223,7 +223,6 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 10.h),
                   ],
                 ),
               ),
