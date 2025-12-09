@@ -2,6 +2,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:line_all/features/condition/presentation/widgets/ToolSheet.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -664,65 +665,9 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               ],
             ),
             actions: [
-              // 앱 사용법: 아이콘+텍스트의 라운드 버튼 (앱 스타일과 일관성 유지)
-              // Padding(
-              //   padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 6.w),
-              //   child: Container(
-              //     key: tutorialKey,
-              //     child: ElevatedButton.icon(
-              //       onPressed: () async {
-              //         if (_tutorialRunning) return;
-              //         await _startTutorial();
-              //       },
-              //       icon: Icon(
-              //         Icons.help_outline,
-              //         color: Colors.white,
-              //         size: 18.sp,
-              //       ),
-              //       label: Text(
-              //         '',
-              //         style: TextStyle(
-              //           color: Colors.white,
-              //           fontSize: 14.sp,
-              //           fontWeight: FontWeight.w600,
-              //         ),
-              //       ),
-              //       style: ElevatedButton.styleFrom(
-              //         elevation: 0,
-              //         padding: EdgeInsets.symmetric(
-              //           horizontal: 12.w,
-              //           vertical: 8.h,
-              //         ),
-              //         backgroundColor: Colors.white.withOpacity(0.12),
-              //         shape: RoundedRectangleBorder(
-              //           borderRadius: BorderRadius.circular(10.r),
-              //         ),
-              //         side: BorderSide(color: Colors.white.withOpacity(0.14)),
-              //       ),
-              //     ),
-              //   ),
-              // ),
+              // 주요 버튼(통계)은 아이콘으로 유지, 나머지는 바텀시트로 대체
               InkWell(
-                onTap: () async {
-                  if (_tutorialRunning) return;
-                  await _startTutorial();
-                },
-                child: Container(
-                  key: tutorialKey,
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: const Icon(Icons.help_outline, color: Colors.white),
-                ),
-              ),
-              SizedBox(width: 12.w),
-              // 기존 통계 아이콘
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).pushNamed('/statistics');
-                },
+                onTap: () => Navigator.of(context).pushNamed('/statistics'),
                 child: Container(
                   key: statsIconKey,
                   padding: EdgeInsets.all(8.w),
@@ -736,7 +681,28 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                   ),
                 ),
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: 8.w),
+              IconButton(
+                icon: Icon(Icons.more_vert, color: Colors.white),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(12.r),
+                      ),
+                    ),
+                    builder: (ctx) => ToolsSheet(
+                      onStartTutorial: () {
+                        if (_tutorialRunning) return;
+                        _startTutorial();
+                      },
+                      onShowUserInfo: () =>
+                          UserInfoDialog.showRequired(context),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
           backgroundColor: const Color(0xFFF5F7FA),
