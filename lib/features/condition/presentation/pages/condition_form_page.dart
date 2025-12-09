@@ -573,137 +573,136 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: const Size(390, 844),
-      minTextAdapt: true,
+      minTextAdapt: false,
       builder: (context, child) {
         return Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            toolbarHeight: 72.h,
-            titleSpacing: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(16.r),
-              ),
-            ),
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF1C63D6), Color(0xFF154E9C)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(16),
-                ),
-              ),
-            ),
-            title: Row(
-              children: [
-                SizedBox(width: 10.w),
-
-                // 변경: 로고 + 타이틀을 하나의 '칩'으로 묶어 깔끔하게 표시
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 6.h,
+          // AppBar 전체를 PreferredSize + MediaQuery로 감싸서
+          // 시스템 textScaleFactor(접근성 폰트 크기)의 영향으로 높이가 변하지 않게 고정
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(72.h),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+              child: AppBar(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                toolbarHeight: 72.h, // 고정 높이 (ScreenUtil 단위)
+                titleSpacing: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(16.r),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 로고: 클릭 영역은 충분히 확보 (이미지 크기 작게)
-                      GestureDetector(
-                        onTap: _launchWebsite,
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6.r),
-                              child: Image.asset(
-                                'lib/assets/lineall_logo2.png',
-                                width: 130.w,
-                                height: 20.h,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-
-                            SizedBox(width: 15.w),
-
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6.r),
-                              child: Image.asset(
-                                'lib/assets/laxgp_logo2.png',
-                                width: 80.w,
-                                height: 20.h,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 3.h),
-                      Row(
+                ),
+                flexibleSpace: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF1C63D6), Color(0xFF154E9C)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(16),
+                    ),
+                  ),
+                ),
+                // title / actions 내부도 MediaQuery 영향 제외로 안전
+                title: Row(
+                  children: [
+                    SizedBox(width: 10.w),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.local_shipping, color: Colors.white),
-                          SizedBox(width: 7.w),
-                          Text(
-                            '안전운임 - 화주 및 운송사용',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
+                          GestureDetector(
+                            onTap: _launchWebsite,
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(6.r),
+                                  child: Image.asset(
+                                    'lib/assets/lineall_logo2.png',
+                                    width: 130.w,
+                                    height: 20.h,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                SizedBox(width: 15.w),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(6.r),
+                                  child: Image.asset(
+                                    'lib/assets/laxgp_logo2.png',
+                                    width: 80.w,
+                                    height: 20.h,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+                          SizedBox(height: 3.h),
+                          Row(
+                            children: [
+                              Icon(Icons.local_shipping, color: Colors.white, size: 18.sp),
+                              SizedBox(width: 7.w),
+                              Text(
+                                '안전운임 - 화주 및 운송사용',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(width: 4.w),
+                  ],
                 ),
-
-                SizedBox(width: 4.w),
-              ],
-            ),
-            actions: [
-              // 주요 버튼(통계)은 아이콘으로 유지, 나머지는 바텀시트로 대체
-              InkWell(
-                onTap: () => Navigator.of(context).pushNamed('/statistics'),
-                child: Container(
-                  key: statsIconKey,
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: const Icon(
-                    Icons.bar_chart_rounded,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              IconButton(
-                icon: Icon(Icons.more_vert, color: Colors.white),
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(12.r),
+                actions: [
+                  InkWell(
+                    onTap: () => Navigator.of(context).pushNamed('/statistics'),
+                    child: Container(
+                      key: statsIconKey,
+                      padding: EdgeInsets.all(8.w),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        Icons.bar_chart_rounded,
+                        color: Colors.white,
+                        size: 20.sp,
                       ),
                     ),
-                    builder: (ctx) => ToolsSheet(
-                      onStartTutorial: () {
-                        if (_tutorialRunning) return;
-                        _startTutorial();
-                      },
-                      onShowUserInfo: () =>
-                          UserInfoDialog.showRequired(context),
-                    ),
-                  );
-                },
+                  ),
+                  SizedBox(width: 8.w),
+                  IconButton(
+                    icon: Icon(Icons.more_vert, color: Colors.white, size: 20.sp),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(12.r),
+                          ),
+                        ),
+                        builder: (ctx) => ToolsSheet(
+                          onStartTutorial: () {
+                            if (_tutorialRunning) return;
+                            _startTutorial();
+                          },
+                          onShowUserInfo: () => UserInfoDialog.showRequired(context),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
           backgroundColor: const Color(0xFFF5F7FA),
           body: LayoutBuilder(
@@ -711,7 +710,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               return Column(
                 children: [
                   Expanded(
-                    flex: 9,
+                    flex: 11,
                     child: ListView(
                       padding: EdgeInsets.all(3.w),
                       children: [
@@ -723,7 +722,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                           regionButtonKey: regionButtonKey,
                           roadButtonKey: roadButtonKey,
                         ),
-                        SizedBox(height: 10.h),
+                        SizedBox(height: 6.h),
                       ],
                     ),
                   ),
