@@ -9,6 +9,7 @@ import 'package:pdf/pdf.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image/image.dart' as img;
 
 import 'package:line_all/features/condition/domain/repositories/selected_fare_repository.dart';
 import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
@@ -17,7 +18,6 @@ import 'package:line_all/features/condition/presentation/data/condition_options.
 class SelectedFareRepositoryImpl implements SelectedFareRepository {
   SelectedFareRepositoryImpl();
 
-  // 메인 API: PDF 생성 + 메일 전송
   @override
   Future<bool> sendSelectedFares({
     required String consignor,
@@ -46,26 +46,38 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       recipientPhone == '' ? '미입력' : recipientPhone,
       fares.length,
     );
-    final htmlBody = _buildHtmlBody(bodyPlain, prefs);
+
+    final htmlBody = _buildHtmlBody(
+      consignor: consignor,
+      recipient: recipient,
+      recipientEmail: recipientEmail,
+      recipientCompany: recipientCompany,
+      recipientPhone: recipientPhone,
+      count: fares.length,
+      prefs: prefs,
+    );
 
     // --- 배너 이미지 준비 (임시파일로 저장, CID로 인라인 첨부) ---
     final tempDir = await getTemporaryDirectory();
-    final bannerBytes = (await rootBundle.load('lib/assets/icon/app_icon.png')).buffer.asUint8List();
-    final bannerFile = File('${tempDir.path}${Platform.pathSeparator}app_icon.png');
-    await bannerFile.writeAsBytes(bannerBytes);
+    final rawBytes = (await rootBundle.load(
+      'lib/assets/icon/app_icon.png',
+    )).buffer.asUint8List();
+
+    // 레티나 대응: 표시할 너비를 결정하고 실제 첨부는 2배 크기로 생성
+    final decoded = img.decodeImage(rawBytes);
+    final int displayWidth = 48; // 메일에서 보이게 할 너비(px)
+    final int targetWidth = (displayWidth * 2); // 실제 파일은 2x로 저장해 선명도 확보
+    final List<int> outBytes = (decoded != null)
+        ? img.encodePng(img.copyResize(decoded, width: targetWidth))
+        : rawBytes;
+    final bannerFile = File(
+      '${tempDir.path}${Platform.pathSeparator}app_icon.png',
+    );
+    await bannerFile.writeAsBytes(outBytes);
     final bannerCid = 'mail_banner@lineall';
 
-    // 표시 크기(px) 고정: 필요에 따라 240/300 등 값 조정
-    final bannerHtml = '<a href="https://play.google.com/store/apps/details?id=com.optilo.line_all.comapny" target="_blank" rel="noopener">'
-        '<img src="cid:$bannerCid" alt="앱 다운로드" style="display:block;margin:12px auto;width:300px;max-width:100%;height:auto;border:0;" />'
-        '</a><br/>';
+    final htmlWithBanner = _buildHtmlTemplate(htmlBody, prefs, bannerCid);
 
-    // '[견적 정보]' 텍스트 바로 뒤에 배너를 삽입. 없으면 본문 앞에 추가.
-    final htmlWithBanner = htmlBody.contains('[견적 정보]')
-        ? htmlBody.replaceFirst('[견적 정보]', '[견적 정보]' + bannerHtml)
-        : bannerHtml + htmlBody;
-
-    // 이미지 첨부(인라인)
     final imageAttachment = FileAttachment(bannerFile, contentType: 'image/png')
       ..fileName = 'mail_banner.png'
       ..cid = bannerCid;
@@ -94,7 +106,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         ..recipients.add(recipientEmail)
         ..subject = subject
         ..text = bodyPlain
-        ..html = htmlWithBanner // CID 이미지가 포함된 HTML
+        ..html = htmlWithBanner
         ..attachments.add(
           FileAttachment(pdfFile, contentType: 'application/pdf')
             ..fileName = pdfFile.path.split(Platform.pathSeparator).last,
@@ -113,7 +125,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   }
 
   // ------------------------
-  // PDF 생성 (분리된 함수)
+  // PDF 생성
   // ------------------------
   Future<File> _createPdfFile({
     required String consignor,
@@ -141,11 +153,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       fontSize: 22,
       fontWeight: pw.FontWeight.bold,
     );
-    final subStyle = pw.TextStyle(
-      font: ttf,
-      fontSize: 10,
-      color: PdfColors.grey700,
-    );
     final total = fares.fold<int>(0, (s, f) => s + f.price);
 
     pw.Widget cell(String text, {bool isHeader = false, double minHeight = 0}) {
@@ -170,18 +177,16 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       );
     }
 
-    pw.TableRow buildRow(List<String> cols, {bool header = false}) {
-      return pw.TableRow(
-        children: cols.map((c) => cell(c, isHeader: header)).toList(),
-      );
-    }
+    pw.TableRow buildRow(List<String> cols, {bool header = false}) =>
+        pw.TableRow(
+          children: cols.map((c) => cell(c, isHeader: header)).toList(),
+        );
 
     doc.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(18),
         build: (pw.Context ctx) {
-          // 표 데이터 준비
           final headers = ['No', '항구', '지역', '규격', '할증률', '가격(원)', '비고(할증)'];
           final data = fares.map<List<String>>((f) {
             final region =
@@ -200,7 +205,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
             ];
           }).toList();
 
-          // 가변 너비 계산 (기존 로직 유지)
           final pageW = PdfPageFormat.a4.width;
           const outerMargin = 18.0;
           const outerPadding = 16.0;
@@ -322,7 +326,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                 ),
               ),
             ),
-            pw.SizedBox(height: 8),
             pw.Container(
               child: pw.Table.fromTextArray(
                 headers: headers,
@@ -415,6 +418,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                 ),
               ),
             ),
+            pw.SizedBox(height: 8),
             pw.Container(
               decoration: pw.BoxDecoration(
                 border: pw.Border.all(color: PdfColors.grey400, width: 0.8),
@@ -432,16 +436,21 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                 ),
               ),
             ),
+            // 참고 사항: 내용이 없어도 고정 영역을 확보하도록 최소 높이 적용
             pw.Container(
               decoration: pw.BoxDecoration(
                 border: pw.Border.all(color: PdfColors.grey400, width: 0.8),
               ),
               padding: const pw.EdgeInsets.symmetric(
-                horizontal: 3,
-                vertical: 3,
+                horizontal: 8,
+                vertical: 8,
               ),
+              constraints: const pw.BoxConstraints(minHeight: 60),
+              alignment: pw.Alignment.topLeft,
               child: pw.Text(
-                note,
+                note != null && note.trim().isNotEmpty
+                    ? note
+                    : '\u00A0', // 비어있을 때 공백으로 영역 유지
                 style: pw.TextStyle(
                   font: ttf,
                   fontSize: 10,
@@ -455,13 +464,9 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     );
 
     final bytes = await doc.save();
-    final tempDir = await getTemporaryDirectory();
-    final safeConsignor = consignor
-        .replaceAll(RegExp(r'[^\w\s-]'), '')
-        .trim()
-        .replaceAll(RegExp(r'\s+'), '_');
-    final timestamp = DateFormat('yyyyMMdd_HHmm').format(DateTime.now());
-    final pdfFileName = 'FareQuote_${safeConsignor}_$timestamp.pdf';
+    final timestamp = DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now());
+    final pdfFileName = '운임 견적서_${consignor}_$timestamp.pdf';
+    final tempDir = await getTemporaryDirectory(); // <- 추가
     final file = File('${tempDir.path}${Platform.pathSeparator}$pdfFileName');
     await file.writeAsBytes(bytes);
     return file;
@@ -478,50 +483,148 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     String? recipientPhone,
     int count,
   ) {
+    final now = DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now());
+    final company = (recipientCompany == null || recipientCompany.isEmpty)
+        ? '미입력'
+        : recipientCompany;
+    final phone = (recipientPhone == null || recipientPhone.isEmpty)
+        ? '미입력'
+        : recipientPhone;
+
     final buf = StringBuffer()
-      ..writeln('')
-      ..writeln('안녕하세요. 안전 운임 App 메일 서비스입니다.')
-      ..writeln('')
-      ..writeln('[견적 정보]')
-      ..writeln(
-        '- 기준 일시: ${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now())}',
-      )
-      ..writeln('- 화주: $consignor')
-      ..writeln('- 수신인: $recipient')
-      ..writeln('- 이메일: $recipientEmail')
-      ..writeln('- 상호: $recipientCompany')
-      ..writeln('- 연락처: $recipientPhone')
-      ..writeln('- 건 수: $count 건')
+      ..writeln(' 기준 일시 : $now')
+      ..writeln(' 화주       : $consignor')
+      ..writeln(' 수신인     : $recipient')
+      ..writeln(' 이메일     : $recipientEmail')
+      ..writeln(' 상호       : $company')
+      ..writeln(' 연락처     : $phone')
+      ..writeln(' 건 수      : ${count}건')
       ..writeln('')
       ..writeln('첨부된 PDF 파일에 선택하신 운임 견적 내역이 정리되어 있습니다.')
-      ..writeln('내용 확인 후 문의나 수정 요청이 있으시면 아래 발신자 정보의 메일로 회신 부탁드립니다.')
+      ..writeln('내용 확인 후 문의나 수정 요청이 있으시면 회신 부탁드립니다.')
       ..writeln('')
-      ..writeln(
-        '앱 다운로드: https://play.google.com/store/apps/details?id=com.optilo.line_all.comapny',
-      )
-      ..writeln('')
-      ..writeln('감사합니다.')
-      ..writeln('');
+      ..writeln('감사합니다.');
+
     return buf.toString();
   }
 
-  String _buildHtmlBody(String plainBody, SharedPreferences prefs) {
-    final htmlMain = plainBody.replaceAll('\n', '<br>');
+  String _buildHtmlBody({
+    required String consignor,
+    required String recipient,
+    required String recipientEmail,
+    required String? recipientCompany,
+    required String? recipientPhone,
+    required int count,
+    required SharedPreferences prefs,
+  }) {
+    final now = DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now());
+    final company = (recipientCompany == null || recipientCompany.isEmpty)
+        ? '미입력'
+        : recipientCompany;
+    final phone = (recipientPhone == null || recipientPhone.isEmpty)
+        ? '미입력'
+        : recipientPhone;
+    final storeUrl =
+        'https://play.google.com/store/apps/details?id=com.optilo.line_all.comapny';
+
+    // 키/값 테이블 형태로 정리 (inline CSS, 메일 친화적)
+    return '''
+<div style="font-family:Arial, sans-serif; font-size:14px; color:#333; line-height:1.6; margin:0; padding:0;">
+  <table style="width:100%;border-collapse:collapse;margin:0;padding:0;">
+    <tbody>
+      <tr>
+        <td style="width:130px;padding:6px 8px;color:#666;vertical-align:top;">기준 일시</td>
+        <td style="padding:6px 8px;">$now</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;color:#666;vertical-align:top;">화주</td>
+        <td style="padding:6px 8px;">$consignor</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;color:#666;vertical-align:top;">수신인</td>
+        <td style="padding:6px 8px;">$recipient</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;color:#666;vertical-align:top;">이메일</td>
+        <td style="padding:6px 8px;">$recipientEmail</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;color:#666;vertical-align:top;">상호</td>
+        <td style="padding:6px 8px;">$company</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;color:#666;vertical-align:top;">연락처</td>
+        <td style="padding:6px 8px;">$phone</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;color:#666;vertical-align:top;">건 수</td>
+        <td style="padding:6px 8px;">${count} 건</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin:10px 0 0 0;color:#444;">
+    첨부된 PDF 파일에 선택하신 운임 견적 내역이 정리되어 있습니다.<br/>
+    내용 확인 후 문의나 수정 요청이 있으시면 회신 부탁드립니다.
+  </p>
+
+  <p style="margin:8px 0 0 0;">
+    <a href="$storeUrl" style="color:#1c63d6;text-decoration:none;">앱에서 확인하기</a>
+  </p>
+</div>
+''';
+  }
+
+  // 카드형 HTML 템플릿 (inlined CSS, 테이블 레이아웃)
+  String _buildHtmlTemplate(
+    String plainBody,
+    SharedPreferences prefs,
+    String bannerCid,
+  ) {
+    final storeUrl =
+        'https://play.google.com/store/apps/details?id=com.optilo.line_all.comapny';
     final senderCompany = prefs.getString('user_company') ?? '';
     final senderName = prefs.getString('user_name') ?? '';
     final senderPhone = prefs.getString('user_phone') ?? '';
     final senderEmail = prefs.getString('user_email') ?? '';
+    final htmlMain = plainBody.replaceAll('\n', '<br>');
 
-    final senderHtml =
-        '''
-<div style="font-family: Arial, sans-serif; font-size:12px; color:#666; margin-top:12px;">
-  <strong>${senderCompany.isNotEmpty ? senderCompany : ''}</strong><br>
-  ${senderName.isNotEmpty ? senderName + '<br>' : ''}
-  ${senderPhone.isNotEmpty ? 'Tel: $senderPhone<br>' : ''}
-  ${senderEmail.isNotEmpty ? 'Email: $senderEmail' : ''}
-</div>
+    return '''
+<!doctype html><html><body style="margin:0;padding:0;font-family:Arial,sans-serif;background:#f6f6f6;">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+  <!-- 카드 패딩을 줄이고 불필요한 분리 행 제거 -->
+  <table width="600" style="max-width:600px;background:#fff;padding:12px;border-radius:8px;border:1px solid #e9e9e9;">
+    <tr>
+      <td style="width:60px;vertical-align:top;padding:0;">
+        <img src="cid:$bannerCid" alt="" style="display:block;border:0;width:48px;height:auto;line-height:0;vertical-align:middle;" />
+      </td>
+      <td style="vertical-align:top;padding-left:12px;padding-top:4px;">
+        <h2 style="margin:0;color:#1c63d6;font-size:18px;line-height:1;">운임 견적서</h2>
+        <p style="margin:4px 0 0 0;color:#444;font-size:13px;line-height:1.2;">안녕하세요. 안전 운임 App 메일 서비스입니다.</p>
+      </td>
+    </tr>
+    <!-- 바로 본문 영역 -->
+    <tr>
+      <td colspan="2" style="padding-top:8px;color:#333;font-size:14px;line-height:1.6;margin:0;">
+        $htmlMain
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding-top:12px;">
+        <a href="$storeUrl" style="display:inline-block;background:#1c63d6;color:#fff;padding:10px 14px;border-radius:6px;text-decoration:none;font-size:14px;">앱에서 보기</a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding-top:12px;border-top:1px solid #f5f5f5;color:#888;font-size:12px;">
+        <strong style="color:#333;font-size:13px;display:block;margin:0 0 4px 0;">${senderCompany}</strong>
+        ${senderName.isNotEmpty ? '<span style="display:block;margin:0 0 2px 0;">${senderName}</span>' : ''}
+        ${senderPhone.isNotEmpty ? '<span style="display:block;margin:0 0 2px 0;">Tel: ${senderPhone}</span>' : ''}
+        ${senderEmail.isNotEmpty ? '<span style="display:block;margin:0;">Email: ${senderEmail}</span>' : ''}
+      </td>
+    </tr>
+  </table>
+</td></tr></table></body></html>
 ''';
-    return '<div style="font-family: Arial, sans-serif; font-size:14px; line-height:1.4;">$htmlMain</div>$senderHtml';
   }
 
   String _buildSubject(SharedPreferences prefs, String consignor) {
@@ -531,11 +634,11 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         : '발신자';
     final safeConsignor = _safeForHeader(consignor);
     final date = DateFormat('yyyy.MM.dd').format(DateTime.now());
-    return '운임 견적서 $date — ($storedCompany → $safeConsignor)';
+    return '운임 견적서 $date — ($safeSender → $safeConsignor)';
   }
 
   // ------------------------
-  // 유틸들
+  // 유틸
   // ------------------------
   String _safeForHeader(String s, {int maxLen = 40}) {
     var t = s.replaceAll(RegExp(r'[\r\n]+'), ' ').trim();
@@ -550,9 +653,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     return s.replaceAllMapped(reg, (m) => ',');
   }
 
-  String _formatDate(DateTime d) {
-    return '${d.year}년 ${d.month}월 ${d.day}일';
-  }
+  String _formatDate(DateTime d) => '${d.year}년 ${d.month}월 ${d.day}일';
 
   String getSectionLabelSafe(dynamic section) {
     try {
