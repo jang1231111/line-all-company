@@ -76,7 +76,12 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     await bannerFile.writeAsBytes(outBytes);
     final bannerCid = 'mail_banner@lineall';
 
-    final htmlWithBanner = _buildHtmlTemplate(htmlBody, prefs, bannerCid);
+    // 전달 전에 앞뒤 개행 제거
+    final htmlWithBanner = _buildHtmlTemplate(
+      htmlBody.trim(),
+      prefs,
+      bannerCid,
+    );
 
     final imageAttachment = FileAttachment(bannerFile, contentType: 'image/png')
       ..fileName = 'mail_banner.png'
@@ -500,8 +505,8 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       ..writeln(' 연락처     : $phone')
       ..writeln(' 건 수      : ${count}건')
       ..writeln('')
-      ..writeln('첨부된 PDF 파일에 선택하신 운임 견적 내역이 정리되어 있습니다.')
-      ..writeln('내용 확인 후 문의나 수정 요청이 있으시면 회신 부탁드립니다.')
+      ..writeln('첨부된 PDF 파일에 운임 견적 내역이 정리되어 있습니다.')
+      ..writeln('내용 확인 후 문의나 수정 요청이 있으시면 아래 메일로 회신 부탁드립니다.')
       ..writeln('')
       ..writeln('감사합니다.');
 
@@ -564,13 +569,10 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   </table>
 
   <p style="margin:10px 0 0 0;color:#444;">
-    첨부된 PDF 파일에 선택하신 운임 견적 내역이 정리되어 있습니다.<br/>
-    내용 확인 후 문의나 수정 요청이 있으시면 회신 부탁드립니다.
+    첨부된 PDF 파일에 운임 견적 내역이 정리되어 있습니다.<br/>
+    내용 확인 후 문의나 수정 요청이 있으시면 아래 메일로 회신 부탁드립니다.
   </p>
 
-  <p style="margin:8px 0 0 0;">
-    <a href="$storeUrl" style="color:#1c63d6;text-decoration:none;">앱에서 확인하기</a>
-  </p>
 </div>
 ''';
   }
@@ -587,7 +589,10 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     final senderName = prefs.getString('user_name') ?? '';
     final senderPhone = prefs.getString('user_phone') ?? '';
     final senderEmail = prefs.getString('user_email') ?? '';
-    final htmlMain = plainBody.replaceAll('\n', '<br>');
+    // plainBody은 이미 HTML이므로 불필요한 <br> 추가 제거, trim으로 공백 제거
+    final htmlMain = plainBody.trim();
+
+    (htmlMain);
 
     return '''
 <!doctype html><html><body style="margin:0;padding:0;font-family:Arial,sans-serif;background:#f6f6f6;">
@@ -611,7 +616,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     </tr>
     <tr>
       <td colspan="2" style="padding-top:12px;">
-        <a href="$storeUrl" style="display:inline-block;background:#1c63d6;color:#fff;padding:10px 14px;border-radius:6px;text-decoration:none;font-size:14px;">앱에서 보기</a>
+        <a href="$storeUrl" style="display:inline-block;background:#1c63d6;color:#fff;padding:10px 14px;border-radius:6px;text-decoration:none;font-size:14px;">앱 살펴보기</a>
       </td>
     </tr>
     <tr>
