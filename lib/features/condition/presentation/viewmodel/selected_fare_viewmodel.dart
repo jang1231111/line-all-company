@@ -120,4 +120,30 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
       return false;
     }
   }
+
+  Future<void> updateFarePrice(int index, int newPrice) async {
+    if (index < 0 || index >= state.length) return;
+
+    final old = state[index];
+    SelectedFare updated;
+
+    // 가능하면 copyWith 사용, 없으면 수동 복사
+    try {
+      // if SelectedFare has copyWith({price})
+      updated = old.copyWith(price: newPrice);
+    } catch (_) {
+      // fallback: SelectedFare 생성자에 맞게 필드 복사
+      updated = SelectedFare(
+        row: old.row,
+        type: old.type,
+        rate: old.rate,
+        price: newPrice,
+        surchargeLabels: List<String>.from(old.surchargeLabels),
+      );
+    }
+
+    final newList = List<SelectedFare>.from(state);
+    newList[index] = updated;
+    state = newList;
+  }
 }

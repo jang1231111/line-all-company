@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
+import 'package:line_all/features/condition/presentation/widgets/price_edit_button.dart';
 import 'package:line_all/features/condition/presentation/widgets/surcharge_dialog.dart';
 import '../data/condition_options.dart';
 import '../providers/selected_fare_result_provider.dart';
@@ -266,25 +267,28 @@ class SelectedFareDialog extends ConsumerWidget {
                                                 ),
                                               ),
                                               SizedBox(width: 6.w),
+                                              // 할증률은 버튼 기능 제거하고 단순 텍스트로 표시
                                               Text(
                                                 '${(fare.rate * 100).toStringAsFixed(1)}%',
                                                 style: TextStyle(
                                                   fontSize: 15.sp,
                                                   fontWeight: FontWeight.w700,
-                                                  color: Color(0xFFD18A00),
+                                                  color: const Color(
+                                                    0xFFD18A00,
+                                                  ),
                                                 ),
                                               ),
                                             ],
                                           ),
                                         ),
                                       ),
-                                      Text(
-                                        '${priceFmt.format(fare.price)}원',
-                                        style: TextStyle(
-                                          fontSize: 16.sp,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.black87,
-                                        ),
+                                      // 금액 텍스트를 버튼으로 교체하여 눌렀을 때 금액 수정 다이얼로그 표시
+                                      PriceEditButton(
+                                        price: fare.price,
+                                        index: idx,
+                                        priceFmt: priceFmt,
+                                        onUpdate: selectedFareViewModel
+                                            .updateFarePrice,
                                       ),
                                     ],
                                   ),
