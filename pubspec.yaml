@@ -18,6 +18,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_dotenv: ^6.0.0
+  flutter_keyboard_visibility: ^6.0.0
   flutter_riverpod: ^3.0.3
   flutter_screenutil: ^5.9.0
   freezed_annotation: ^3.1.0
@@ -25,7 +26,6 @@ dependencies:
   image: ^4.5.4
   intl: ^0.20.2
   json_annotation: ^4.9.0
-  keyboard_actions: ^4.2.1
   lottie: ^3.3.2
   mailer: ^6.6.0
   path_provider: ^2.1.5

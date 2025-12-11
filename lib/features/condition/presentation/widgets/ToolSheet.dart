@@ -38,7 +38,7 @@ class ToolsSheet extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _ActionCard(
-                      color: const Color.fromARGB(255, 235, 163, 161), // 튜토리얼
+                      color: const Color.fromARGB(255, 225, 144, 141), // 튜토리얼
                       icon: Icons.help_outline,
                       title: '튜토리얼',
                       subtitle: '앱 사용법 확인',

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SendFareInputDialog extends StatefulWidget {
@@ -26,6 +29,29 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
   final _phoneCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
 
+  // FocusNodes for input fields
+  final FocusNode _consignorFocus = FocusNode();
+  final FocusNode _recipientFocus = FocusNode();
+  final FocusNode _recipientEmailFocus = FocusNode();
+  final FocusNode _companyFocus = FocusNode();
+  final FocusNode _phoneFocus = FocusNode();
+  final FocusNode _noteFocus = FocusNode();
+
+  // Keys for each input container to ensure visibility
+  final GlobalKey _consignorKey = GlobalKey();
+  final GlobalKey _recipientKey = GlobalKey();
+  final GlobalKey _recipientEmailKey = GlobalKey();
+  final GlobalKey _companyKey = GlobalKey();
+  final GlobalKey _phoneKey = GlobalKey();
+  final GlobalKey _noteKey = GlobalKey();
+
+  // Scroll controller for the dialog's SingleChildScrollView
+  final ScrollController _scrollController = ScrollController();
+
+  // Keyboard visibility subscription
+  late final Stream<bool> _keyboardStream;
+  StreamSubscription<bool>? _kbSub;
+
   bool _sending = false;
   bool _canSubmit = false;
   bool _expanded = false;
@@ -48,6 +74,19 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
     _consignorCtrl.addListener(_updateCanSubmit);
     _recipientCtrl.addListener(_updateCanSubmit);
     _recipientEmailCtrl.addListener(_updateCanSubmit);
+    // focus listeners: when a field gets focus, ensure it is visible
+    _attachFocusListeners();
+    // keyboard visibility subscription to re-check visible field when keyboard opens
+    _keyboardStream = KeyboardVisibilityController().onChange;
+    _kbSub = _keyboardStream.listen((visible) {
+      if (visible) {
+        // slight delay to allow keyboard animation then ensure focused field visible
+        Future.delayed(
+          const Duration(milliseconds: 120),
+          _ensureFocusedVisible,
+        );
+      }
+    });
     _loadRecentRecipients();
   }
 
@@ -118,6 +157,15 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
     _companyCtrl.dispose();
     _phoneCtrl.dispose();
     _noteCtrl.dispose();
+    // dispose focus nodes
+    _consignorFocus.dispose();
+    _recipientFocus.dispose();
+    _recipientEmailFocus.dispose();
+    _companyFocus.dispose();
+    _phoneFocus.dispose();
+    _noteFocus.dispose();
+    _kbSub?.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -143,40 +191,98 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
     );
   }
 
+  void _attachFocusListeners() {
+    final map = {
+      _consignorFocus: _consignorKey,
+      _recipientFocus: _recipientKey,
+      _recipientEmailFocus: _recipientEmailKey,
+      _companyFocus: _companyKey,
+      _phoneFocus: _phoneKey,
+      _noteFocus: _noteKey,
+    };
+    map.forEach((node, key) {
+      node.addListener(() {
+        if (node.hasFocus) {
+          // wait frame so layout with keyboard settled
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Future.delayed(
+              const Duration(milliseconds: 80),
+              () => _ensureVisibleByKey(key),
+            );
+          });
+        }
+      });
+    });
+  }
+
+  void _ensureFocusedVisible() {
+    final nodes = <FocusNode, GlobalKey>{
+      _consignorFocus: _consignorKey,
+      _recipientFocus: _recipientKey,
+      _recipientEmailFocus: _recipientEmailKey,
+      _companyFocus: _companyKey,
+      _phoneFocus: _phoneKey,
+      _noteFocus: _noteKey,
+    };
+    for (final entry in nodes.entries) {
+      if (entry.key.hasFocus) {
+        _ensureVisibleByKey(entry.value);
+        break;
+      }
+    }
+  }
+
+  void _ensureVisibleByKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx == null) return;
+    Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      alignment: 0.12,
+    );
+  }
+
   Widget _clearable(
     TextEditingController c, {
     required String hint,
     IconData? icon,
     TextInputType? keyboardType,
     bool autofocus = false,
+    FocusNode? focusNode,
+    GlobalKey? fieldKey,
   }) {
-    return TextFormField(
-      enabled: !_sending,
-      controller: c,
-      autofocus: autofocus,
-      keyboardType: keyboardType,
-      style: TextStyle(color: textPrimary),
-      decoration: _input(hint, icon: icon).copyWith(
-        suffixIcon: c.text.isEmpty
-            ? null
-            : IconButton(
-                icon: Icon(Icons.clear, size: 18.sp, color: Colors.black45),
-                onPressed: () => setState(() => c.clear()),
-              ),
-      ),
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: (v) {
-        if ((c == _consignorCtrl || c == _recipientCtrl) &&
-            (v == null || v.trim().isEmpty))
-          return '필수 입력';
-        if (c == _recipientEmailCtrl) {
-          if (v == null || v.trim().isEmpty) return '필수 입력';
-          return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v.trim())
+    return Container(
+      key: fieldKey,
+      child: TextFormField(
+        enabled: !_sending,
+        controller: c,
+        focusNode: focusNode,
+        autofocus: autofocus,
+        keyboardType: keyboardType,
+        style: TextStyle(color: textPrimary),
+        decoration: _input(hint, icon: icon).copyWith(
+          suffixIcon: c.text.isEmpty
               ? null
-              : '유효한 이메일을 입력해주세요.';
-        }
-        return null;
-      },
+              : IconButton(
+                  icon: Icon(Icons.clear, size: 18.sp, color: Colors.black45),
+                  onPressed: () => setState(() => c.clear()),
+                ),
+        ),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (v) {
+          if ((c == _consignorCtrl || c == _recipientCtrl) &&
+              (v == null || v.trim().isEmpty))
+            return '필수 입력';
+          if (c == _recipientEmailCtrl) {
+            if (v == null || v.trim().isEmpty) return '필수 입력';
+            return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v.trim())
+                ? null
+                : '유효한 이메일을 입력해주세요.';
+          }
+          return null;
+        },
+      ),
     );
   }
 
@@ -271,306 +377,384 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final bottomInset = mq.viewInsets.bottom;
+    final screenH = mq.size.height;
+    final dialogMaxH = screenH * 0.9;
     return Dialog(
       backgroundColor: surfaceColor,
       insetPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 28.h),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 640.w),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // header (aligned with SelectedFareDialog)
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(8.w),
-                    decoration: BoxDecoration(
-                      color: Colors.indigo.shade50,
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                    child: Icon(Icons.email, color: Colors.indigo, size: 24.sp),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '메일 전송',
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w800,
-                            color: titleColor,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          '선택한 항목을 이메일로 전송합니다.',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(),
-                    icon: Icon(Icons.close, size: 20.sp, color: Colors.black54),
-                    onPressed: _sending
-                        ? null
-                        : () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 14.h),
-
-              // Card-like area for inputs for improved readability
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-                margin: EdgeInsets.only(bottom: 12.h),
-                decoration: BoxDecoration(
-                  color: Colors.indigo.shade50,
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: Colors.indigo.shade100),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_recentRecipients.isNotEmpty) ...[
-                      Text(
-                        '최근 수신인',
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w700,
-                          color: textPrimary,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      _recentChips(),
-                      SizedBox(height: 10.h),
-                    ],
-                    Text(
-                      '수신인 정보',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w700,
-                        color: textPrimary,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Form(
-                      key: _formKey,
-                      child: Column(
+      child: Container(
+        height: screenH * 0.7,
+        child: Center(
+          child: ConstrainedBox(
+            // width는 네가 쓰던대로, height는 실제 constraints 기준으로
+            constraints: BoxConstraints(
+              maxWidth: 640.w,
+              maxHeight: dialogMaxH, // 원하면 *0.9 안 해도 됨
+            ),
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16.r),
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // header (aligned with SelectedFareDialog)
+                      Row(
                         children: [
-                          _clearable(
-                            _consignorCtrl,
-                            hint: '화주명',
-                            icon: Icons.business,
-                            autofocus: true,
+                          Container(
+                            padding: EdgeInsets.all(8.w),
+                            decoration: BoxDecoration(
+                              color: Colors.indigo.shade50,
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Icon(
+                              Icons.email,
+                              color: Colors.indigo,
+                              size: 24.sp,
+                            ),
                           ),
-                          SizedBox(height: 10.h),
-                          _clearable(
-                            _recipientCtrl,
-                            hint: '수신인',
-                            icon: Icons.person,
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '메일 전송',
+                                  style: TextStyle(
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.w800,
+                                    color: titleColor,
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  '선택한 항목을 이메일로 전송합니다.',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          SizedBox(height: 10.h),
-                          _clearable(
-                            _recipientEmailCtrl,
-                            hint: '수신인 이메일',
-                            icon: Icons.email,
-                            keyboardType: TextInputType.emailAddress,
+                          IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: BoxConstraints(),
+                            icon: Icon(
+                              Icons.close,
+                              size: 20.sp,
+                              color: Colors.black54,
+                            ),
+                            onPressed: _sending
+                                ? null
+                                : () => Navigator.of(context).pop(),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // additional info
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: Colors.indigo.shade50.withOpacity(0.12), // 배경 색상 추가
-                  borderRadius: BorderRadius.circular(12.r), // 모서리 둥글게
-                  border: Border.all(color: Colors.indigo.shade100), // 연한 테두리
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 6.r,
-                      offset: Offset(0, 2.h),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () => setState(() => _expanded = !_expanded),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '수신인    정보(선택)',
-                            style: TextStyle(color: textPrimary),
-                          ),
-                          Icon(
-                            _expanded ? Icons.expand_less : Icons.expand_more,
-                            color: Colors.black45,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    AnimatedCrossFade(
-                      firstChild: const SizedBox.shrink(),
-                      secondChild: Column(
-                        children: [
-                          _clearable(
-                            _companyCtrl,
-                            hint: '상호',
-                            icon: Icons.storefront,
-                          ),
-                          SizedBox(height: 10.h),
-                          _clearable(
-                            _phoneCtrl,
-                            hint: '연락처',
-                            icon: Icons.phone,
-                            keyboardType: TextInputType.phone,
-                          ),
-                          SizedBox(height: 10.h),
-                          TextFormField(
-                            enabled: !_sending,
-                            controller: _noteCtrl,
-                            maxLines: 1,
-                            style: TextStyle(color: textPrimary),
-                            decoration: _input('비고', icon: Icons.note),
-                          ),
-                        ],
-                      ),
-                      crossFadeState: _expanded
-                          ? CrossFadeState.showSecond
-                          : CrossFadeState.showFirst,
-                      duration: const Duration(milliseconds: 200),
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 12.h),
-
-              // 버튼 영역은 항상 렌더링합니다. 전송 가능 여부는 버튼의 onPressed로 제어합니다.
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _sending
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black87,
-                        side: BorderSide(color: Colors.grey.shade300),
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
+        
+                      SizedBox(height: 14.h),
+        
+                      // Card-like area for inputs for improved readability
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 12.h,
                         ),
-                        textStyle: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
+                        margin: EdgeInsets.only(bottom: 12.h),
+                        decoration: BoxDecoration(
+                          color: Colors.indigo.shade50,
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(color: Colors.indigo.shade100),
                         ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.close_rounded, size: 16.sp),
-                          SizedBox(width: 8.w),
-                          Text('취소'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: (_canSubmit && !_sending)
-                          ? () async {
-                              final confirm = await _confirmSend();
-                              if (confirm != true) return;
-                              if (_formKey.currentState?.validate() != true)
-                                return;
-                              setState(() => _sending = true);
-
-                              final res = <String, String>{
-                                'consignor': _consignorCtrl.text.trim(),
-                                'recipient': _recipientCtrl.text.trim(),
-                                'recipient_email': _recipientEmailCtrl.text
-                                    .trim(),
-                                'recipient_company': _companyCtrl.text.trim(),
-                                'recipient_phone': _phoneCtrl.text.trim(),
-                                'note': _noteCtrl.text.trim(),
-                              };
-                              await _saveRecentRecipient(
-                                res['recipient'] ?? '',
-                                res['recipient_email'] ?? '',
-                              );
-                              if (mounted) Navigator.of(context).pop(res);
-                            }
-                          : null,
-                      icon: _sending
-                          ? const SizedBox.shrink()
-                          : Icon(Icons.send, size: 16.sp, color: Colors.white),
-                      label: _sending
-                          ? SizedBox(
-                              width: 18.w,
-                              height: 18.h,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_recentRecipients.isNotEmpty) ...[
+                              Text(
+                                '최근 수신인',
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: textPrimary,
+                                ),
                               ),
-                            )
-                          : Text(
-                              '메일 전송',
+                              SizedBox(height: 8.h),
+                              _recentChips(),
+                              SizedBox(height: 10.h),
+                            ],
+                            Text(
+                              '수신인 정보',
                               style: TextStyle(
-                                fontSize: 14.sp,
+                                fontSize: 13.sp,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: textPrimary,
                               ),
                             ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _canSubmit
-                            ? Colors.indigo
-                            : Colors.grey.shade300,
-                        foregroundColor: _canSubmit
-                            ? Colors.white
-                            : Colors.black38,
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        textStyle: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
+                            SizedBox(height: 8.h),
+                            // Simple constrained form area. Focus listeners + keyboard_visibility will ensure fields are visible.
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight:
+                                    MediaQuery.of(context).size.height * 0.25,
+                              ),
+                              child: Align(
+                                alignment: Alignment.topCenter,
+                                child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _clearable(
+                                        _consignorCtrl,
+                                        hint: '화주명',
+                                        icon: Icons.business,
+                                        autofocus: true,
+                                        focusNode: _consignorFocus,
+                                        fieldKey: _consignorKey,
+                                      ),
+                                      SizedBox(height: 10.h),
+                                      _clearable(
+                                        _recipientCtrl,
+                                        hint: '수신인',
+                                        icon: Icons.person,
+                                        focusNode: _recipientFocus,
+                                        fieldKey: _recipientKey,
+                                      ),
+                                      SizedBox(height: 10.h),
+                                      _clearable(
+                                        _recipientEmailCtrl,
+                                        hint: '수신인 이메일',
+                                        icon: Icons.email,
+                                        keyboardType: TextInputType.emailAddress,
+                                        focusNode: _recipientEmailFocus,
+                                        fieldKey: _recipientEmailKey,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+        
+                            SizedBox(height: 12.h),
+        
+                            // additional info
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 10.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.indigo.shade50.withOpacity(
+                                  0.12,
+                                ), // 배경 색상 추가
+                                borderRadius: BorderRadius.circular(
+                                  12.r,
+                                ), // 모서리 둥글게
+                                border: Border.all(
+                                  color: Colors.indigo.shade100,
+                                ), // 연한 테두리
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 6.r,
+                                    offset: Offset(0, 2.h),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  InkWell(
+                                    onTap: () =>
+                                        setState(() => _expanded = !_expanded),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          '수신인    정보(선택)',
+                                          style: TextStyle(color: textPrimary),
+                                        ),
+                                        Icon(
+                                          _expanded
+                                              ? Icons.expand_less
+                                              : Icons.expand_more,
+                                          color: Colors.black45,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  AnimatedCrossFade(
+                                    firstChild: const SizedBox.shrink(),
+                                    secondChild: Column(
+                                      children: [
+                                        _clearable(
+                                          _companyCtrl,
+                                          hint: '상호',
+                                          icon: Icons.storefront,
+                                          focusNode: _companyFocus,
+                                          fieldKey: _companyKey,
+                                        ),
+                                        SizedBox(height: 10.h),
+                                        _clearable(
+                                          _phoneCtrl,
+                                          hint: '연락처',
+                                          icon: Icons.phone,
+                                          keyboardType: TextInputType.phone,
+                                          focusNode: _phoneFocus,
+                                          fieldKey: _phoneKey,
+                                        ),
+                                        SizedBox(height: 10.h),
+                                        Container(
+                                          key: _noteKey,
+                                          child: TextFormField(
+                                            enabled: !_sending,
+                                            controller: _noteCtrl,
+                                            maxLines: 1,
+                                            focusNode: _noteFocus,
+                                            style: TextStyle(color: textPrimary),
+                                            decoration: _input(
+                                              '비고',
+                                              icon: Icons.note,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    crossFadeState: _expanded
+                                        ? CrossFadeState.showSecond
+                                        : CrossFadeState.showFirst,
+                                    duration: const Duration(milliseconds: 200),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
+        
+                      SizedBox(height: 12.h),
+        
+                      // 버튼 영역은 항상 렌더링합니다. 전송 가능 여부는 버튼의 onPressed로 제어합니다.
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: _sending
+                                  ? null
+                                  : () => Navigator.of(context).pop(),
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black87,
+                                side: BorderSide(color: Colors.grey.shade300),
+                                padding: EdgeInsets.symmetric(vertical: 12.h),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                textStyle: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.close_rounded, size: 16.sp),
+                                  SizedBox(width: 8.w),
+                                  Text('취소'),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: (_canSubmit && !_sending)
+                                  ? () async {
+                                      final confirm = await _confirmSend();
+                                      if (confirm != true) return;
+                                      if (_formKey.currentState?.validate() !=
+                                          true)
+                                        return;
+                                      setState(() => _sending = true);
+        
+                                      final res = <String, String>{
+                                        'consignor': _consignorCtrl.text.trim(),
+                                        'recipient': _recipientCtrl.text.trim(),
+                                        'recipient_email': _recipientEmailCtrl
+                                            .text
+                                            .trim(),
+                                        'recipient_company': _companyCtrl.text
+                                            .trim(),
+                                        'recipient_phone': _phoneCtrl.text.trim(),
+                                        'note': _noteCtrl.text.trim(),
+                                      };
+                                      await _saveRecentRecipient(
+                                        res['recipient'] ?? '',
+                                        res['recipient_email'] ?? '',
+                                      );
+                                      if (mounted) Navigator.of(context).pop(res);
+                                    }
+                                  : null,
+                              icon: _sending
+                                  ? const SizedBox.shrink()
+                                  : Icon(
+                                      Icons.send,
+                                      size: 16.sp,
+                                      color: Colors.white,
+                                    ),
+                              label: _sending
+                                  ? SizedBox(
+                                      width: 18.w,
+                                      height: 18.h,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      '메일 전송',
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _canSubmit
+                                    ? Colors.indigo
+                                    : Colors.grey.shade300,
+                                foregroundColor: _canSubmit
+                                    ? Colors.white
+                                    : Colors.black38,
+                                padding: EdgeInsets.symmetric(vertical: 12.h),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                textStyle: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ],
+            ),
           ),
         ),
       ),
