@@ -323,28 +323,20 @@ class SelectedFareDialog extends ConsumerWidget {
                         ),
                       ),
                       onPressed: () async {
-                        final consignor = await SaveConsignorDialog.show(
-                          context,
-                        );
-
-                        final success = await selectedFareViewModel
-                            .saveSelectedFares(consignor!);
-
-                        if (success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('저장이 완료되었습니다.')),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('저장에 실패했습니다. 다시 시도하세요.'),
-                            ),
-                          );
+                        final consignor = await SaveConsignorDialog.show(context);
+                        if (consignor != null) {
+                          final success = await selectedFareViewModel.saveSelectedFares(consignor);
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('저장이 완료되었습니다.')),
+                            );
+                            Navigator.of(context).pop('save');
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('저장에 실패했습니다. 다시 시도하세요.')),
+                            );
+                          }
                         }
-                        Navigator.of(context).pop('save');
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('저장되었습니다.')),
-                        );
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
