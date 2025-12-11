@@ -266,7 +266,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                       ),
                       pw.SizedBox(width: 12),
                       pw.Container(
-                        width: 280,
+                        width: 320,
                         decoration: pw.BoxDecoration(
                           border: pw.Border.all(
                             color: PdfColors.grey400,
