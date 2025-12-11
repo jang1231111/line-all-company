@@ -74,6 +74,31 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
     await _localDataSource.deleteFareAt(entryId, fareIndex);
   }
 
+  /// 저장만 할경우 화주명만 입력받아 저장
+  Future<bool> saveSelectedFares(String consignor) async {
+    if (state.isEmpty) return false;
+    // 간단 검증: 필수값 체크
+    if (consignor.isEmpty) {
+      return false;
+    }
+    try {
+      // 전송 성공 시 기존 루틴: DB 저장 및 상태 초기화
+      await saveCurrentToDb(consignor);
+      // 모든 상태 초기화 처리
+      try {
+        clearState();
+        ref.read(conditionViewModelProvider.notifier).reset();
+        ref.read(roadNameSearchViewModelProvider.notifier).clearKeyword();
+        ref.read(fareResultViewModelProvider.notifier).clear();
+      } catch (_) {
+        // 안전하게 무시(ConditionViewModel에 reset이 없거나 provider 이름이 다를 경우)
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// 서버로 선택 항목 전송. input에는 'consignor'/'email' 등 다이얼로그에서 받은 값이 들어옵니다.
   /// 성공하면 로컬 DB에 저장하고 상태 초기화.
   /// 반환값: 성공(true) / 실패(false)

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
 import 'package:line_all/features/condition/presentation/widgets/price_edit_button.dart';
+import 'package:line_all/features/condition/presentation/widgets/save_consignor_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/surcharge_dialog.dart';
 import '../data/condition_options.dart';
 import '../providers/selected_fare_result_provider.dart';
@@ -302,36 +303,62 @@ class SelectedFareDialog extends ConsumerWidget {
 
               SizedBox(height: 12.h),
 
-              // action buttons
+              // action buttons: 닫기 / 저장 / 메일 전송
               Row(
                 children: [
+                  // 가운데: 저장
                   Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        foregroundColor: Colors.black87,
-                        side: BorderSide(color: Colors.grey.shade300),
+                        foregroundColor: Colors.indigo,
+                        side: BorderSide(color: Colors.indigo.shade100),
                         padding: EdgeInsets.symmetric(vertical: 12.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.r),
                         ),
                         textStyle: TextStyle(
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () async {
+                        final consignor = await SaveConsignorDialog.show(
+                          context,
+                        );
+
+                        final success = await selectedFareViewModel
+                            .saveSelectedFares(consignor!);
+
+                        if (success) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('저장이 완료되었습니다.')),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('저장에 실패했습니다. 다시 시도하세요.'),
+                            ),
+                          );
+                        }
+                        Navigator.of(context).pop('save');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('저장되었습니다.')),
+                        );
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.close_rounded, size: 16.sp),
+                          Icon(Icons.save, size: 16.sp),
                           SizedBox(width: 8.w),
-                          Text('닫기'),
+                          Text('저장'),
                         ],
                       ),
                     ),
                   ),
                   SizedBox(width: 12.w),
+
+                  // 오른쪽: 메일 전송 (기존 로직 유지)
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -351,11 +378,9 @@ class SelectedFareDialog extends ConsumerWidget {
                         ),
                       ),
                       onPressed: () async {
-                        // 1) 사용자 입력 다이얼로그 표시
                         final input = await SendFareInputDialog.show(context);
-                        if (input == null) return; // 취소됨
+                        if (input == null) return;
 
-                        // 2) 진행 표시
                         showDialog(
                           context: context,
                           barrierDismissible: false,
@@ -363,11 +388,9 @@ class SelectedFareDialog extends ConsumerWidget {
                               const Center(child: CircularProgressIndicator()),
                         );
 
-                        // 3) ViewModel에 전체 input 전달하여 처리 위임
                         final success = await selectedFareViewModel
                             .sendSelectedFares(input);
 
-                        // 4) 진행 표시 닫기
                         Navigator.of(context).pop();
 
                         if (success) {
@@ -386,9 +409,9 @@ class SelectedFareDialog extends ConsumerWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.send, size: 16.sp),
+                          Icon(Icons.mail, size: 16.sp),
                           SizedBox(width: 8.w),
-                          Text('확인'),
+                          Text('메일 전송'),
                         ],
                       ),
                     ),
