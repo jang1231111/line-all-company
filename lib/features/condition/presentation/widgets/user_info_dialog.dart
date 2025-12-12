@@ -158,7 +158,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
           borderRadius: BorderRadius.circular(14.r),
         ),
         child: SizedBox(
-          height: (availableHeight * 0.9).h,
+          height: (availableHeight * 0.6).h,
           child: Builder(
             builder: (context) {
               return Center(
