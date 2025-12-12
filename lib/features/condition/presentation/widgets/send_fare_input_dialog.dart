@@ -293,7 +293,7 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _recentRecipients.length,
-        padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 6.w),
+        padding: EdgeInsets.symmetric( horizontal: 6.w),
         separatorBuilder: (_, __) => SizedBox(width: 8.w),
         itemBuilder: (context, idx) {
           final item = _recentRecipients[idx];

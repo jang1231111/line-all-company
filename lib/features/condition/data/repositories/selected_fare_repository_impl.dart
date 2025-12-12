@@ -351,7 +351,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                   2: pw.Alignment.center,
                   3: pw.Alignment.center,
                   4: pw.Alignment.center,
-                  5: pw.Alignment.centerRight,
+                  5: pw.Alignment.center,
                   6: pw.Alignment.center,
                 },
                 columnWidths: {
