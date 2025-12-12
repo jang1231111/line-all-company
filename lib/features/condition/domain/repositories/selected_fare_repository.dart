@@ -3,7 +3,11 @@ import 'package:line_all/features/condition/presentation/models/selected_fare.da
 abstract class SelectedFareRepository {
   Future<bool> sendSelectedFares({
     required String consignor,
-    required String email,
+    required String recipient,
+    required String recipientEmail,
+    required String? recipientCompany,
+    required String? recipientPhone,
+    required String note,
     required List<SelectedFare> fares,
   });
 }

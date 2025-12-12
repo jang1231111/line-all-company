@@ -1,15 +1,15 @@
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:line_all/features/condition/presentation/widgets/ToolSheet.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/gestures.dart';
 
 import '../widgets/condition_form_widget.dart';
 import '../widgets/fare_result_table.dart';
 import '../widgets/selected_fare_bottom_bar.dart';
+import '../widgets/user_info_dialog.dart';
 
 class ConditionFormPage extends ConsumerStatefulWidget {
   const ConditionFormPage({super.key});
@@ -39,8 +39,9 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   bool _tutorialRunning = false;
   List<TargetFocus> targets = [];
   TutorialCoachMark? _tutorialCoachMark; // 튜토리얼 인스턴스 보관
-  void Function(PointerEvent)? _globalPointerHandler; // 전역 포인터 핸들러
-  bool _suppressNext = false; // 다음 스텝 중복 호출 방지 플래그
+
+  // Overlay로 전역 터치 흡수 처리
+  OverlayEntry? _tutorialBlockingOverlay;
 
   // 열고 싶은 사이트 URL (실제 도메인으로 교체)
   static const String _companyUrl = 'http://www.lineall.co.kr';
@@ -48,7 +49,10 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeStartTutorial());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _maybeShowUserInfoDialog(); // 최초 사용자 정보 입력(필수)
+      _maybeStartTutorial();
+    });
   }
 
   Future<void> _maybeStartTutorial() async {
@@ -454,14 +458,6 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
           alignment: 0.2,
         );
       }
-      // if (typeTargetKey.currentContext != null) {
-      //   await Scrollable.ensureVisible(
-      //     typeTargetKey.currentContext!,
-      //     duration: const Duration(milliseconds: 300),
-      //     alignment: 1.0,
-      //   );
-      // }
-      // 바텀/앱바도 화면에 보이도록(있다면)
       if (selectedBottomKey.currentContext != null) {
         await Scrollable.ensureVisible(
           selectedBottomKey.currentContext!,
@@ -470,7 +466,6 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
         );
       }
       if (statsIconKey.currentContext != null) {
-        // 앱바는 이미 보이지만 ensureVisible 호출해도 안전
         await Scrollable.ensureVisible(
           statsIconKey.currentContext!,
           duration: const Duration(milliseconds: 200),
@@ -479,18 +474,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       }
     } catch (_) {}
 
-    // 전역 포인터 라우터 등록: 화면 어디를 눌러도 다음 스텝 진행
-    _globalPointerHandler = (PointerEvent event) {
-      if (!_tutorialRunning) return;
-      if (event is PointerUpEvent) {
-        if (_suppressNext) return; // 중복 방지
-        _tutorialCoachMark?.next();
-      }
-    };
-    GestureBinding.instance.pointerRouter.addGlobalRoute(
-      _globalPointerHandler!,
-    );
-
+    // TutorialCoachMark는 내부 클릭 콜백에서 직접 next()를 호출하지 않음.
     _tutorialCoachMark = TutorialCoachMark(
       targets: targets,
       colorShadow: Colors.black54,
@@ -499,46 +483,53 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       paddingFocus: 8,
       pulseEnable: false,
       focusAnimationDuration: const Duration(milliseconds: 0),
-      // 오버레이/타겟 클릭도 다음으로
-      onClickOverlay: (_) {
-        _suppressNext = true;
-        _tutorialCoachMark?.next();
-        Future.delayed(const Duration(milliseconds: 300), () {
-          _suppressNext = false;
-        });
-      },
-      onClickTarget: (_) {
-        _suppressNext = true;
-        _tutorialCoachMark?.next();
-        Future.delayed(const Duration(milliseconds: 300), () {
-          _suppressNext = false;
-        });
-      },
+      // onClick* 은 빈 구현으로 두고 o버레이에서 next() 처리
+      onClickOverlay: (_) {},
+      onClickTarget: (_) {},
       onFinish: () {
         _tutorialRunning = false;
         _tutorialCoachMark = null;
-        _suppressNext = false;
-        if (_globalPointerHandler != null) {
-          GestureBinding.instance.pointerRouter.removeGlobalRoute(
-            _globalPointerHandler!,
-          );
-          _globalPointerHandler = null;
+        if (_tutorialBlockingOverlay != null) {
+          _tutorialBlockingOverlay!.remove();
+          _tutorialBlockingOverlay = null;
         }
       },
       onSkip: () {
         _tutorialRunning = false;
         _tutorialCoachMark = null;
-        _suppressNext = false;
-        if (_globalPointerHandler != null) {
-          GestureBinding.instance.pointerRouter.removeGlobalRoute(
-            _globalPointerHandler!,
-          );
-          _globalPointerHandler = null;
+        if (_tutorialBlockingOverlay != null) {
+          _tutorialBlockingOverlay!.remove();
+          _tutorialBlockingOverlay = null;
         }
         return false;
       },
     );
     _tutorialCoachMark!.show(context: context);
+
+    // 튜토리얼 오버레이 위에 최상단 overlay를 한 번 더 넣어 모든 터치를 흡수하고
+    // onPointerUp에서 next()를 호출하도록 함.
+    _tutorialBlockingOverlay = OverlayEntry(
+      builder: (ctx) => Positioned.fill(
+        child: Listener(
+          behavior: HitTestBehavior.opaque,
+          onPointerUp: (event) {
+            if (!_tutorialRunning) return;
+            try {
+              _tutorialCoachMark?.next();
+            } catch (_) {}
+          },
+          child: Container(color: Colors.transparent),
+        ),
+      ),
+    );
+
+    // show 이후에 삽입하도록 소량 딜레이
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (!_tutorialRunning) return;
+      try {
+        Overlay.of(context)?.insert(_tutorialBlockingOverlay!);
+      } catch (_) {}
+    });
   }
 
   Future<void> _launchWebsite() async {
@@ -558,13 +549,20 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
     }
   }
 
+  // 파일 맨 아래 근처에 추가 (조건: dialog가 로컬 prefs에 저장되어 있지 않으면 강제 표시)
+  Future<void> _maybeShowUserInfoDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shown = prefs.getBool('user_info_saved_v1') ?? false;
+    if (shown) return;
+    // barrierDismissible=false 이므로 사용자가 반드시 입력해야 닫힘
+    await UserInfoDialog.showRequired(context);
+  }
+
   @override
   void dispose() {
-    if (_globalPointerHandler != null) {
-      GestureBinding.instance.pointerRouter.removeGlobalRoute(
-        _globalPointerHandler!,
-      );
-      _globalPointerHandler = null;
+    if (_tutorialBlockingOverlay != null) {
+      _tutorialBlockingOverlay!.remove();
+      _tutorialBlockingOverlay = null;
     }
     super.dispose();
   }
@@ -573,172 +571,136 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: const Size(390, 844),
-      minTextAdapt: true,
+      minTextAdapt: false,
       builder: (context, child) {
         return Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            toolbarHeight: 72.h,
-            titleSpacing: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(16.r),
-              ),
-            ),
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF1C63D6), Color(0xFF154E9C)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(16),
-                ),
-              ),
-            ),
-            title: Row(
-              children: [
-                SizedBox(width: 10.w),
-
-                // 변경: 로고 + 타이틀을 하나의 '칩'으로 묶어 깔끔하게 표시
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 6.h,
+          // AppBar 전체를 PreferredSize + MediaQuery로 감싸서
+          // 시스템 textScaleFactor(접근성 폰트 크기)의 영향으로 높이가 변하지 않게 고정
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(72.h),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+              child: AppBar(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                toolbarHeight: 72.h, // 고정 높이 (ScreenUtil 단위)
+                titleSpacing: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(16.r),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 로고: 클릭 영역은 충분히 확보 (이미지 크기 작게)
-                      GestureDetector(
-                        onTap: _launchWebsite,
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6.r),
-                              child: Image.asset(
-                                'lib/assets/lineall_logo2.png',
-                                width: 130.w,
-                                height: 20.h,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-
-                            SizedBox(width: 15.w),
-
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6.r),
-                              child: Image.asset(
-                                'lib/assets/laxgp_logo2.png',
-                                width: 80.w,
-                                height: 20.h,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 3.h),
-                      Row(
+                ),
+                flexibleSpace: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF1C63D6), Color(0xFF154E9C)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(16),
+                    ),
+                  ),
+                ),
+                // title / actions 내부도 MediaQuery 영향 제외로 안전
+                title: Row(
+                  children: [
+                    SizedBox(width: 10.w),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.local_shipping, color: Colors.white),
-                          SizedBox(width: 7.w),
-                          Text(
-                            '안전운임 - 화주 및 운송사용',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
+                          GestureDetector(
+                            onTap: _launchWebsite,
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(6.r),
+                                  child: Image.asset(
+                                    'lib/assets/lineall_logo2.png',
+                                    width: 130.w,
+                                    height: 20.h,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                SizedBox(width: 15.w),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(6.r),
+                                  child: Image.asset(
+                                    'lib/assets/laxgp_logo2.png',
+                                    width: 80.w,
+                                    height: 20.h,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+                          SizedBox(height: 3.h),
+                          Row(
+                            children: [
+                              Icon(Icons.local_shipping, color: Colors.white, size: 18.sp),
+                              SizedBox(width: 7.w),
+                              Text(
+                                '안전운임 - 화주 및 운송사용',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(width: 4.w),
+                  ],
                 ),
-
-                SizedBox(width: 4.w),
-              ],
+                actions: [
+                  InkWell(
+                    onTap: () => Navigator.of(context).pushNamed('/statistics'),
+                    child: Container(
+                      key: statsIconKey,
+                      padding: EdgeInsets.all(8.w),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        Icons.bar_chart_rounded,
+                        color: Colors.white,
+                        size: 20.sp,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  IconButton(
+                    icon: Icon(Icons.more_vert, color: Colors.white, size: 20.sp),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(12.r),
+                          ),
+                        ),
+                        builder: (ctx) => ToolsSheet(
+                          onStartTutorial: () {
+                            if (_tutorialRunning) return;
+                            _startTutorial();
+                          },
+                          onShowUserInfo: () => UserInfoDialog.showRequired(context),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-            actions: [
-              // 앱 사용법: 아이콘+텍스트의 라운드 버튼 (앱 스타일과 일관성 유지)
-              // Padding(
-              //   padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 6.w),
-              //   child: Container(
-              //     key: tutorialKey,
-              //     child: ElevatedButton.icon(
-              //       onPressed: () async {
-              //         if (_tutorialRunning) return;
-              //         await _startTutorial();
-              //       },
-              //       icon: Icon(
-              //         Icons.help_outline,
-              //         color: Colors.white,
-              //         size: 18.sp,
-              //       ),
-              //       label: Text(
-              //         '',
-              //         style: TextStyle(
-              //           color: Colors.white,
-              //           fontSize: 14.sp,
-              //           fontWeight: FontWeight.w600,
-              //         ),
-              //       ),
-              //       style: ElevatedButton.styleFrom(
-              //         elevation: 0,
-              //         padding: EdgeInsets.symmetric(
-              //           horizontal: 12.w,
-              //           vertical: 8.h,
-              //         ),
-              //         backgroundColor: Colors.white.withOpacity(0.12),
-              //         shape: RoundedRectangleBorder(
-              //           borderRadius: BorderRadius.circular(10.r),
-              //         ),
-              //         side: BorderSide(color: Colors.white.withOpacity(0.14)),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              InkWell(
-                onTap: () async {
-                  if (_tutorialRunning) return;
-                  await _startTutorial();
-                },
-                child: Container(
-                  key: tutorialKey,
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: const Icon(Icons.help_outline, color: Colors.white),
-                ),
-              ),
-              SizedBox(width: 12.w),
-              // 기존 통계 아이콘
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).pushNamed('/statistics');
-                },
-                child: Container(
-                  key: statsIconKey,
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: const Icon(
-                    Icons.bar_chart_rounded,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              SizedBox(width: 12.w),
-            ],
           ),
           backgroundColor: const Color(0xFFF5F7FA),
           body: LayoutBuilder(
@@ -746,7 +708,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
               return Column(
                 children: [
                   Expanded(
-                    flex: 9,
+                    flex: 11,
                     child: ListView(
                       padding: EdgeInsets.all(3.w),
                       children: [
@@ -758,7 +720,7 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
                           regionButtonKey: regionButtonKey,
                           roadButtonKey: roadButtonKey,
                         ),
-                        SizedBox(height: 10.h),
+                        SizedBox(height: 6.h),
                       ],
                     ),
                   ),

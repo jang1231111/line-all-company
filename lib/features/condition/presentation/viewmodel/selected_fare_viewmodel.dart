@@ -74,28 +74,63 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
     await _localDataSource.deleteFareAt(entryId, fareIndex);
   }
 
+  /// 저장만 할경우 화주명만 입력받아 저장
+  Future<bool> saveSelectedFares(String consignor) async {
+    if (state.isEmpty) return false;
+    // 간단 검증: 필수값 체크
+    if (consignor.isEmpty) {
+      return false;
+    }
+    try {
+      // 전송 성공 시 기존 루틴: DB 저장 및 상태 초기화
+      await saveCurrentToDb(consignor);
+      // 모든 상태 초기화 처리
+      try {
+        clearState();
+        ref.read(conditionViewModelProvider.notifier).reset();
+        ref.read(roadNameSearchViewModelProvider.notifier).clearKeyword();
+        ref.read(fareResultViewModelProvider.notifier).clear();
+      } catch (_) {
+        // 안전하게 무시(ConditionViewModel에 reset이 없거나 provider 이름이 다를 경우)
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// 서버로 선택 항목 전송. input에는 'consignor'/'email' 등 다이얼로그에서 받은 값이 들어옵니다.
   /// 성공하면 로컬 DB에 저장하고 상태 초기화.
   /// 반환값: 성공(true) / 실패(false)
   Future<bool> sendSelectedFares(Map<String, String> input) async {
     if (state.isEmpty) return false;
 
-    final consignor = (input['consignor'] ?? '').trim();
-    final email = (input['email'] ?? '').trim();
+    final consignor = (input['consignor'] ?? '-').trim();
+    final recipient = (input['recipient'] ?? '-').trim();
+    final recipient_email = (input['recipient_email'] ?? '-').trim();
+    final recipient_company = (input['recipient_company'] ?? '-').trim();
+    final recipient_phone = (input['recipient_phone'] ?? '-').trim();
+    final note = (input['note'] ?? '-').trim();
 
     // 간단 검증: 필수값 체크
-    if (consignor.isEmpty || email.isEmpty) return false;
+    if (consignor.isEmpty || recipient.isEmpty || recipient_email.isEmpty) {
+      return false;
+    }
 
     try {
       final success = await _repository.sendSelectedFares(
         consignor: consignor,
-        email: email,
+        recipient: recipient,
+        recipientEmail: recipient_email,
+        recipientCompany: recipient_company,
+        recipientPhone: recipient_phone,
+        note: note,
         fares: state,
       );
       if (success) {
         // 전송 성공 시 기존 루틴: DB 저장 및 상태 초기화
         await saveCurrentToDb(consignor);
-        // 모든 상태 초기화 처리 
+        // 모든 상태 초기화 처리
         try {
           clearState();
           ref.read(conditionViewModelProvider.notifier).reset();
@@ -109,5 +144,31 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
     } catch (_) {
       return false;
     }
+  }
+
+  Future<void> updateFarePrice(int index, int newPrice) async {
+    if (index < 0 || index >= state.length) return;
+
+    final old = state[index];
+    SelectedFare updated;
+
+    // 가능하면 copyWith 사용, 없으면 수동 복사
+    try {
+      // if SelectedFare has copyWith({price})
+      updated = old.copyWith(price: newPrice);
+    } catch (_) {
+      // fallback: SelectedFare 생성자에 맞게 필드 복사
+      updated = SelectedFare(
+        row: old.row,
+        type: old.type,
+        rate: old.rate,
+        price: newPrice,
+        surchargeLabels: List<String>.from(old.surchargeLabels),
+      );
+    }
+
+    final newList = List<SelectedFare>.from(state);
+    newList[index] = updated;
+    state = newList;
   }
 }

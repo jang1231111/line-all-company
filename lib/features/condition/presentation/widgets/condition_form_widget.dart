@@ -163,58 +163,66 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       typeFocusNode: _typeFocusNode,
                       sectionFocusNode: _sectionFocusNode,
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 4.h),
                     // 검색 버튼들을 인라인으로 두어 개별 키 부여
                     Container(
                       key: widget.serachKey,
                       child: Row(
                         children: [
                           Expanded(
-                            child: ElevatedButton.icon(
-                              key: widget.regionButtonKey,
-                              icon: const Icon(Icons.search),
-                              label: const Text('지역 검색'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.indigo,
+                            child: MediaQuery(
+                              // 버튼 내부 텍스트/레이아웃의 시스템 textScaleFactor 영향을 차단
+                              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                              child: ElevatedButton.icon(
+                                key: widget.regionButtonKey,
+                                icon: Icon(Icons.search, size: 18.sp),
+                                label: Text('지역 검색', style: TextStyle(fontSize: 14.sp)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.indigo,
+                                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                                  minimumSize: Size(double.infinity, 44.h), // 고정 높이
+                                ),
+                                onPressed: () {
+                                  _validateAndHandleSearchType(() {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => const RegionSelectorsDialog(),
+                                    );
+                                  });
+                                },
                               ),
-                              onPressed: () {
-                                _validateAndHandleSearchType(() {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) =>
-                                        const RegionSelectorsDialog(),
-                                  );
-                                });
-                              },
                             ),
                           ),
                           SizedBox(width: 8.w),
                           Expanded(
-                            child: ElevatedButton.icon(
-                              key: widget.roadButtonKey,
-                              icon: const Icon(Icons.place),
-                              label: const Text('도로명 검색'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
+                            child: MediaQuery(
+                              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                              child: ElevatedButton.icon(
+                                key: widget.roadButtonKey,
+                                icon: Icon(Icons.place, size: 18.sp),
+                                label: Text('도로명 검색', style: TextStyle(fontSize: 14.sp)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                                  minimumSize: Size(double.infinity, 44.h),
+                                ),
+                                onPressed: () {
+                                  _validateAndHandleSearchType(() async {
+                                    RoadNameAddress? result = await showDialog(
+                                      context: context,
+                                      builder: (context) => const RoadNameSearchDialog(),
+                                    );
+                                    if (result != null) {
+                                      await viewModel.searchByRoadName(result);
+                                    }
+                                  });
+                                },
                               ),
-                              onPressed: () {
-                                _validateAndHandleSearchType(() async {
-                                  RoadNameAddress? result = await showDialog(
-                                    context: context,
-                                    builder: (context) =>
-                                        const RoadNameSearchDialog(),
-                                  );
-                                  if (result != null) {
-                                    await viewModel.searchByRoadName(result);
-                                  }
-                                });
-                              },
                             ),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 10.h),
                   ],
                 ),
               ),
