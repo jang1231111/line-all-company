@@ -374,7 +374,8 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
         validator: validator,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.black54, size: 20.w),
-          labelText: label,
+          // labelText: label,
+          hint: Text(label, style: TextStyle(color: Colors.grey[700])),
           filled: true,
           fillColor: Colors.grey.shade50,
           contentPadding: EdgeInsets.symmetric(
