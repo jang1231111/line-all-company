@@ -108,7 +108,6 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
     final consignor = (input['consignor'] ?? '-').trim();
     final recipient = (input['recipient'] ?? '-').trim();
     final recipient_email = (input['recipient_email'] ?? '-').trim();
-    final recipient_company = (input['recipient_company'] ?? '-').trim();
     final recipient_phone = (input['recipient_phone'] ?? '-').trim();
     final note = (input['note'] ?? '-').trim();
 
@@ -122,7 +121,6 @@ class SelectedFareViewModel extends StateNotifier<List<SelectedFare>> {
         consignor: consignor,
         recipient: recipient,
         recipientEmail: recipient_email,
-        recipientCompany: recipient_company,
         recipientPhone: recipient_phone,
         note: note,
         fares: state,

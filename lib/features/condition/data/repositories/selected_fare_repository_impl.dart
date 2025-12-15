@@ -23,7 +23,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     required String consignor,
     required String recipient,
     required String recipientEmail,
-    required String? recipientCompany,
     required String? recipientPhone,
     required String note,
     required List<SelectedFare> fares,
@@ -42,7 +41,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       consignor,
       recipient,
       recipientEmail,
-      recipientCompany == '' ? '미입력' : recipientCompany,
       recipientPhone == '' ? '미입력' : recipientPhone,
       fares.length,
     );
@@ -51,7 +49,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       consignor: consignor,
       recipient: recipient,
       recipientEmail: recipientEmail,
-      recipientCompany: recipientCompany,
       recipientPhone: recipientPhone,
       count: fares.length,
       prefs: prefs,
@@ -98,7 +95,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       final pdfFile = await _createPdfFile(
         consignor: consignor,
         recipient: recipient,
-        recipientCompany: recipientCompany,
         recipientPhone: recipientPhone,
         recipientEmail: recipientEmail,
         note: note,
@@ -135,7 +131,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   Future<File> _createPdfFile({
     required String consignor,
     required String recipient,
-    required String? recipientCompany,
     required String? recipientPhone,
     required String recipientEmail,
     required String note,
@@ -246,11 +241,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                               '일자: ${_formatDate(DateTime.now())}',
                               style: pw.TextStyle(font: ttf, fontSize: 12),
                             ),
-                            pw.SizedBox(height: 6),
-                            pw.Text(
-                              '화주명: $consignor',
-                              style: pw.TextStyle(font: ttf, fontSize: 11),
-                            ),
+
                             pw.SizedBox(height: 25),
                             pw.Text(
                               '1. 귀사의 일익 번창하심을 기원합니다.',
@@ -275,17 +266,15 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                         ),
                         child: pw.Table(
                           columnWidths: {
-                            0: const pw.FixedColumnWidth(50),
+                            0: const pw.FixedColumnWidth(80),
                             1: const pw.FlexColumnWidth(),
                             2: const pw.FlexColumnWidth(),
                           },
                           children: [
                             buildRow(['-', '수신인', '발신인'], header: true),
                             buildRow([
-                              '상호',
-                              recipientCompany?.isNotEmpty == true
-                                  ? recipientCompany!
-                                  : '-',
+                              '상호, 화주명',
+                              consignor,
                               senderCompany.isNotEmpty ? senderCompany : '-',
                             ]),
                             buildRow([
@@ -484,14 +473,11 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     String consignor,
     String recipient,
     String recipientEmail,
-    String? recipientCompany,
     String? recipientPhone,
     int count,
   ) {
     final now = DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now());
-    final company = (recipientCompany == null || recipientCompany.isEmpty)
-        ? '미입력'
-        : recipientCompany;
+
     final phone = (recipientPhone == null || recipientPhone.isEmpty)
         ? '미입력'
         : recipientPhone;
@@ -501,7 +487,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       ..writeln(' 화주       : $consignor')
       ..writeln(' 수신인     : $recipient')
       ..writeln(' 이메일     : $recipientEmail')
-      ..writeln(' 상호       : $company')
       ..writeln(' 연락처     : $phone')
       ..writeln(' 건 수      : ${count}건')
       ..writeln('')
@@ -517,15 +502,12 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     required String consignor,
     required String recipient,
     required String recipientEmail,
-    required String? recipientCompany,
     required String? recipientPhone,
     required int count,
     required SharedPreferences prefs,
   }) {
     final now = DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now());
-    final company = (recipientCompany == null || recipientCompany.isEmpty)
-        ? '미입력'
-        : recipientCompany;
+
     final phone = (recipientPhone == null || recipientPhone.isEmpty)
         ? '미입력'
         : recipientPhone;
@@ -542,7 +524,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         <td style="padding:6px 8px;">$now</td>
       </tr>
       <tr>
-        <td style="padding:6px 8px;color:#666;vertical-align:top;">화주</td>
+        <td style="padding:6px 8px;color:#666;vertical-align:top;">상호,화주명</td>
         <td style="padding:6px 8px;">$consignor</td>
       </tr>
       <tr>
@@ -552,10 +534,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       <tr>
         <td style="padding:6px 8px;color:#666;vertical-align:top;">이메일</td>
         <td style="padding:6px 8px;">$recipientEmail</td>
-      </tr>
-      <tr>
-        <td style="padding:6px 8px;color:#666;vertical-align:top;">상호</td>
-        <td style="padding:6px 8px;">$company</td>
       </tr>
       <tr>
         <td style="padding:6px 8px;color:#666;vertical-align:top;">연락처</td>
