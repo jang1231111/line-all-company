@@ -111,8 +111,8 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         ..attachments.add(
           FileAttachment(pdfFile, contentType: 'application/pdf')
             ..fileName = pdfFile.path.split(Platform.pathSeparator).last,
-        )
-        ..attachments.add(imageAttachment);
+        );
+        // ..attachments.add(imageAttachment);
 
       await send(message, smtpServer);
       return true;
@@ -578,9 +578,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   <!-- 카드 패딩을 줄이고 불필요한 분리 행 제거 -->
   <table width="600" style="max-width:600px;background:#fff;padding:12px;border-radius:8px;border:1px solid #e9e9e9;">
     <tr>
-      <td style="width:60px;vertical-align:top;padding:0;">
-        <img src="cid:$bannerCid" alt="" style="display:block;border:0;width:48px;height:auto;line-height:0;vertical-align:middle;" />
-      </td>
       <td style="vertical-align:top;padding-left:12px;padding-top:4px;">
         <h2 style="margin:0;color:#1c63d6;font-size:18px;line-height:1;">컨테이너 운송료 견적서</h2>
         <p style="margin:4px 0 0 0;color:#444;font-size:13px;line-height:1.2;">안녕하세요. 안전 운임 App 메일 서비스입니다.</p>
@@ -608,6 +605,43 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   </table>
 </td></tr></table></body></html>
 ''';
+
+    //     return '''
+    // <!doctype html><html><body style="margin:0;padding:0;font-family:Arial,sans-serif;background:#f6f6f6;">
+    // <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+    //   <!-- 카드 패딩을 줄이고 불필요한 분리 행 제거 -->
+    //   <table width="600" style="max-width:600px;background:#fff;padding:12px;border-radius:8px;border:1px solid #e9e9e9;">
+    //     <tr>
+    //       <td style="width:60px;vertical-align:top;padding:0;">
+    //         <img src="cid:$bannerCid" alt="" style="display:block;border:0;width:48px;height:auto;line-height:0;vertical-align:middle;" />
+    //       </td>
+    //       <td style="vertical-align:top;padding-left:12px;padding-top:4px;">
+    //         <h2 style="margin:0;color:#1c63d6;font-size:18px;line-height:1;">컨테이너 운송료 견적서</h2>
+    //         <p style="margin:4px 0 0 0;color:#444;font-size:13px;line-height:1.2;">안녕하세요. 안전 운임 App 메일 서비스입니다.</p>
+    //       </td>
+    //     </tr>
+    //     <!-- 바로 본문 영역 -->
+    //     <tr>
+    //       <td colspan="2" style="padding-top:8px;color:#333;font-size:14px;line-height:1.6;margin:0;">
+    //         $htmlMain
+    //       </td>
+    //     </tr>
+    //     <tr>
+    //       <td colspan="2" style="padding-top:12px;">
+    //         <a href="$storeUrl" style="display:inline-block;background:#1c63d6;color:#fff;padding:10px 14px;border-radius:6px;text-decoration:none;font-size:14px;">앱 살펴보기</a>
+    //       </td>
+    //     </tr>
+    //     <tr>
+    //       <td colspan="2" style="padding-top:12px;border-top:1px solid #f5f5f5;color:#888;font-size:12px;">
+    //         <strong style="color:#333;font-size:13px;display:block;margin:0 0 4px 0;">${senderCompany}</strong>
+    //         ${senderName.isNotEmpty ? '<span style="display:block;margin:0 0 2px 0;">${senderName}</span>' : ''}
+    //         ${senderPhone.isNotEmpty ? '<span style="display:block;margin:0 0 2px 0;">Tel: ${senderPhone}</span>' : ''}
+    //         ${senderEmail.isNotEmpty ? '<span style="display:block;margin:0;">Email: ${senderEmail}</span>' : ''}
+    //       </td>
+    //     </tr>
+    //   </table>
+    // </td></tr></table></body></html>
+    // ''';
   }
 
   String _buildSubject(SharedPreferences prefs, String consignor) {
