@@ -210,9 +210,9 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
           const outerPadding = 16.0;
           final availableW = pageW - (outerMargin * 2) - (outerPadding * 2);
           final w0 = 28.0,
-              w1 = 80.0,
+              w1 = 85.0,
               w2 = 130.0,
-              w3 = 40.0,
+              w3 = 35.0,
               w4 = 50.0,
               w5 = 65.0;
           final fixedSum = w0 + w1 + w2 + w3 + w4 + w5;
