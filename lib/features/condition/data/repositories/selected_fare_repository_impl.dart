@@ -271,28 +271,28 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                             2: const pw.FlexColumnWidth(),
                           },
                           children: [
-                            buildRow(['-', '수신인', '발신인'], header: true),
+                            buildRow(['-', '발신인', '수신인'], header: true),
                             buildRow([
                               '상호, 화주명',
-                              consignor,
                               senderCompany.isNotEmpty ? senderCompany : '-',
+                              consignor,
                             ]),
                             buildRow([
                               '성명',
-                              recipient.isNotEmpty ? recipient : '-',
                               senderName.isNotEmpty ? senderName : '-',
+                              recipient.isNotEmpty ? recipient : '-',
                             ]),
                             buildRow([
                               '연락처',
+                              senderPhone.isNotEmpty ? senderPhone : '-',
                               recipientPhone?.isNotEmpty == true
                                   ? recipientPhone!
                                   : '-',
-                              senderPhone.isNotEmpty ? senderPhone : '-',
                             ]),
                             buildRow([
                               'E-mail',
-                              recipientEmail.isNotEmpty ? recipientEmail : '-',
                               senderEmail.isNotEmpty ? senderEmail : '-',
+                              recipientEmail.isNotEmpty ? recipientEmail : '-',
                             ]),
                           ],
                         ),
