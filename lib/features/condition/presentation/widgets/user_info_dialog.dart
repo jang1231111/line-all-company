@@ -285,7 +285,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                                     SizedBox(width: 6.w),
                                     Expanded(
                                       child: Text(
-                                        '입력하신 정보는 메일 전송시, 발신자 정보에 사용됩니다.',
+                                        '입력하신 정보는 메일 발신자 정보로 사용되며, 외부에 노출되지 않고 스마트폰에만 저장됩니다.',
                                         style: TextStyle(
                                           fontSize: 12.sp,
                                           color: Colors.black54,
