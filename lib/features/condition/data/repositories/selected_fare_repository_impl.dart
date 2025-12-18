@@ -103,7 +103,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       );
 
       final message = Message()
-        ..from = Address(username!, '운임 견적')
+        ..from = Address(username!, '컨테이너 운송료 견적')
         ..recipients.add(recipientEmail)
         ..subject = subject
         ..text = bodyPlain
@@ -227,7 +227,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Center(child: pw.Text('운 임 견 적 서', style: titleStyle)),
+                  pw.Center(child: pw.Text('컨테이너 운송료 견적서', style: titleStyle)),
                   pw.SizedBox(height: 18),
                   pw.Row(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -459,7 +459,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
 
     final bytes = await doc.save();
     final timestamp = DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now());
-    final pdfFileName = '운임 견적서_${consignor}_$timestamp.pdf';
+    final pdfFileName = '컨테이너 운송료 견적서_${consignor}_$timestamp.pdf';
     final tempDir = await getTemporaryDirectory(); // <- 추가
     final file = File('${tempDir.path}${Platform.pathSeparator}$pdfFileName');
     await file.writeAsBytes(bytes);
@@ -490,7 +490,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       ..writeln(' 연락처     : $phone')
       ..writeln(' 건 수      : ${count}건')
       ..writeln('')
-      ..writeln('첨부된 PDF 파일에 운임 견적 내역이 정리되어 있습니다.')
+      ..writeln('첨부된 PDF 파일에 컨테이너 운송료 견적 내역이 정리되어 있습니다.')
       ..writeln('내용 확인 후 문의나 수정 요청이 있으시면 아래 메일로 회신 부탁드립니다.')
       ..writeln('')
       ..writeln('감사합니다.');
@@ -547,7 +547,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   </table>
 
   <p style="margin:10px 0 0 0;color:#444;">
-    첨부된 PDF 파일에 운임 견적 내역이 정리되어 있습니다.<br/>
+    첨부된 PDF 파일에 컨테이너 운송료 견적 내역이 정리되어 있습니다.<br/>
     내용 확인 후 문의나 수정 요청이 있으시면 아래 메일로 회신 부탁드립니다.
   </p>
 
@@ -582,7 +582,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         <img src="cid:$bannerCid" alt="" style="display:block;border:0;width:48px;height:auto;line-height:0;vertical-align:middle;" />
       </td>
       <td style="vertical-align:top;padding-left:12px;padding-top:4px;">
-        <h2 style="margin:0;color:#1c63d6;font-size:18px;line-height:1;">운임 견적서</h2>
+        <h2 style="margin:0;color:#1c63d6;font-size:18px;line-height:1;">컨테이너 운송료 견적서</h2>
         <p style="margin:4px 0 0 0;color:#444;font-size:13px;line-height:1.2;">안녕하세요. 안전 운임 App 메일 서비스입니다.</p>
       </td>
     </tr>
@@ -617,7 +617,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         : '발신자';
     final safeConsignor = _safeForHeader(consignor);
     final date = DateFormat('yyyy.MM.dd').format(DateTime.now());
-    return '운임 견적서 $date — ($safeSender → $safeConsignor)';
+    return '컨테이너 운송료 견적서 $date — ($safeSender → $safeConsignor)';
   }
 
   // ------------------------
