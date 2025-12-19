@@ -8,12 +8,9 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf_render_maintained/pdf_render.dart' as pdf_render;
+import 'package:line_all/common/services/pdf_to_image_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image/image.dart' as img;
-import 'package:printing/printing.dart'; // pubspec에 printing 추가 필요
-
-import 'dart:ui' as ui;
 
 import 'package:line_all/features/condition/domain/repositories/selected_fare_repository.dart';
 import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
@@ -110,49 +107,12 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       // PDF 바이트는 파일에서 읽음
       final pdfBytes = await pdfFile.readAsBytes();
 
-      // --- PDF -> JPEG 변환 (pdf_render 사용, ui.Image -> 바이트 변환) ---
-      List<Uint8List> pageImages = [];
-      try {
-        final doc = await pdf_render.PdfDocument.openData(pdfBytes);
-        for (int i = 1; i <= doc.pageCount; i++) {
-          final page = await doc.getPage(i);
-          // render 결과는 PdfPageImage
-          final pageImage = await page.render(
-            width: (page.width * 2).toInt(),
-            height: (page.height * 2).toInt(),
-            backgroundFill: true, // 흰 배경 보장
-          );
-
-          // PdfPageImage -> ui.Image -> PNG bytes
-          final ui.Image uiImg = await pageImage.createImageDetached();
-          final byteData = await uiImg.toByteData(
-            format: ui.ImageByteFormat.png,
-          );
-          if (byteData != null) {
-            final pngBytes = byteData.buffer.asUint8List();
-
-            // (선택) PNG 대신 JPEG로 저장하려면 image 패키지로 변환
-            final decoded = img.decodePng(pngBytes);
-            if (decoded != null) {
-              final jpgBytes = img.encodeJpg(decoded, quality: 90);
-              pageImages.add(Uint8List.fromList(jpgBytes));
-            } else {
-              pageImages.add(pngBytes);
-            }
-          }
-
-          // render로 얻은 리소스도 해제
-          try {
-            pageImage.dispose();
-          } catch (_) {}
-          try {
-            uiImg.dispose();
-          } catch (_) {}
-        }
-        await doc.dispose();
-      } catch (e) {
-        debugPrint('PDF -> 이미지 변환(pdf_render) 실패: $e');
-      }
+      // PDF -> 이미지 변환 (공통 서비스에 위임)
+      final pageImages = await const PdfToImageService().convertPdfToJpegPages(
+        Uint8List.fromList(pdfBytes),
+        renderScale: 2,
+        jpegQuality: 90,
+      );
 
       final message = Message()
         ..from = Address(username!, '컨테이너 운송료 견적')
