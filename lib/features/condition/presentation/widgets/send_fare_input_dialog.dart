@@ -6,13 +6,18 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SendFareInputDialog extends StatefulWidget {
-  const SendFareInputDialog({super.key});
+  final Map<String, String>? initialInput;
+  const SendFareInputDialog({super.key, this.initialInput});
 
-  static Future<Map<String, String>?> show(BuildContext context) {
+  // show helper accepts optional initialInput
+  static Future<Map<String, String>?> show(
+    BuildContext context, {
+    Map<String, String>? initialInput,
+  }) {
     return showDialog<Map<String, String>>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const SendFareInputDialog(),
+      builder: (_) => SendFareInputDialog(initialInput: initialInput),
     );
   }
 
@@ -70,6 +75,13 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
   @override
   void initState() {
     super.initState();
+    // prefill controllers from initialInput if provided
+    final init = widget.initialInput;
+    if (init != null) {
+      if (init['consignor'] != null) {
+        _consignorCtrl.text = init['consignor']!;
+      }
+    }
     _consignorCtrl.addListener(_updateCanSubmit);
     _recipientCtrl.addListener(_updateCanSubmit);
     _recipientEmailCtrl.addListener(_updateCanSubmit);
@@ -250,22 +262,51 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
     FocusNode? focusNode,
     GlobalKey? fieldKey,
   }) {
+    final isConsignor = identical(c, _consignorCtrl);
+    final consignerReadOnly =
+        isConsignor && (widget.initialInput?.containsKey('consignor') ?? false);
+
+    // base decoration from helper, then override visuals for readOnly
+    final baseDeco = _input(hint, icon: icon);
+    final effectivePrefix = icon == null
+        ? null
+        : Padding(
+            padding: EdgeInsets.only(left: 8.w, right: 6.w),
+            child: Icon(
+              icon,
+              size: 18.sp,
+              color: consignerReadOnly ? Colors.black38 : primaryColor,
+            ),
+          );
+
+    final deco = baseDeco.copyWith(
+      filled: true,
+      fillColor: consignerReadOnly ? Colors.grey.shade100 : baseDeco.fillColor,
+      hintStyle: (baseDeco.hintStyle ?? TextStyle()).copyWith(
+        color: consignerReadOnly ? Colors.black38 : baseDeco.hintStyle?.color,
+      ),
+      prefixIcon: effectivePrefix,
+      prefixIconConstraints: BoxConstraints(minWidth: 36.w, minHeight: 36.h),
+    );
+
     return Container(
       key: fieldKey,
       child: TextFormField(
         enabled: !_sending,
         controller: c,
         focusNode: focusNode,
+        readOnly: consignerReadOnly,
         autofocus: autofocus,
         keyboardType: keyboardType,
-        style: TextStyle(color: textPrimary),
-        decoration: _input(hint, icon: icon).copyWith(
-          suffixIcon: c.text.isEmpty
-              ? null
-              : IconButton(
+        style: TextStyle(color: consignerReadOnly ? Colors.black54 : textPrimary),
+        decoration: deco.copyWith(
+          // hide clear button when field is read-only (initial fixed value)
+          suffixIcon: (!consignerReadOnly && c.text.isNotEmpty)
+              ? IconButton(
                   icon: Icon(Icons.clear, size: 18.sp, color: Colors.black45),
                   onPressed: () => setState(() => c.clear()),
-                ),
+                )
+              : null,
         ),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: (v) {
@@ -514,7 +555,6 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                                         _consignorCtrl,
                                         hint: '상호,화주명',
                                         icon: Icons.business,
-                                        autofocus: true,
                                         focusNode: _consignorFocus,
                                         fieldKey: _consignorKey,
                                       ),

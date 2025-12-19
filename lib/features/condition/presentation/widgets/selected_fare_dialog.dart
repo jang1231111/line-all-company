@@ -6,6 +6,7 @@ import 'package:line_all/features/condition/presentation/models/selected_fare.da
 import 'package:line_all/features/condition/presentation/widgets/price_edit_button.dart';
 import 'package:line_all/features/condition/presentation/widgets/save_consignor_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/surcharge_dialog.dart';
+import 'package:line_all/features/condition/presentation/widgets/send_mail_flow_button.dart';
 import '../data/condition_options.dart';
 import '../providers/selected_fare_result_provider.dart';
 import 'send_fare_input_dialog.dart';
@@ -350,62 +351,12 @@ class SelectedFareDialog extends ConsumerWidget {
                   ),
                   SizedBox(width: 12.w),
 
-                  // 오른쪽: 메일 전송 (기존 로직 유지)
+                  // 오른쪽: 메일 전송 (SendMailButton 사용)
                   Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedFares.isNotEmpty
-                            ? Colors.indigo
-                            : Colors.grey.shade300,
-                        foregroundColor: selectedFares.isNotEmpty
-                            ? Colors.white
-                            : Colors.black38,
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        textStyle: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      onPressed: () async {
-                        final input = await SendFareInputDialog.show(context);
-                        if (input == null) return;
-
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (_) =>
-                              const Center(child: CircularProgressIndicator()),
-                        );
-
-                        final success = await selectedFareViewModel
-                            .sendSelectedFares(input);
-
-                        Navigator.of(context).pop();
-
-                        if (success) {
-                          Navigator.of(context).pop('save');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('전송이 완료되었습니다.')),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('전송에 실패했습니다. 다시 시도하세요.'),
-                            ),
-                          );
-                        }
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.mail, size: 16.sp),
-                          SizedBox(width: 8.w),
-                          Text('메일 전송'),
-                        ],
-                      ),
+                    child: SendMailButton(
+                      sendFn: selectedFareViewModel.sendSelectedFares,
+                      label: '메일 전송',
+                      popParentOnSuccess: true,
                     ),
                   ),
                 ],

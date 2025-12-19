@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_all/features/condition/presentation/widgets/surcharge_dialog.dart';
+import 'package:line_all/features/condition/presentation/widgets/send_mail_flow_button.dart';
 import '../data/condition_options.dart';
 import '../models/selected_fare.dart';
 
@@ -1074,6 +1075,36 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
     }
   }
 
+  // Widget _buildEmptyState() {
+  //   return Center(
+  //     child: Column(
+  //       mainAxisAlignment: MainAxisAlignment.center,
+  //       children: [
+  //         Icon(Icons.search_off, color: Colors.indigo, size: 72.sp),
+  //         SizedBox(height: 18.h),
+  //         Text(
+  //           '검색 결과가 없습니다.',
+  //           style: TextStyle(
+  //             fontSize: 18.sp,
+  //             fontWeight: FontWeight.bold,
+  //             color: Colors.black54,
+  //           ),
+  //         ),
+  //         SizedBox(height: 8.h),
+  //         Text(
+  //           _searchQuery.isNotEmpty
+  //               ? '화주명 "${_searchQuery}" 으로 검색한 결과가 없습니다.'
+  //               : (_rangeStart != null && _rangeEnd != null
+  //                     ? '${DateFormat('yyyy.MM.dd').format(_rangeStart!)} — ${DateFormat('yyyy.MM.dd').format(_rangeEnd!)} 기간의 기록이 없습니다.'
+  //                     : '저장된 운임 데이터가 없습니다.'),
+  //           style: TextStyle(fontSize: 14.sp, color: Colors.black45),
+  //           textAlign: TextAlign.center,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -1182,6 +1213,22 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
             ...List.generate(
               fares.length,
               (i) => _buildFareItem(fares[i], faresRaw[i], entry),
+            ),
+            SizedBox(height: 12.h),
+            // 메일 전송 버튼 (화주명은 entry에 있는 consignor로 고정 전달)
+            Align(
+              alignment: Alignment.centerRight,
+              child: SizedBox(
+                height: 38.h,
+                child: SendMailButton(
+                  sendFn: ref.read(selectedFareProvider.notifier).sendSelectedFares,
+                  label: '메일 전송',
+                  popParentOnSuccess: false,
+                  initialInput: {
+                    'consignor': consignorText,
+                  },
+                ),
+              ),
             ),
           ],
         ),
