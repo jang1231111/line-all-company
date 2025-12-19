@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show rootBundle, Uint8List;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:mailer/mailer.dart';
@@ -10,6 +10,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image/image.dart' as img;
+import 'package:printing/printing.dart'; // pubspec에 printing 추가 필요
+import 'package:pdf_render/pdf_render.dart' as pdf_render;
+import 'dart:ui' as ui;
 
 import 'package:line_all/features/condition/domain/repositories/selected_fare_repository.dart';
 import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
@@ -92,6 +95,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     );
 
     try {
+      // _createPdfFile은 파일을 생성해서 반환하므로 그대로 사용
       final pdfFile = await _createPdfFile(
         consignor: consignor,
         recipient: recipient,
@@ -102,17 +106,79 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         prefs: prefs,
       );
 
+      // PDF 바이트는 파일에서 읽음
+      final pdfBytes = await pdfFile.readAsBytes();
+
+      // --- PDF -> JPEG 변환 (pdf_render 사용, ui.Image -> 바이트 변환) ---
+      List<Uint8List> pageImages = [];
+      try {
+        final doc = await pdf_render.PdfDocument.openData(pdfBytes);
+        for (int i = 1; i <= doc.pageCount; i++) {
+          final page = await doc.getPage(i);
+          // render 결과는 PdfPageImage
+          final pageImage = await page.render(
+            width: (page.width * 2).toInt(),
+            height: (page.height * 2).toInt(),
+            backgroundFill: true, // 흰 배경 보장
+          );
+
+          // PdfPageImage -> ui.Image -> PNG bytes
+          final ui.Image uiImg = await pageImage.createImageDetached();
+          final byteData = await uiImg.toByteData(format: ui.ImageByteFormat.png);
+          if (byteData != null) {
+            final pngBytes = byteData.buffer.asUint8List();
+
+            // (선택) PNG 대신 JPEG로 저장하려면 image 패키지로 변환
+            final decoded = img.decodePng(pngBytes);
+            if (decoded != null) {
+              final jpgBytes = img.encodeJpg(decoded, quality: 90);
+              pageImages.add(Uint8List.fromList(jpgBytes));
+            } else {
+              pageImages.add(pngBytes);
+            }
+          }
+
+          // render로 얻은 리소스도 해제
+          try {
+            pageImage.dispose();
+          } catch (_) {}
+          try {
+            uiImg.dispose();
+          } catch (_) {}
+        }
+        await doc.dispose();
+      } catch (e) {
+        debugPrint('PDF -> 이미지 변환(pdf_render) 실패: $e');
+      }
+
       final message = Message()
         ..from = Address(username!, '컨테이너 운송료 견적')
         ..recipients.add(recipientEmail)
         ..subject = subject
         ..text = bodyPlain
         ..html = htmlWithBanner
+        // PDF는 파일 첨부로 추가
         ..attachments.add(
           FileAttachment(pdfFile, contentType: 'application/pdf')
             ..fileName = pdfFile.path.split(Platform.pathSeparator).last,
         );
-        // ..attachments.add(imageAttachment);
+
+      // 페이지 이미지가 있으면 임시 파일로 만들어서 FileAttachment로 추가 (Attachment.fromBytes 대신 이 방식 사용)
+      for (int i = 0; i < pageImages.length; i++) {
+        final imgBytes = pageImages[i];
+        // JPEG로 렌더했으므로 확장자는 .jpg 로 저장
+        final imgFile = File(
+          '${tempDir.path}${Platform.pathSeparator}견적서_page_${i + 1}.jpg',
+        );
+        await imgFile.writeAsBytes(imgBytes, flush: true);
+        message.attachments.add(
+          FileAttachment(imgFile, contentType: 'image/jpeg')
+            ..fileName = imgFile.path.split(Platform.pathSeparator).last,
+        );
+      }
+
+      // banner(inline) 첨부가 필요하면 주석 해제
+      // message.attachments.add(imageAttachment);
 
       await send(message, smtpServer);
       return true;
