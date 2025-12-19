@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:line_all/common/formatters/phone_number_formatter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
 class SendFareInputDialog extends StatefulWidget {
   final Map<String, String>? initialInput;
@@ -298,7 +300,17 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
         readOnly: consignerReadOnly,
         autofocus: autofocus,
         keyboardType: keyboardType,
-        style: TextStyle(color: consignerReadOnly ? Colors.black54 : textPrimary),
+        // 전화번호 필드일 때: 숫자만 허용, 최대 11자리, 자동 하이픈 포맷터 적용
+        inputFormatters: keyboardType == TextInputType.phone
+            ? <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(11),
+                PhoneNumberFormatter(),
+              ]
+            : null,
+        style: TextStyle(
+          color: consignerReadOnly ? Colors.black54 : textPrimary,
+        ),
         decoration: deco.copyWith(
           // hide clear button when field is read-only (initial fixed value)
           suffixIcon: (!consignerReadOnly && c.text.isNotEmpty)
