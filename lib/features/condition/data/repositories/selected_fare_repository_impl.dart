@@ -8,10 +8,11 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf_render_maintained/pdf_render.dart' as pdf_render;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image/image.dart' as img;
 import 'package:printing/printing.dart'; // pubspec에 printing 추가 필요
-import 'package:pdf_render/pdf_render.dart' as pdf_render;
+
 import 'dart:ui' as ui;
 
 import 'package:line_all/features/condition/domain/repositories/selected_fare_repository.dart';
@@ -159,11 +160,11 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         ..subject = subject
         ..text = bodyPlain
         ..html = htmlWithBanner;
-        // PDF는 파일 첨부로 추가
-        // ..attachments.add(
-        //   FileAttachment(pdfFile, contentType: 'application/pdf')
-        //     ..fileName = pdfFile.path.split(Platform.pathSeparator).last,
-        // );
+      // PDF는 파일 첨부로 추가
+      // ..attachments.add(
+      //   FileAttachment(pdfFile, contentType: 'application/pdf')
+      //     ..fileName = pdfFile.path.split(Platform.pathSeparator).last,
+      // );
       final timestamp = DateFormat('yyyyMMdd-HHmm').format(DateTime.now());
       // 페이지 이미지가 있으면 임시 파일로 만들어서 FileAttachment로 추가 (Attachment.fromBytes 대신 이 방식 사용)
       for (int i = 0; i < pageImages.length; i++) {

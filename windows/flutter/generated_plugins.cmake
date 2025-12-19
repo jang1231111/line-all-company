@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   firebase_core
+  pdf_render_maintained
   printing
   url_launcher_windows
 )

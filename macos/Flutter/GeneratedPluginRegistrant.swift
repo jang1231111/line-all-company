@@ -9,7 +9,7 @@ import firebase_analytics
 import firebase_core
 import firebase_crashlytics
 import path_provider_foundation
-import pdf_render
+import pdf_render_maintained
 import printing
 import shared_preferences_foundation
 import url_launcher_macos

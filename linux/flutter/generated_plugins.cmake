@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  pdf_render_maintained
   printing
   url_launcher_linux
 )
