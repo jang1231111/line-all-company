@@ -354,7 +354,7 @@ class SelectedFareDialog extends ConsumerWidget {
                   // 오른쪽: 메일 전송 (SendMailButton 사용)
                   Expanded(
                     child: SendMailButton(
-                      sendFn: selectedFareViewModel.sendSelectedFares,
+                      sendFn: selectedFareViewModel.sendFaresMail,
                       label: '메일 전송',
                       popParentOnSuccess: true,
                     ),

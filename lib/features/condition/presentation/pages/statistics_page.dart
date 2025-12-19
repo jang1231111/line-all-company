@@ -1214,19 +1214,25 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
               fares.length,
               (i) => _buildFareItem(fares[i], faresRaw[i], entry),
             ),
-            SizedBox(height: 12.h),
             // 메일 전송 버튼 (화주명은 entry에 있는 consignor로 고정 전달)
             Align(
               alignment: Alignment.centerRight,
               child: SizedBox(
-                height: 38.h,
-                child: SendMailButton(
-                  sendFn: ref.read(selectedFareProvider.notifier).sendSelectedFares,
-                  label: '메일 전송',
-                  popParentOnSuccess: false,
-                  initialInput: {
-                    'consignor': consignorText,
-                  },
+                height: 45.h,
+                child: IgnorePointer(
+                  ignoring: fares.isEmpty,
+                  child: Opacity(
+                    opacity: fares.isEmpty ? 0.5 : 1.0,
+                    child: SendMailButton(
+                      // closure captures `fares` and calls viewmodel method that accepts (input, fares)
+                      sendFn: (input) async =>
+                          await ref.read(selectedFareProvider.notifier)
+                              .sendFaresMailForStatics(input, fares),
+                      label: '메일 전송',
+                      popParentOnSuccess: false,
+                      initialInput: {'consignor': consignorText},
+                    ),
+                  ),
                 ),
               ),
             ),
