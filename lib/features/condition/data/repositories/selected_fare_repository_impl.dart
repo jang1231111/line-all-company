@@ -108,10 +108,8 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       final pdfBytes = await pdfFile.readAsBytes();
 
       // PDF -> 이미지 변환 (공통 서비스에 위임)
-      final pageImages = await const PdfToImageService().convertPdfToJpegPages(
+      final pageImages = await const PdfToImageService().pdfToJpegsPdfrx(
         Uint8List.fromList(pdfBytes),
-        renderScale: 2,
-        jpegQuality: 90,
       );
 
       final message = Message()
