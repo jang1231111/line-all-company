@@ -124,7 +124,9 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
 
           // PdfPageImage -> ui.Image -> PNG bytes
           final ui.Image uiImg = await pageImage.createImageDetached();
-          final byteData = await uiImg.toByteData(format: ui.ImageByteFormat.png);
+          final byteData = await uiImg.toByteData(
+            format: ui.ImageByteFormat.png,
+          );
           if (byteData != null) {
             final pngBytes = byteData.buffer.asUint8List();
 
@@ -156,20 +158,21 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         ..recipients.add(recipientEmail)
         ..subject = subject
         ..text = bodyPlain
-        ..html = htmlWithBanner
+        ..html = htmlWithBanner;
         // PDF는 파일 첨부로 추가
-        ..attachments.add(
-          FileAttachment(pdfFile, contentType: 'application/pdf')
-            ..fileName = pdfFile.path.split(Platform.pathSeparator).last,
-        );
-
+        // ..attachments.add(
+        //   FileAttachment(pdfFile, contentType: 'application/pdf')
+        //     ..fileName = pdfFile.path.split(Platform.pathSeparator).last,
+        // );
+      final timestamp = DateFormat('yyyyMMdd-HHmm').format(DateTime.now());
       // 페이지 이미지가 있으면 임시 파일로 만들어서 FileAttachment로 추가 (Attachment.fromBytes 대신 이 방식 사용)
       for (int i = 0; i < pageImages.length; i++) {
         final imgBytes = pageImages[i];
         // JPEG로 렌더했으므로 확장자는 .jpg 로 저장
         final imgFile = File(
-          '${tempDir.path}${Platform.pathSeparator}견적서_page_${i + 1}.jpg',
+          '${tempDir.path}${Platform.pathSeparator}컨테이너 운송료 견적서_${consignor}_${timestamp}_p${i + 1}.jpg',
         );
+        // '컨테이너 운송료 견적서_${consignor}_$timestamp.pdf';
         await imgFile.writeAsBytes(imgBytes, flush: true);
         message.attachments.add(
           FileAttachment(imgFile, contentType: 'image/jpeg')
