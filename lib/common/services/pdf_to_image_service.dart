@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
+import 'package:flutter/foundation.dart'; // compute
 // import 'package:pdfrx/pdfrx.dart' as pdfrx;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -28,24 +29,30 @@ class PdfToImageService {
         // (필요시) 로딩 보장
         await page.ensureLoaded();
 
-        // pdf_render에서 (page.width*2, page.height*2) 하던 것처럼 스케일 업
+        // 스케일 업
         final fullW = (page.width * 2).toInt();
         final fullH = (page.height * 2).toInt();
 
         final pdfImg = await page.render(
           fullWidth: fullW.toDouble(),
           fullHeight: fullH.toDouble(),
-          // 흰 배경(ARGB int). 필요 없으면 빼도 됨
           backgroundColor: 0xFFFFFFFF,
         );
 
         if (pdfImg == null) continue;
 
         try {
-          // pdfrx가 image 패키지로 바로 변환해주는 API 제공
-          final nf = pdfImg.createImageNF(); // image.Image
-          final jpgBytes = img.encodeJpg(nf, quality: 90);
-          pageImages.add(Uint8List.fromList(jpgBytes));
+          // pdfrx의 raw pixels (BGRA8888) 사용 -> compute로 인코딩 오프로드
+          final Uint8List bgra = pdfImg.pixels;
+          if (bgra.isEmpty) continue;
+
+          final Uint8List jpg = await compute(_encodeBgraToJpeg, <Object>[
+            bgra,
+            fullW,
+            fullH,
+            90,
+          ]);
+          pageImages.add(jpg);
         } finally {
           pdfImg.dispose();
         }
@@ -165,4 +172,35 @@ class PdfToImageService {
 
   //   return pages;
   // }
+}
+
+// top-level helper for isolate (must be top-level)
+Uint8List _encodeBgraToJpeg(List<Object> args) {
+  final Uint8List bgra = args[0] as Uint8List;
+  final int width = args[1] as int;
+  final int height = args[2] as int;
+  final int quality = args[3] as int? ?? 90;
+
+  // BGRA -> RGBA
+  final Uint8List rgba = Uint8List(bgra.length);
+  for (int i = 0; i < bgra.length; i += 4) {
+    final int b = bgra[i];
+    final int g = bgra[i + 1];
+    final int r = bgra[i + 2];
+    final int a = bgra[i + 3];
+    rgba[i] = r;
+    rgba[i + 1] = g;
+    rgba[i + 2] = b;
+    rgba[i + 3] = a;
+  }
+
+  final img.Image image = img.Image.fromBytes(
+    width: width,
+    height: height,
+    bytes: rgba.buffer, // <-- ByteBuffer required by image package
+    numChannels: 4,
+    order: img.ChannelOrder.rgba,
+  );
+  final List<int> jpg = img.encodeJpg(image, quality: quality);
+  return Uint8List.fromList(jpg);
 }

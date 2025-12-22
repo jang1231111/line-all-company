@@ -71,6 +71,20 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
     // 안정화
     await Future.delayed(const Duration(milliseconds: 120));
 
+    // 키들이 준비될 때까지 대기 (타깃들이 렌더되기 전 호출로 인한 NPE 방지)
+    await _waitForKeysReady([
+      periodTargetKey,
+      searchKey,
+      regionButtonKey,
+      roadButtonKey,
+      surchargeTargetKey,
+      resultsTargetKey,
+      selectedBottomKey,
+      selectedConfirmKey,
+      statsIconKey,
+      tutorialKey,
+    ], timeout: const Duration(milliseconds: 1200));
+
     targets = [
       TargetFocus(
         identify: "period_section",
@@ -449,6 +463,12 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       ),
     ];
 
+    // context가 없는 keyTarget을 가진 타깃은 제거
+    targets = targets.where((t) {
+      final k = t.keyTarget;
+      return k == null || k.currentContext != null;
+    }).toList();
+
     // 화면에 보이도록 스크롤 보정 (존재하면)
     try {
       if (periodTargetKey.currentContext != null) {
@@ -483,7 +503,6 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
       paddingFocus: 8,
       pulseEnable: false,
       focusAnimationDuration: const Duration(milliseconds: 0),
-      // onClick* 은 빈 구현으로 두고 o버레이에서 next() 처리
       onClickOverlay: (_) {},
       onClickTarget: (_) {},
       onFinish: () {
@@ -747,5 +766,22 @@ class _ConditionFormPageState extends ConsumerState<ConditionFormPage> {
         );
       },
     );
+  }
+
+  // keys 준비 대기 헬퍼
+  Future<void> _waitForKeysReady(List<GlobalKey> keys, {Duration timeout = const Duration(milliseconds: 800)}) async {
+    final sw = Stopwatch()..start();
+    while (sw.elapsed < timeout) {
+      var allReady = true;
+      for (final k in keys) {
+        if (k == null) continue;
+        if (k.currentContext == null) {
+          allReady = false;
+          break;
+        }
+      }
+      if (allReady) return;
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
   }
 }
