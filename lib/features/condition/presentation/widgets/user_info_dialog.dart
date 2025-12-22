@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:line_all/common/formatters/phone_number_formatter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -285,7 +287,7 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
                                     SizedBox(width: 6.w),
                                     Expanded(
                                       child: Text(
-                                        '입력하신 정보는 메일 전송시, 발신자 정보에 사용됩니다.',
+                                        '입력하신 정보는 메일 발신자 정보로 사용되며, 외부에 노출되지 않고 스마트폰에만 저장됩니다.',
                                         style: TextStyle(
                                           fontSize: 12.sp,
                                           color: Colors.black54,
@@ -371,10 +373,21 @@ class _UserInfoDialogState extends State<UserInfoDialog> {
         controller: controller,
         focusNode: node,
         keyboardType: keyboardType,
+        // phone field: allow only digits input then formatter inserts hyphens
+        inputFormatters: keyboardType == TextInputType.phone
+            ? <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(11),
+                PhoneNumberFormatter(),
+              ]
+            : null,
+        // phone field end
+        // validator remains unchanged
         validator: validator,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.black54, size: 20.w),
-          labelText: label,
+          // labelText: label,
+          hint: Text(label, style: TextStyle(color: Colors.grey[700])),
           filled: true,
           fillColor: Colors.grey.shade50,
           contentPadding: EdgeInsets.symmetric(

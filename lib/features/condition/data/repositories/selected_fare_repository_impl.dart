@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show rootBundle, Uint8List;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:mailer/mailer.dart';
@@ -8,6 +8,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:line_all/common/services/pdf_to_image_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image/image.dart' as img;
 
@@ -23,7 +24,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     required String consignor,
     required String recipient,
     required String recipientEmail,
-    required String? recipientCompany,
     required String? recipientPhone,
     required String note,
     required List<SelectedFare> fares,
@@ -42,7 +42,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       consignor,
       recipient,
       recipientEmail,
-      recipientCompany == '' ? '미입력' : recipientCompany,
       recipientPhone == '' ? '미입력' : recipientPhone,
       fares.length,
     );
@@ -51,7 +50,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       consignor: consignor,
       recipient: recipient,
       recipientEmail: recipientEmail,
-      recipientCompany: recipientCompany,
       recipientPhone: recipientPhone,
       count: fares.length,
       prefs: prefs,
@@ -95,10 +93,10 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     );
 
     try {
+      // _createPdfFile은 파일을 생성해서 반환하므로 그대로 사용
       final pdfFile = await _createPdfFile(
         consignor: consignor,
         recipient: recipient,
-        recipientCompany: recipientCompany,
         recipientPhone: recipientPhone,
         recipientEmail: recipientEmail,
         note: note,
@@ -106,17 +104,43 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         prefs: prefs,
       );
 
+      // PDF 바이트는 파일에서 읽음
+      final pdfBytes = await pdfFile.readAsBytes();
+
+      // PDF -> 이미지 변환 (공통 서비스에 위임)
+      final pageImages = await const PdfToImageService().pdfToJpegsPdfrx(
+        Uint8List.fromList(pdfBytes),
+      );
+
       final message = Message()
-        ..from = Address(username!, '운임 견적')
+        ..from = Address(username!, '컨테이너 운송료 견적')
         ..recipients.add(recipientEmail)
         ..subject = subject
         ..text = bodyPlain
-        ..html = htmlWithBanner
-        ..attachments.add(
-          FileAttachment(pdfFile, contentType: 'application/pdf')
-            ..fileName = pdfFile.path.split(Platform.pathSeparator).last,
-        )
-        ..attachments.add(imageAttachment);
+        ..html = htmlWithBanner;
+      // PDF는 파일 첨부로 추가
+      // ..attachments.add(
+      //   FileAttachment(pdfFile, contentType: 'application/pdf')
+      //     ..fileName = pdfFile.path.split(Platform.pathSeparator).last,
+      // );
+      final timestamp = DateFormat('yyyyMMdd-HHmm').format(DateTime.now());
+      // 페이지 이미지가 있으면 임시 파일로 만들어서 FileAttachment로 추가 (Attachment.fromBytes 대신 이 방식 사용)
+      for (int i = 0; i < pageImages.length; i++) {
+        final imgBytes = pageImages[i];
+        // JPEG로 렌더했으므로 확장자는 .jpg 로 저장
+        final imgFile = File(
+          '${tempDir.path}${Platform.pathSeparator}컨테이너 운송료 견적서_${consignor}_${timestamp}_p${i + 1}.jpg',
+        );
+        // '컨테이너 운송료 견적서_${consignor}_$timestamp.pdf';
+        await imgFile.writeAsBytes(imgBytes, flush: true);
+        message.attachments.add(
+          FileAttachment(imgFile, contentType: 'image/jpeg')
+            ..fileName = imgFile.path.split(Platform.pathSeparator).last,
+        );
+      }
+
+      // banner(inline) 첨부가 필요하면 주석 해제
+      // message.attachments.add(imageAttachment);
 
       await send(message, smtpServer);
       return true;
@@ -135,7 +159,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   Future<File> _createPdfFile({
     required String consignor,
     required String recipient,
-    required String? recipientCompany,
     required String? recipientPhone,
     required String recipientEmail,
     required String note,
@@ -215,9 +238,9 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
           const outerPadding = 16.0;
           final availableW = pageW - (outerMargin * 2) - (outerPadding * 2);
           final w0 = 28.0,
-              w1 = 80.0,
+              w1 = 85.0,
               w2 = 130.0,
-              w3 = 40.0,
+              w3 = 35.0,
               w4 = 50.0,
               w5 = 65.0;
           final fixedSum = w0 + w1 + w2 + w3 + w4 + w5;
@@ -232,7 +255,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Center(child: pw.Text('운 임 견 적 서', style: titleStyle)),
+                  pw.Center(child: pw.Text('컨테이너 운송료 견적서', style: titleStyle)),
                   pw.SizedBox(height: 18),
                   pw.Row(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -246,11 +269,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                               '일자: ${_formatDate(DateTime.now())}',
                               style: pw.TextStyle(font: ttf, fontSize: 12),
                             ),
-                            pw.SizedBox(height: 6),
-                            pw.Text(
-                              '화주명: $consignor',
-                              style: pw.TextStyle(font: ttf, fontSize: 11),
-                            ),
+
                             pw.SizedBox(height: 25),
                             pw.Text(
                               '1. 귀사의 일익 번창하심을 기원합니다.',
@@ -275,35 +294,33 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
                         ),
                         child: pw.Table(
                           columnWidths: {
-                            0: const pw.FixedColumnWidth(50),
+                            0: const pw.FixedColumnWidth(80),
                             1: const pw.FlexColumnWidth(),
                             2: const pw.FlexColumnWidth(),
                           },
                           children: [
-                            buildRow(['-', '수신인', '발신인'], header: true),
+                            buildRow(['-', '발신인', '수신인'], header: true),
                             buildRow([
-                              '상호',
-                              recipientCompany?.isNotEmpty == true
-                                  ? recipientCompany!
-                                  : '-',
+                              '상호, 화주명',
                               senderCompany.isNotEmpty ? senderCompany : '-',
+                              consignor,
                             ]),
                             buildRow([
                               '성명',
-                              recipient.isNotEmpty ? recipient : '-',
                               senderName.isNotEmpty ? senderName : '-',
+                              recipient.isNotEmpty ? recipient : '-',
                             ]),
                             buildRow([
                               '연락처',
+                              senderPhone.isNotEmpty ? senderPhone : '-',
                               recipientPhone?.isNotEmpty == true
                                   ? recipientPhone!
                                   : '-',
-                              senderPhone.isNotEmpty ? senderPhone : '-',
                             ]),
                             buildRow([
                               'E-mail',
-                              recipientEmail.isNotEmpty ? recipientEmail : '-',
                               senderEmail.isNotEmpty ? senderEmail : '-',
+                              recipientEmail.isNotEmpty ? recipientEmail : '-',
                             ]),
                           ],
                         ),
@@ -470,7 +487,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
 
     final bytes = await doc.save();
     final timestamp = DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now());
-    final pdfFileName = '운임 견적서_${consignor}_$timestamp.pdf';
+    final pdfFileName = '컨테이너 운송료 견적서_${consignor}_$timestamp.pdf';
     final tempDir = await getTemporaryDirectory(); // <- 추가
     final file = File('${tempDir.path}${Platform.pathSeparator}$pdfFileName');
     await file.writeAsBytes(bytes);
@@ -484,14 +501,11 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     String consignor,
     String recipient,
     String recipientEmail,
-    String? recipientCompany,
     String? recipientPhone,
     int count,
   ) {
     final now = DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now());
-    final company = (recipientCompany == null || recipientCompany.isEmpty)
-        ? '미입력'
-        : recipientCompany;
+
     final phone = (recipientPhone == null || recipientPhone.isEmpty)
         ? '미입력'
         : recipientPhone;
@@ -501,11 +515,10 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       ..writeln(' 화주       : $consignor')
       ..writeln(' 수신인     : $recipient')
       ..writeln(' 이메일     : $recipientEmail')
-      ..writeln(' 상호       : $company')
       ..writeln(' 연락처     : $phone')
       ..writeln(' 건 수      : ${count}건')
       ..writeln('')
-      ..writeln('첨부된 PDF 파일에 운임 견적 내역이 정리되어 있습니다.')
+      ..writeln('첨부된 PDF 파일에 컨테이너 운송료 견적 내역이 정리되어 있습니다.')
       ..writeln('내용 확인 후 문의나 수정 요청이 있으시면 아래 메일로 회신 부탁드립니다.')
       ..writeln('')
       ..writeln('감사합니다.');
@@ -517,15 +530,12 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
     required String consignor,
     required String recipient,
     required String recipientEmail,
-    required String? recipientCompany,
     required String? recipientPhone,
     required int count,
     required SharedPreferences prefs,
   }) {
     final now = DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now());
-    final company = (recipientCompany == null || recipientCompany.isEmpty)
-        ? '미입력'
-        : recipientCompany;
+
     final phone = (recipientPhone == null || recipientPhone.isEmpty)
         ? '미입력'
         : recipientPhone;
@@ -542,7 +552,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         <td style="padding:6px 8px;">$now</td>
       </tr>
       <tr>
-        <td style="padding:6px 8px;color:#666;vertical-align:top;">화주</td>
+        <td style="padding:6px 8px;color:#666;vertical-align:top;">상호,화주명</td>
         <td style="padding:6px 8px;">$consignor</td>
       </tr>
       <tr>
@@ -552,10 +562,6 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
       <tr>
         <td style="padding:6px 8px;color:#666;vertical-align:top;">이메일</td>
         <td style="padding:6px 8px;">$recipientEmail</td>
-      </tr>
-      <tr>
-        <td style="padding:6px 8px;color:#666;vertical-align:top;">상호</td>
-        <td style="padding:6px 8px;">$company</td>
       </tr>
       <tr>
         <td style="padding:6px 8px;color:#666;vertical-align:top;">연락처</td>
@@ -569,7 +575,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   </table>
 
   <p style="margin:10px 0 0 0;color:#444;">
-    첨부된 PDF 파일에 운임 견적 내역이 정리되어 있습니다.<br/>
+    첨부된 PDF 파일에 컨테이너 운송료 견적 내역이 정리되어 있습니다.<br/>
     내용 확인 후 문의나 수정 요청이 있으시면 아래 메일로 회신 부탁드립니다.
   </p>
 
@@ -600,11 +606,8 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   <!-- 카드 패딩을 줄이고 불필요한 분리 행 제거 -->
   <table width="600" style="max-width:600px;background:#fff;padding:12px;border-radius:8px;border:1px solid #e9e9e9;">
     <tr>
-      <td style="width:60px;vertical-align:top;padding:0;">
-        <img src="cid:$bannerCid" alt="" style="display:block;border:0;width:48px;height:auto;line-height:0;vertical-align:middle;" />
-      </td>
       <td style="vertical-align:top;padding-left:12px;padding-top:4px;">
-        <h2 style="margin:0;color:#1c63d6;font-size:18px;line-height:1;">운임 견적서</h2>
+        <h2 style="margin:0;color:#1c63d6;font-size:18px;line-height:1;">컨테이너 운송료 견적서</h2>
         <p style="margin:4px 0 0 0;color:#444;font-size:13px;line-height:1.2;">안녕하세요. 안전 운임 App 메일 서비스입니다.</p>
       </td>
     </tr>
@@ -630,6 +633,43 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
   </table>
 </td></tr></table></body></html>
 ''';
+
+    //     return '''
+    // <!doctype html><html><body style="margin:0;padding:0;font-family:Arial,sans-serif;background:#f6f6f6;">
+    // <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+    //   <!-- 카드 패딩을 줄이고 불필요한 분리 행 제거 -->
+    //   <table width="600" style="max-width:600px;background:#fff;padding:12px;border-radius:8px;border:1px solid #e9e9e9;">
+    //     <tr>
+    //       <td style="width:60px;vertical-align:top;padding:0;">
+    //         <img src="cid:$bannerCid" alt="" style="display:block;border:0;width:48px;height:auto;line-height:0;vertical-align:middle;" />
+    //       </td>
+    //       <td style="vertical-align:top;padding-left:12px;padding-top:4px;">
+    //         <h2 style="margin:0;color:#1c63d6;font-size:18px;line-height:1;">컨테이너 운송료 견적서</h2>
+    //         <p style="margin:4px 0 0 0;color:#444;font-size:13px;line-height:1.2;">안녕하세요. 안전 운임 App 메일 서비스입니다.</p>
+    //       </td>
+    //     </tr>
+    //     <!-- 바로 본문 영역 -->
+    //     <tr>
+    //       <td colspan="2" style="padding-top:8px;color:#333;font-size:14px;line-height:1.6;margin:0;">
+    //         $htmlMain
+    //       </td>
+    //     </tr>
+    //     <tr>
+    //       <td colspan="2" style="padding-top:12px;">
+    //         <a href="$storeUrl" style="display:inline-block;background:#1c63d6;color:#fff;padding:10px 14px;border-radius:6px;text-decoration:none;font-size:14px;">앱 살펴보기</a>
+    //       </td>
+    //     </tr>
+    //     <tr>
+    //       <td colspan="2" style="padding-top:12px;border-top:1px solid #f5f5f5;color:#888;font-size:12px;">
+    //         <strong style="color:#333;font-size:13px;display:block;margin:0 0 4px 0;">${senderCompany}</strong>
+    //         ${senderName.isNotEmpty ? '<span style="display:block;margin:0 0 2px 0;">${senderName}</span>' : ''}
+    //         ${senderPhone.isNotEmpty ? '<span style="display:block;margin:0 0 2px 0;">Tel: ${senderPhone}</span>' : ''}
+    //         ${senderEmail.isNotEmpty ? '<span style="display:block;margin:0;">Email: ${senderEmail}</span>' : ''}
+    //       </td>
+    //     </tr>
+    //   </table>
+    // </td></tr></table></body></html>
+    // ''';
   }
 
   String _buildSubject(SharedPreferences prefs, String consignor) {
@@ -639,7 +679,7 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         : '발신자';
     final safeConsignor = _safeForHeader(consignor);
     final date = DateFormat('yyyy.MM.dd').format(DateTime.now());
-    return '운임 견적서 $date — ($safeSender → $safeConsignor)';
+    return '컨테이너 운송료 견적서 $date — ($safeSender → $safeConsignor)';
   }
 
   // ------------------------

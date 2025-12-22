@@ -3,16 +3,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:line_all/common/formatters/phone_number_formatter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
 class SendFareInputDialog extends StatefulWidget {
-  const SendFareInputDialog({super.key});
+  final Map<String, String>? initialInput;
+  const SendFareInputDialog({super.key, this.initialInput});
 
-  static Future<Map<String, String>?> show(BuildContext context) {
+  // show helper accepts optional initialInput
+  static Future<Map<String, String>?> show(
+    BuildContext context, {
+    Map<String, String>? initialInput,
+  }) {
     return showDialog<Map<String, String>>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const SendFareInputDialog(),
+      builder: (_) => SendFareInputDialog(initialInput: initialInput),
     );
   }
 
@@ -25,7 +32,6 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
   final _consignorCtrl = TextEditingController();
   final _recipientCtrl = TextEditingController();
   final _recipientEmailCtrl = TextEditingController();
-  final _companyCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
 
@@ -71,6 +77,13 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
   @override
   void initState() {
     super.initState();
+    // prefill controllers from initialInput if provided
+    final init = widget.initialInput;
+    if (init != null) {
+      if (init['consignor'] != null) {
+        _consignorCtrl.text = init['consignor']!;
+      }
+    }
     _consignorCtrl.addListener(_updateCanSubmit);
     _recipientCtrl.addListener(_updateCanSubmit);
     _recipientEmailCtrl.addListener(_updateCanSubmit);
@@ -154,7 +167,6 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
     _consignorCtrl.dispose();
     _recipientCtrl.dispose();
     _recipientEmailCtrl.dispose();
-    _companyCtrl.dispose();
     _phoneCtrl.dispose();
     _noteCtrl.dispose();
     // dispose focus nodes
@@ -252,22 +264,61 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
     FocusNode? focusNode,
     GlobalKey? fieldKey,
   }) {
+    final isConsignor = identical(c, _consignorCtrl);
+    final consignerReadOnly =
+        isConsignor && (widget.initialInput?.containsKey('consignor') ?? false);
+
+    // base decoration from helper, then override visuals for readOnly
+    final baseDeco = _input(hint, icon: icon);
+    final effectivePrefix = icon == null
+        ? null
+        : Padding(
+            padding: EdgeInsets.only(left: 8.w, right: 6.w),
+            child: Icon(
+              icon,
+              size: 18.sp,
+              color: consignerReadOnly ? Colors.black38 : primaryColor,
+            ),
+          );
+
+    final deco = baseDeco.copyWith(
+      filled: true,
+      fillColor: consignerReadOnly ? Colors.grey.shade100 : baseDeco.fillColor,
+      hintStyle: (baseDeco.hintStyle ?? TextStyle()).copyWith(
+        color: consignerReadOnly ? Colors.black38 : baseDeco.hintStyle?.color,
+      ),
+      prefixIcon: effectivePrefix,
+      prefixIconConstraints: BoxConstraints(minWidth: 36.w, minHeight: 36.h),
+    );
+
     return Container(
       key: fieldKey,
       child: TextFormField(
         enabled: !_sending,
         controller: c,
         focusNode: focusNode,
+        readOnly: consignerReadOnly,
         autofocus: autofocus,
         keyboardType: keyboardType,
-        style: TextStyle(color: textPrimary),
-        decoration: _input(hint, icon: icon).copyWith(
-          suffixIcon: c.text.isEmpty
-              ? null
-              : IconButton(
+        // 전화번호 필드일 때: 숫자만 허용, 최대 11자리, 자동 하이픈 포맷터 적용
+        inputFormatters: keyboardType == TextInputType.phone
+            ? <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(11),
+                PhoneNumberFormatter(),
+              ]
+            : null,
+        style: TextStyle(
+          color: consignerReadOnly ? Colors.black54 : textPrimary,
+        ),
+        decoration: deco.copyWith(
+          // hide clear button when field is read-only (initial fixed value)
+          suffixIcon: (!consignerReadOnly && c.text.isNotEmpty)
+              ? IconButton(
                   icon: Icon(Icons.clear, size: 18.sp, color: Colors.black45),
                   onPressed: () => setState(() => c.clear()),
-                ),
+                )
+              : null,
         ),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: (v) {
@@ -293,7 +344,7 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _recentRecipients.length,
-        padding: EdgeInsets.symmetric( horizontal: 6.w),
+        padding: EdgeInsets.symmetric(horizontal: 6.w),
         separatorBuilder: (_, __) => SizedBox(width: 8.w),
         itemBuilder: (context, idx) {
           final item = _recentRecipients[idx];
@@ -386,7 +437,7 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
       insetPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 28.h),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       child: Container(
-        height: screenH * 0.7,
+        height: screenH * 0.6,
         child: Center(
           child: ConstrainedBox(
             // width는 네가 쓰던대로, height는 실제 constraints 기준으로
@@ -458,9 +509,9 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                           ),
                         ],
                       ),
-        
+
                       SizedBox(height: 14.h),
-        
+
                       // Card-like area for inputs for improved readability
                       Container(
                         width: double.infinity,
@@ -503,7 +554,7 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                             ConstrainedBox(
                               constraints: BoxConstraints(
                                 maxHeight:
-                                    MediaQuery.of(context).size.height * 0.25,
+                                    MediaQuery.of(context).size.height * 0.26,
                               ),
                               child: Align(
                                 alignment: Alignment.topCenter,
@@ -514,9 +565,8 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                                     children: [
                                       _clearable(
                                         _consignorCtrl,
-                                        hint: '화주명',
+                                        hint: '상호,화주명',
                                         icon: Icons.business,
-                                        autofocus: true,
                                         focusNode: _consignorFocus,
                                         fieldKey: _consignorKey,
                                       ),
@@ -533,7 +583,8 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                                         _recipientEmailCtrl,
                                         hint: '수신인 이메일',
                                         icon: Icons.email,
-                                        keyboardType: TextInputType.emailAddress,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
                                         focusNode: _recipientEmailFocus,
                                         fieldKey: _recipientEmailKey,
                                       ),
@@ -542,9 +593,9 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                                 ),
                               ),
                             ),
-        
+
                             SizedBox(height: 12.h),
-        
+
                             // additional info
                             Container(
                               width: double.infinity,
@@ -581,7 +632,7 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          '수신인    정보(선택)',
+                                          '수신인 정보(선택)',
                                           style: TextStyle(color: textPrimary),
                                         ),
                                         Icon(
@@ -599,14 +650,6 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                                     secondChild: Column(
                                       children: [
                                         _clearable(
-                                          _companyCtrl,
-                                          hint: '상호',
-                                          icon: Icons.storefront,
-                                          focusNode: _companyFocus,
-                                          fieldKey: _companyKey,
-                                        ),
-                                        SizedBox(height: 10.h),
-                                        _clearable(
                                           _phoneCtrl,
                                           hint: '연락처',
                                           icon: Icons.phone,
@@ -622,7 +665,9 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                                             controller: _noteCtrl,
                                             maxLines: 1,
                                             focusNode: _noteFocus,
-                                            style: TextStyle(color: textPrimary),
+                                            style: TextStyle(
+                                              color: textPrimary,
+                                            ),
                                             decoration: _input(
                                               '비고',
                                               icon: Icons.note,
@@ -642,9 +687,9 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                           ],
                         ),
                       ),
-        
+
                       SizedBox(height: 12.h),
-        
+
                       // 버튼 영역은 항상 렌더링합니다. 전송 가능 여부는 버튼의 onPressed로 제어합니다.
                       Row(
                         children: [
@@ -687,23 +732,23 @@ class _SendFareInputDialogState extends State<SendFareInputDialog> {
                                           true)
                                         return;
                                       setState(() => _sending = true);
-        
+
                                       final res = <String, String>{
                                         'consignor': _consignorCtrl.text.trim(),
                                         'recipient': _recipientCtrl.text.trim(),
                                         'recipient_email': _recipientEmailCtrl
                                             .text
                                             .trim(),
-                                        'recipient_company': _companyCtrl.text
+                                        'recipient_phone': _phoneCtrl.text
                                             .trim(),
-                                        'recipient_phone': _phoneCtrl.text.trim(),
                                         'note': _noteCtrl.text.trim(),
                                       };
                                       await _saveRecentRecipient(
                                         res['recipient'] ?? '',
                                         res['recipient_email'] ?? '',
                                       );
-                                      if (mounted) Navigator.of(context).pop(res);
+                                      if (mounted)
+                                        Navigator.of(context).pop(res);
                                     }
                                   : null,
                               icon: _sending

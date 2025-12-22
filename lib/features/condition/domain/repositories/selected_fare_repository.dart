@@ -5,7 +5,6 @@ abstract class SelectedFareRepository {
     required String consignor,
     required String recipient,
     required String recipientEmail,
-    required String? recipientCompany,
     required String? recipientPhone,
     required String note,
     required List<SelectedFare> fares,

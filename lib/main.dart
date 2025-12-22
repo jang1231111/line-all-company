@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:pdfrx/pdfrx.dart';
 import 'firebase_options.dart'; // flutterfire configure가 생성한 파일
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_all/common/theme/app_theme.dart';
@@ -22,6 +23,7 @@ Future<void> main() async {
       // .env 파일 로드 (루트에 .env 두고 사용)
       await dotenv.load(fileName: '.env');
 
+      await pdfrxFlutterInitialize();
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
