@@ -1176,81 +1176,89 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.business,
-                          color: Colors.indigo.shade700,
-                          size: 21.sp,
-                        ),
-                        SizedBox(width: 5.w),
-                        Text(
-                          '$consignorText',
-                          style: TextStyle(
-                            fontSize: 17.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.indigo.shade700,
+                // ensure left side uses remaining space and text truncates
+                Expanded(
+                  child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     Row(
+                       children: [
+                         Icon(
+                           Icons.business,
+                           color: Colors.indigo.shade700,
+                           size: 21.sp,
+                         ),
+                         SizedBox(width: 5.w),
+                        // allow truncation so button keeps its space
+                        Flexible(
+                          child: Text(
+                            '$consignorText',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 17.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.indigo.shade700,
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.access_time,
-                                  color: Colors.indigo.shade300,
-                                  size: 15.sp,
-                                ),
-                                SizedBox(width: 5.w),
-                                Text(
-                                  savedAt != null
-                                      ? DateFormat(
-                                          'yyyy.MM.dd HH:mm',
-                                        ).format(savedAt)
-                                      : '알 수 없음',
-                                  style: TextStyle(
-                                    fontSize: 13.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.indigo.shade200,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                // 메일 전송 버튼 (화주명은 entry에 있는 consignor로 고정 전달)
-                SizedBox(
-                  height: 45.h,
-                  child: IgnorePointer(
-                    ignoring: fares.isEmpty,
-                    child: Opacity(
-                      opacity: fares.isEmpty ? 0.5 : 1.0,
-                      child: SendMailButton(
-                        // closure captures `fares` and calls viewmodel method that accepts (input, fares)
-                        sendFn: (input) async => await ref
-                            .read(selectedFareProvider.notifier)
-                            .sendFaresMailForStatics(input, fares),
-                        label: '메일 전송',
-                        popParentOnSuccess: false,
-                        initialInput: {'consignor': consignorText},
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+                       ],
+                     ),
+                     Row(
+                       children: [
+                         Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                             Row(
+                               children: [
+                                 Icon(
+                                   Icons.access_time,
+                                   color: Colors.indigo.shade300,
+                                   size: 15.sp,
+                                 ),
+                                 SizedBox(width: 5.w),
+                                 Text(
+                                   savedAt != null
+                                       ? DateFormat(
+                                           'yyyy.MM.dd HH:mm',
+                                         ).format(savedAt)
+                                       : '알 수 없음',
+                                   style: TextStyle(
+                                     fontSize: 13.sp,
+                                     fontWeight: FontWeight.bold,
+                                     color: Colors.indigo.shade200,
+                                   ),
+                                 ),
+                               ],
+                             ),
+                           ],
+                         ),
+                       ],
+                     ),
+                   ],
+                 ),
+                 ),
+                 // 메일 전송 버튼 (화주명은 entry에 있는 consignor로 고정 전달)
+                 SizedBox(
+                   height: 45.h,
+                   child: IgnorePointer(
+                     ignoring: fares.isEmpty,
+                     child: Opacity(
+                       opacity: fares.isEmpty ? 0.5 : 1.0,
+                       child: SendMailButton(
+                         // closure captures `fares` and calls viewmodel method that accepts (input, fares)
+                         sendFn: (input) async => await ref
+                             .read(selectedFareProvider.notifier)
+                             .sendFaresMailForStatics(input, fares),
+                         label: '메일 전송',
+                         popParentOnSuccess: false,
+                         initialInput: {'consignor': consignorText},
+                       ),
+                     ),
+                   ),
+                 ),
+               ],
+             ),
 
             SizedBox(height: 14.h),
             ...List.generate(
