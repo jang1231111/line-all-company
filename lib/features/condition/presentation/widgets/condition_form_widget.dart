@@ -200,7 +200,7 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                               child: ElevatedButton.icon(
                                 key: widget.roadButtonKey,
                                 icon: Icon(Icons.place, size: 18.sp),
-                                label: Text('도로명 검색', style: TextStyle(fontSize: 14.sp)),
+                                label: Text('도로명, 지번 검색', style: TextStyle(fontSize: 14.sp)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),

@@ -72,7 +72,7 @@ class _RoadNameSearchDialogState extends ConsumerState<RoadNameSearchDialog> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '도로명 검색',
+                              '도로명, 지번 검색',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 18.sp,
