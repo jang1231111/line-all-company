@@ -170,13 +170,14 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       child: Row(
                         children: [
                           Expanded(
+                            flex: 5,
                             child: MediaQuery(
                               // 버튼 내부 텍스트/레이아웃의 시스템 textScaleFactor 영향을 차단
                               data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
                               child: ElevatedButton.icon(
                                 key: widget.regionButtonKey,
                                 icon: Icon(Icons.search, size: 18.sp),
-                                label: Text('지역 검색', style: TextStyle(fontSize: 14.sp)),
+                                label: Text('지역 검색', style: TextStyle(fontSize: 13.sp)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.indigo,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -195,12 +196,13 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                           ),
                           SizedBox(width: 8.w),
                           Expanded(
+                            flex: 6,
                             child: MediaQuery(
                               data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
                               child: ElevatedButton.icon(
                                 key: widget.roadButtonKey,
                                 icon: Icon(Icons.place, size: 18.sp),
-                                label: Text('도로명, 지번 검색', style: TextStyle(fontSize: 14.sp)),
+                                label: Text('도로명, 지번 검색', style: TextStyle(fontSize: 13.sp)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
