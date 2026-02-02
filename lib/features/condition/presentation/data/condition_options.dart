@@ -17,6 +17,10 @@ class DropdownOption {
 const periodOptions = [
   DropdownOption(value: '', label: '기간 (필수 선택)'),
   DropdownOption(
+    value: '2026-01-01~2026-01-31',
+    label: '2026년 02월 (02월 01일 ~ 진행중)',
+  ),
+  DropdownOption(
     value: '2022-07-01~2022-12-31',
     label: '2022년 07월 (07월 01일 ~ 12월 31일)',
   ),
