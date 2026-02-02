@@ -133,4 +133,10 @@ class ConditionViewModel extends StateNotifier<Condition> {
     );
     state = state.copyWith(surchargeResult: surchargeResult);
   }
+
+  Future<void> searchOnSidoChange() async {
+    if (state.period == '2026-01-01~2026-01-31') {
+      await searchByRegion();
+    }
+  }
 }
