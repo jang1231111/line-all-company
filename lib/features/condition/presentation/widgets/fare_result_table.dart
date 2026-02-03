@@ -23,7 +23,8 @@ class FareResultTable extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final resultsAsync = ref.watch(fareResultViewModelProvider);
     final condition = ref.watch(conditionViewModelProvider);
-    final surchargeRate = condition.surchargeResult.rate;
+    final surchargeRate = condition.surchargeResult.rate; // 비율할증액
+    final surchargeFixedAmount = condition.surchargeResult.fixedAmount; // 고정할증액
     final cancellationFeeAmount =
         condition.surchargeResult.cancellationFeeAmount;
     final selectedFares = ref.watch(selectedFareProvider);
@@ -247,17 +248,20 @@ class FareResultTable extends ConsumerWidget {
                       itemBuilder: (context, idx) {
                         final row = results[idx];
                         final ft20WithSurcharge =
-                            ((row.ft20 * (1 + surchargeRate)) *
-                                    cancellationFeeAmount /
-                                    100)
-                                .round() *
-                            100;
+                            (((row.ft20 * (1 + surchargeRate)) *
+                                        cancellationFeeAmount /
+                                        100)
+                                    .round() *
+                                100) +
+                            surchargeFixedAmount;
                         final ft40WithSurcharge =
-                            ((row.ft40 * (1 + surchargeRate)) *
-                                    cancellationFeeAmount /
-                                    100)
-                                .round() *
-                            100;
+                            (((row.ft40 * (1 + surchargeRate)) *
+                                        cancellationFeeAmount /
+                                        100)
+                                    .round() *
+                                100) +
+                            surchargeFixedAmount;
+                        100;
 
                         return Container(
                           margin: EdgeInsets.symmetric(

@@ -126,10 +126,9 @@ class ConditionViewModel extends StateNotifier<Condition> {
   void updateSurcharge() {
     final surchargeResult = calculateSurcharge(
       selectedCheckboxIds: state.surcharges,
-      dangerType: state.dangerType,
       weightType: state.weightType,
-      specialType: state.specialType,
       cancellationFee: state.cancellationFee,
+      is2026Period: state.period == '2026-01-01~2026-01-31',
     );
     state = state.copyWith(surchargeResult: surchargeResult);
   }

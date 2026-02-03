@@ -1,3 +1,30 @@
+// 2026-02 특별 할증 옵션 (라벨+rate)
+const surcharge2026Options = [
+  CheckboxOption(id: 'tank', label: '탱크 30%', rate: 0.3),
+  CheckboxOption(id: 'refrigerated', label: '냉동·냉장 30%', rate: 0.3),
+  CheckboxOption(id: 'rough', label: '험로 및 오지 20%', rate: 0.2),
+  CheckboxOption(id: 'container45ft', label: '45ft : 112.5%', rate: 1.125),
+  CheckboxOption(id: 'dump', label: '덤프 25%', rate: 0.25),
+  CheckboxOption(id: 'restricted', label: '통행제한 30%', rate: 0.3),
+  CheckboxOption(id: 'flexibag', label: '플렉시백 컨테이너', rate: null),
+  CheckboxOption(id: 'liquid', label: '플렉시백 액체 20%', rate: 0.2),
+  CheckboxOption(id: 'powder', label: '플렉시백 분말 10%', rate: 0.1),
+  CheckboxOption(id: 'holiday', label: '일요일 및 공휴일 20%', rate: 0.2),
+  CheckboxOption(id: 'night', label: '심야(22:00~06:00) 20%', rate: 0.2),
+  CheckboxOption(
+    id: 'xray',
+    label: 'X-RAY 통과 비용 : 100,000원',
+    rate: null,
+    isFixed: true,
+  ),
+  CheckboxOption(
+    id: 'incheon',
+    label: '인천터미널 반납 펀드 추가 : 40,000원',
+    rate: null,
+    isFixed: true,
+  ),
+];
+
 class SurchargeDropdownOption {
   final String value;
   final String label;

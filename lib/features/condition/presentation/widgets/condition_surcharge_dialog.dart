@@ -38,13 +38,16 @@ class _ConditionSurchargeDialogState
   Widget build(BuildContext context) {
     final condition = ref.read(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
+    final is2026Period = condition.period == '2026-01-01~2026-01-31';
+    final options = is2026Period
+        ? surcharge2026Options
+        : surchargeCheckboxOptions;
 
     final surchargeResult = calculateSurcharge(
       selectedCheckboxIds: surcharges,
-      dangerType: dangerType,
       weightType: weightType,
-      specialType: specialType,
       cancellationFee: cancellationFee,
+      is2026Period: is2026Period,
     );
 
     return Dialog(
@@ -89,9 +92,7 @@ class _ConditionSurchargeDialogState
                       ),
                       SizedBox(width: 10.w),
                       Text(
-                        surchargeResult != null
-                            ? '${(surchargeResult.rate * 100).toStringAsFixed(2)}%'
-                            : '0.00%',
+                        '${(surchargeResult.rate * 100).toStringAsFixed(2)}%',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16.sp,
@@ -180,7 +181,7 @@ class _ConditionSurchargeDialogState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        ...surchargeCheckboxOptions.map((opt) {
+                        ...options.map((opt) {
                           if (opt.isDivider) return Divider(height: 12.h);
                           final checked = surcharges.contains(opt.id);
                           return Container(
@@ -215,8 +216,9 @@ class _ConditionSurchargeDialogState
                               onChanged: (v) {
                                 setState(() {
                                   if (v == true) {
-                                    if (!surcharges.contains(opt.id))
+                                    if (!surcharges.contains(opt.id)) {
                                       surcharges.add(opt.id);
+                                    }
                                   } else {
                                     surcharges.remove(opt.id);
                                   }
