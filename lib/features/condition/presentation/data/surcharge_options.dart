@@ -3,7 +3,7 @@ const surcharge2026Options = [
   CheckboxOption(id: 'tank', label: '탱크 30%', rate: 0.3),
   CheckboxOption(id: 'refrigerated', label: '냉동·냉장 30%', rate: 0.3),
   CheckboxOption(id: 'rough', label: '험로 및 오지 20%', rate: 0.2),
-  CheckboxOption(id: 'container45ft', label: '45ft : 112.5%', rate: 1.125),
+  CheckboxOption(id: 'container45ft', label: '45ft 컨테이너 12.5%', rate: 0.125),
   CheckboxOption(id: 'dump', label: '덤프 25%', rate: 0.25),
   CheckboxOption(id: 'restricted', label: '통행제한 30%', rate: 0.3),
   CheckboxOption(id: 'liquid', label: '플렉시백 컨테이너(액체) 20%', rate: 0.2),
