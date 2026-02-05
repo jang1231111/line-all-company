@@ -5,27 +5,27 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000175">
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000219">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: fvm flutter clean" time="8.558386">
+      <testcase classname="fastlane.lanes" name="1: fvm flutter clean" time="7.02357">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: fvm flutter pub get" time="3.351192">
+      <testcase classname="fastlane.lanes" name="2: fvm flutter pub get" time="7.111671">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="3: fvm flutter build appbundle --release" time="63.151044">
+      <testcase classname="fastlane.lanes" name="3: fvm flutter build appbundle --release" time="155.451927">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="4: upload_to_play_store" time="53.983227">
+      <testcase classname="fastlane.lanes" name="4: upload_to_play_store" time="53.847948">
         
       </testcase>
     
