@@ -1,5 +1,6 @@
 // 2026-02 특별 할증 옵션 (라벨+rate)
 const surcharge2026Options = [
+  CheckboxOption(id: 'danger-30', label: '위험물,유해화학물질 30%', rate: 0.3),
   CheckboxOption(id: 'tank', label: '탱크 30%', rate: 0.3),
   CheckboxOption(id: 'refrigerated', label: '냉동·냉장 30%', rate: 0.3),
   CheckboxOption(id: 'rough', label: '험로 및 오지 20%', rate: 0.2),
@@ -18,7 +19,7 @@ const surcharge2026Options = [
   ),
   CheckboxOption(
     id: 'incheon',
-    label: '인천터미널 반납 펀드 추가 : 40,000원',
+    label: '인천터미널 반납 편도 추가 : 40,000원',
     rate: null,
     isFixed: true,
   ),

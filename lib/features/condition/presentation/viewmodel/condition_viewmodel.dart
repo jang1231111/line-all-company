@@ -5,18 +5,25 @@ import 'package:line_all/features/condition/domain/models/fare_result.dart';
 import '../../domain/models/condition.dart';
 import '../../domain/models/road_name_address.dart';
 import '../../domain/repositories/condition_repository.dart';
+import '../data/condition_options.dart';
 import '../data/surcharge_calculator.dart';
 import '../providers/fare_result_provider.dart'; // 추가
 
 class ConditionViewModel extends StateNotifier<Condition> {
-  ConditionViewModel(this._repository, this._ref) : super(const Condition());
+  ConditionViewModel(this._repository, this._ref) : super(const Condition()) {
+    // 초기 상태에서 period가 비어있다면 2026-01-01~2026-01-31 안전하게 기본값을 설정합니다.
+    if ((state.period == null || state.period!.isEmpty) &&
+        periodOptions.isNotEmpty) {
+      state = state.copyWith(period: periodOptions.first.value);
+    }
+  }
 
   final ConditionRepository _repository;
   final Ref _ref;
 
-  // 명시적 초기화 메서드 (UI에서 호출)
   void reset() {
-    state = const Condition();
+    // 초기 상태로 리셋 (period는 기본값으로 설정)
+    state = Condition(period: periodOptions.first.value);
   }
 
   void update(Condition condition) {
