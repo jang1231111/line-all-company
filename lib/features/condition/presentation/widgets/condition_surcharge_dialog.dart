@@ -39,9 +39,25 @@ class _ConditionSurchargeDialogState
     final condition = ref.read(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
     final is2026Period = condition.period == '2026-01-01~2026-01-31';
+    final isOneWay = condition.section?.endsWith('-oneway') ?? false;
     final options = is2026Period
         ? surcharge2026Options
         : surchargeCheckboxOptions;
+
+    // 편도일 경우 냉동/냉장 옵션 비활성화 처리된 리스트 생성
+    final processedOptions = options.map((opt) {
+      if (isOneWay && opt.id == 'refrigerated') {
+        return CheckboxOption(
+          id: opt.id,
+          label: opt.label,
+          rate: opt.rate,
+          isFixed: opt.isFixed,
+          isDivider: opt.isDivider,
+          disabled: true,
+        );
+      }
+      return opt;
+    }).toList();
 
     final surchargeResult = calculateSurcharge(
       selectedCheckboxIds: surcharges,
@@ -181,49 +197,62 @@ class _ConditionSurchargeDialogState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        ...options.map((opt) {
-                          if (opt.isDivider) return Divider(height: 12.h);
-                          final checked = surcharges.contains(opt.id);
+                        ...processedOptions.map((opt) {
+                          if (opt.isDivider) return Divider();
+                          final isDisabled = opt.disabled;
+                          final checked =
+                              surcharges.contains(opt.id) && !isDisabled;
                           return Container(
                             margin: EdgeInsets.only(bottom: 10.h),
                             padding: EdgeInsets.symmetric(horizontal: 8.w),
                             decoration: BoxDecoration(
-                              color: checked ? Colors.orange[50] : Colors.white,
-                              borderRadius: BorderRadius.circular(8.r),
+                              color: isDisabled
+                                  ? Colors.grey[100]
+                                  : (checked
+                                        ? Colors.orange[50]
+                                        : Colors.white),
+                              borderRadius: BorderRadius.circular(10.r),
                               border: Border.all(
-                                color: checked
-                                    ? Colors.orange.shade200
-                                    : Colors.orange.shade50,
-                                width: checked ? 1.5 : 1,
+                                color: isDisabled
+                                    ? Colors.grey.shade300
+                                    : (checked
+                                          ? Colors.orange
+                                          : Colors.orange.shade100),
+                                width: checked ? 2 : 1,
                               ),
                             ),
-                            child: CheckboxListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                opt.label,
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: checked
-                                      ? Colors.orange[800]
-                                      : Colors.black87,
-                                  fontWeight: checked
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
+                            child: Opacity(
+                              opacity: isDisabled ? 0.5 : 1.0,
+                              child: CheckboxListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: Text(
+                                  opt.label,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: checked
+                                        ? Colors.orange[800]
+                                        : Colors.black87,
+                                    fontWeight: checked
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
                                 ),
+                                value: checked,
+                                activeColor: Colors.orange,
+                                onChanged: isDisabled
+                                    ? null
+                                    : (v) {
+                                        setState(() {
+                                          if (v == true) {
+                                            if (!surcharges.contains(opt.id)) {
+                                              surcharges.add(opt.id);
+                                            }
+                                          } else {
+                                            surcharges.remove(opt.id);
+                                          }
+                                        });
+                                      },
                               ),
-                              value: checked,
-                              activeColor: Colors.orange,
-                              onChanged: (v) {
-                                setState(() {
-                                  if (v == true) {
-                                    if (!surcharges.contains(opt.id)) {
-                                      surcharges.add(opt.id);
-                                    }
-                                  } else {
-                                    surcharges.remove(opt.id);
-                                  }
-                                });
-                              },
                             ),
                           );
                         }),

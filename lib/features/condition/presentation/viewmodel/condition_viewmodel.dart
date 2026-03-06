@@ -27,7 +27,29 @@ class ConditionViewModel extends StateNotifier<Condition> {
   }
 
   void update(Condition condition) {
-    state = condition;
+    var newState = condition;
+
+    // 구간이 편도로 변경될 경우, 편도에서 허용되지 않는 할증 항목(냉동/냉장) 자동 제거
+    final isOneWay = newState.section?.endsWith('-oneway') ?? false;
+    if (isOneWay) {
+      final filteredSurcharges = newState.surcharges
+          .where((id) => id != 'refrigerated')
+          .toList();
+
+      if (filteredSurcharges.length != newState.surcharges.length) {
+        newState = newState.copyWith(surcharges: filteredSurcharges);
+      }
+    }
+
+    // 상태 업데이트 전 할증 결과 재계산 (구간 변경 등으로 항목이 변했을 수 있으므로)
+    final surchargeResult = calculateSurcharge(
+      selectedCheckboxIds: newState.surcharges,
+      weightType: newState.weightType,
+      cancellationFee: newState.cancellationFee,
+      is2026Period: newState.period == '2026-01-01~2026-01-31',
+    );
+
+    state = newState.copyWith(surchargeResult: surchargeResult);
   }
 
   Future<void> searchByRegion() async {

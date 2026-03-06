@@ -45,6 +45,7 @@ class CheckboxOption {
   final double? rate;
   final bool isFixed;
   final bool isDivider;
+  final bool disabled;
 
   const CheckboxOption({
     required this.id,
@@ -52,13 +53,14 @@ class CheckboxOption {
     this.rate,
     this.isFixed = false,
     this.isDivider = false,
+    this.disabled = false,
   });
 }
 
 // 체크박스 옵션들 (할증률 포함)
 const surchargeCheckboxOptions = [
-  // CheckboxOption(id: 'tank', label: '탱크 30%', rate: 0.3),
-  CheckboxOption(id: 'refrigerated', label: '냉동‧냉장‧탱크 30%', rate: 0.3),
+  CheckboxOption(id: 'tank', label: '탱크 30%', rate: 0.3),
+  CheckboxOption(id: 'refrigerated', label: '냉동‧냉장 30%', rate: 0.3),
   // CheckboxOption(id: 'dump', label: '덤프 25%', rate: 0.25),
   // CheckboxOption(id: 'container45ft', label: '45FT 컨테이너 12.5%', rate: 0.125),
   // CheckboxOption(id: 'divider', label: 'divider', isDivider: true),
