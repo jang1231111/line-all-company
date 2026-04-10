@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:line_all/features/condition/presentation/data/condition_options.dart'; // isPeriod2026, isAprilGuideline
 import 'package:line_all/features/condition/presentation/data/surcharge_calculator.dart';
+import 'package:line_all/features/condition/presentation/data/surcharge_options.dart';
 import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 
 import '../providers/condition_provider.dart';
@@ -38,26 +40,40 @@ class _ConditionSurchargeDialogState
   Widget build(BuildContext context) {
     final condition = ref.read(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
-    final is2026Period = condition.period == '2026-01-01~2026-01-31';
+    final is2026Period = isPeriod2026(condition.period); // 2월/4월 모두 2026 옵션 사용
     final isOneWay = condition.section?.endsWith('-oneway') ?? false;
-    final options = is2026Period
-        ? surcharge2026Options
-        : surchargeCheckboxOptions;
+    final section = condition.section ?? '';
 
-    // 편도일 경우 냉동/냉장 옵션 비활성화 처리된 리스트 생성
-    final processedOptions = options.map((opt) {
-      if (isOneWay && opt.id == 'refrigerated') {
-        return CheckboxOption(
-          id: opt.id,
-          label: opt.label,
-          rate: opt.rate,
-          isFixed: opt.isFixed,
-          isDivider: opt.isDivider,
-          disabled: true,
-        );
-      }
-      return opt;
-    }).toList();
+    // 지역 기점 배지는 4월 운영지침일 때만 표시
+    final bool isIncheonSection = incheonAreaSections.contains(section);
+    final bool isPyeongtaekSection = pyeongtaekAreaSections.contains(section);
+    final bool isAreaBadgeVisible =
+        isAprilGuideline(condition.period) && (isIncheonSection || isPyeongtaekSection);
+    final String? areaBadgeLabel = isAreaBadgeVisible
+        ? (isIncheonSection ? '인천 기점(20%)' : '평택 기점(20%)')
+        : null;
+
+    final options = is2026Period ? surcharge2026Options : surchargeCheckboxOptions;
+
+    // 편도일 경우 냉동/냉장 옵션 비활성화 + 지역 기점 할증은 체크박스에서 제외
+    final processedOptions = options
+        .where(
+          (opt) => opt.id != 'incheon_area' && opt.id != 'pyeongtaek_area',
+        )
+        .map((opt) {
+          if (isOneWay && opt.id == 'refrigerated') {
+            return CheckboxOption(
+              id: opt.id,
+              label: opt.label,
+              rate: opt.rate,
+              isFixed: opt.isFixed,
+              isDivider: opt.isDivider,
+              disabled: true,
+            );
+          }
+          return opt;
+        })
+        .toList();
 
     final surchargeResult = calculateSurcharge(
       selectedCheckboxIds: surcharges,
@@ -122,6 +138,47 @@ class _ConditionSurchargeDialogState
 
               SizedBox(height: 8.h),
 
+              // 지역 기점 할증 배지 (4월 운영지침 + 인천/평택 구간일 때만)
+              if (areaBadgeLabel != null) ...[
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  margin: EdgeInsets.only(bottom: 6.h),
+                  decoration: BoxDecoration(
+                    color: Colors.indigo.shade50,
+                    borderRadius: BorderRadius.circular(10.r),
+                    border: Border.all(color: Colors.indigo.shade200),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.lock_outline,
+                        size: 15.sp,
+                        color: Colors.indigo.shade600,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        areaBadgeLabel,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.indigo.shade700,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        '자동 적용',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.indigo.shade400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               // 초기화 버튼 (작게)
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -145,7 +202,13 @@ class _ConditionSurchargeDialogState
                         borderRadius: BorderRadius.circular(10.r),
                         onTap: () {
                           setState(() {
-                            surcharges = [];
+                            // 지역 기점 할증(incheon_area/pyeongtaek_area)은
+                            // 구간 선택 시 자동 적용되므로 초기화 시에도 유지
+                            final areaIds = ['incheon_area', 'pyeongtaek_area'];
+                            surcharges =
+                                surcharges
+                                    .where((id) => areaIds.contains(id))
+                                    .toList();
                             dangerType = '';
                             weightType = '';
                             specialType = '';

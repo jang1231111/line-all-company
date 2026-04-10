@@ -23,6 +23,9 @@ const surcharge2026Options = [
     rate: null,
     isFixed: true,
   ),
+  // 지역 기점 할증 - 자동 적용 (UI 체크박스에 미표시)
+  CheckboxOption(id: 'incheon_area', label: '인천 기점 20%', rate: 0.2),
+  CheckboxOption(id: 'pyeongtaek_area', label: '평택 기점 20%', rate: 0.2),
 ];
 
 class SurchargeDropdownOption {
@@ -130,3 +133,32 @@ const cancellationFeeOptions = [
     rate: 2.0,
   ),
 ];
+
+// ============================================================
+// 지역 기점 할증 관련 상수 (인천/평택 구간 자동 적용)
+// ============================================================
+
+/// 인천 관련 구간 - 끝 'incheon_area' 할증이 자동 적용ۋ는 구간 목록
+const incheonAreaSections = [
+  'incheon',
+  'incheon-new',
+  'incheon-intl',
+  'distance-incheon',
+];
+
+/// 평택 관련 구간 - 'pyeongtaek_area' 할증이 자동 적용되는 구간 목록
+const pyeongtaekAreaSections = ['pyeongtaek', 'distance-pyeongtaek'];
+
+/// regional-surcharge 요금을 routes 값에서 차감하는 구간 (routes에 20%가 내포)
+const areaSubtractSections = ['incheon', 'incheon-new', 'incheon-intl', 'pyeongtaek'];
+
+/// regional-surcharge 요금을 distance base에 더하는 구간 (distance는 20% 미포함)
+const areaAddSections = ['distance-incheon', 'distance-pyeongtaek'];
+
+/// 구간 코드를 regional-surcharge 지역으로 변환
+/// 반환: 'incheon' | 'pyeongtaek' | ''
+String regionForSection(String section) {
+  if (incheonAreaSections.contains(section)) return 'incheon';
+  if (pyeongtaekAreaSections.contains(section)) return 'pyeongtaek';
+  return '';
+}

@@ -1,6 +1,25 @@
 // 운임 조건 관련 드롭다운 옵션 정의
 
-/// 드롭다운 옵션 클래스
+// ─────────────────────────────────────────
+// 2026년도 기간 상수 및 헬퍼
+// ─────────────────────────────────────────
+
+/// 2026년 2월 운영지침 기간 값 (기존 로직 - 지역 할증 미적용)
+const kPeriod2026Feb = '2026-01-01~2026-01-31';
+
+/// 2026년 4월 운영지침 기간 값 (신규 로직 - 지역 할증 적용)
+/// API 호출 시에는 kPeriod2026Feb 와 동일한 값으로 정규화됩니다.
+const kPeriod2026Apr = '2026-01-01~2026-01-31-apr';
+
+/// 두 옵션 중 하나라도 2026 기간이면 true
+/// (할증 옵션 목록을 2026용으로 표시할 때 사용)
+bool isPeriod2026(String? period) =>
+    period == kPeriod2026Feb || period == kPeriod2026Apr;
+
+/// 4월 운영지침인지 여부 (지역 기점 할증 계산 로직 활성화 여부)    
+bool isAprilGuideline(String? period) => period == kPeriod2026Apr;
+
+/// [드롭다운 옵션 클래스]
 class DropdownOption {
   final String value;
   final String label;
@@ -15,10 +34,14 @@ class DropdownOption {
 
 // 드롭다운 옵션들
 const periodOptions = [
-  // DropdownOption(value: '', label: '기간 (필수 선택)'),
+  // ─── 2026년 02월 공시 (두 가지 운영지침) ───
   DropdownOption(
-    value: '2026-01-01~2026-01-31',
-    label: '2026년 02월 (02월 01일 ~ 진행중)',
+    value: kPeriod2026Apr, // 4월 운영지침: 첫 번째 = 앱 실행 시 기본 선택
+    label: '2026년 02월 (02월 01일 ~ 진행중) 4월 운영지침 적용',
+  ),
+  DropdownOption(
+    value: kPeriod2026Feb, // 2월 운영지침: 기존 계산 방식
+    label: '2026년 02월 (02월 01일 ~ 진행중) 2월 운영지침',
   ),
   DropdownOption(
     value: '2022-07-01~2022-12-31',

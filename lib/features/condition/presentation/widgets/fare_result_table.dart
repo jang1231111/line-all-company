@@ -2,12 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart'; // Lottie 패키지 import
+import 'package:line_all/features/condition/domain/models/regional_surcharge.dart';
 import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
 import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 import 'package:line_all/features/condition/presentation/widgets/condition_surcharge_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/fare_result_row.dart';
+import '../data/surcharge_options.dart';
+import '../data/condition_options.dart'; // isPeriod2026, isAprilGuideline
 import '../providers/fare_result_provider.dart';
 import '../providers/condition_provider.dart';
+import '../providers/regional_surcharge_provider.dart';
+
+/// routes의 distance(km) 값으로 regional-surcharge 목록에서 정확히 일치하는 항목을 찾습니다.
+/// distance_range는 범위가 아닌 정확한 거리(km) 정수값이므로 단순 일치 비교합니다.
+/// (예: distance=37 → distanceRange=37인 항목 반환)
+RegionalSurcharge? _findMatchingSurcharge(
+  int distance,
+  List<RegionalSurcharge> surcharges,
+) {
+  try {
+    return surcharges.firstWhere((s) => s.distanceRange == distance);
+  } catch (_) {
+    // 일치하는 거리 구간이 없을 경우 null 반환
+    return null;
+  }
+}
 
 class FareResultTable extends ConsumerWidget {
   final GlobalKey? surchargeTargetKey;
@@ -25,10 +44,35 @@ class FareResultTable extends ConsumerWidget {
     final condition = ref.watch(conditionViewModelProvider);
     final surchargeRate = condition.surchargeResult.rate; // 비율할증액
     final surchargeFixedAmount = condition.surchargeResult.fixedAmount; // 고정할증액
-    final cancellationFeeAmount =
-        condition.surchargeResult.cancellationFeeAmount;
+    final cancellationFeeAmount = condition.surchargeResult.cancellationFeeAmount;
     final selectedFares = ref.watch(selectedFareProvider);
     final selectedFareNotifier = ref.read(selectedFareProvider.notifier);
+
+    // 4월 운영지침 + 인천/평택 구간 여부
+    // → 2월 운영지침에서는 지역 할증 동작 안 함
+    final isAprilGuidelinePeriod = isAprilGuideline(condition.period);
+    final section = condition.section ?? '';
+    final type = condition.type ?? '';
+    final isIncheonSection = incheonAreaSections.contains(section);
+    final isPyeongtaekSection = pyeongtaekAreaSections.contains(section);
+    final isAreaSection = isIncheonSection || isPyeongtaekSection;
+    final isAreaSubtract = areaSubtractSections.contains(section);
+    final isAreaAdd = areaAddSections.contains(section);
+
+    // 지역 기점 배지 (4월 운영지침 + 인천/평택 구간일 때만 표시)
+    final String? areaBadgeLabel = (isAprilGuidelinePeriod && isAreaSection)
+        ? (isIncheonSection ? '인천 기점(20%)' : '평택 기점(20%)')
+        : null;
+
+    // regional-surcharge 데이터 (1회 fetch 후 캐시)
+    final regionalSurchargeAsync = ref.watch(regionalSurchargeProvider);
+    final regionalSurchargeMap = regionalSurchargeAsync.value ?? {};
+    final regionKey = isIncheonSection
+        ? 'incheon'
+        : (isPyeongtaekSection ? 'pyeongtaek' : '');
+    final regionalSurchargeList = regionKey.isNotEmpty
+        ? (regionalSurchargeMap[regionKey] ?? <RegionalSurcharge>[])
+        : <RegionalSurcharge>[];
 
     return Center(
       child: Container(
@@ -96,6 +140,7 @@ class FareResultTable extends ConsumerWidget {
                             ),
                           ],
                         ),
+                        // 할증 버튼 + 지역 배지
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -156,6 +201,42 @@ class FareResultTable extends ConsumerWidget {
                                 ),
                               ),
                             ),
+                            // 지역 기점 배지 (인천/평택 구간 + 2026 기간)
+                            if (areaBadgeLabel != null) ...[
+                              SizedBox(width: 6.w),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 7.w,
+                                  vertical: 4.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.indigo.shade50,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  border: Border.all(
+                                    color: Colors.indigo.shade200,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.add,
+                                      size: 12.sp,
+                                      color: Colors.indigo.shade700,
+                                    ),
+                                    SizedBox(width: 2.w),
+                                    Text(
+                                      areaBadgeLabel,
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: Colors.indigo.shade700,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ],
@@ -190,7 +271,9 @@ class FareResultTable extends ConsumerWidget {
                             onChanged: (value) {
                               ref
                                   .read(conditionViewModelProvider.notifier)
-                                  .update(condition.copyWith(isCombine: value));
+                                  .update(
+                                    condition.copyWith(isCombine: value),
+                                  );
                             },
                           ),
                         ),
@@ -286,15 +369,56 @@ class FareResultTable extends ConsumerWidget {
                         final combineMultiplier =
                             condition.isCombine ? 1.8 : 1.0;
 
+                        // ─────────────────────────────────────────────
+                        // 2026 기간 + 인천/평택 구간별 기본 운임 계산 분기
+                        // ─────────────────────────────────────────────
+                        int base20 = row.ft20;
+                        int base40 = row.ft40;
+
+                        if (isAprilGuidelinePeriod && isAreaSection) {
+                          if (type == 'safe') {
+                            // [안전위탁운임]: routes / 1.2 → 10의 자리 반올림
+                            // (routes 값에 20%가 내포되어 있으므로 역산)
+                            base20 = ((row.ft20 / 1.2) / 10).round() * 10;
+                            base40 = ((row.ft40 / 1.2) / 10).round() * 10;
+                          } else if (type == 'transport' ||
+                              type == 'driver') {
+                            // [안전운송/운수사업자]: regional-surcharge 매칭
+                            final matched = _findMatchingSurcharge(
+                              row.distance,
+                              regionalSurchargeList,
+                            );
+                            if (matched != null) {
+                              if (isAreaAdd) {
+                                // distance 구간: base + regional_surcharge 추가
+                                base20 =
+                                    row.ft20 + matched.surchargePrice20ft;
+                                base40 =
+                                    row.ft40 + matched.surchargePrice40ft;
+                              } else if (isAreaSubtract) {
+                                // 일반 구간: routes - regional_surcharge 차감
+                                base20 =
+                                    row.ft20 - matched.surchargePrice20ft;
+                                base40 =
+                                    row.ft40 - matched.surchargePrice40ft;
+                              }
+                            }
+                          }
+                        }
+
                         final ft20WithSurcharge =
-                            (((row.ft20 * (1 + surchargeRate) * combineMultiplier) *
+                            (((base20 *
+                                            (1 + surchargeRate) *
+                                            combineMultiplier) *
                                         cancellationFeeAmount /
                                         100)
                                     .round() *
                                 100) +
                             surchargeFixedAmount;
                         final ft40WithSurcharge =
-                            (((row.ft40 * (1 + surchargeRate) * combineMultiplier) *
+                            (((base40 *
+                                            (1 + surchargeRate) *
+                                            combineMultiplier) *
                                         cancellationFeeAmount /
                                         100)
                                     .round() *

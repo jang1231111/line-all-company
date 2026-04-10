@@ -7,7 +7,8 @@ import '../../domain/models/road_name_address.dart';
 import '../../domain/repositories/condition_repository.dart';
 import '../data/condition_options.dart';
 import '../data/surcharge_calculator.dart';
-import '../providers/fare_result_provider.dart'; // 추가
+import '../data/surcharge_options.dart'; // 지역 기점 할증 구간 상수
+import '../providers/fare_result_provider.dart';
 
 class ConditionViewModel extends StateNotifier<Condition> {
   ConditionViewModel(this._repository, this._ref) : super(const Condition()) {
@@ -41,12 +42,37 @@ class ConditionViewModel extends StateNotifier<Condition> {
       }
     }
 
-    // 상태 업데이트 전 할증 결과 재계산 (구간 변경 등으로 항목이 변했을 수 있으므로)
+    // [4월 운영지침일 때만] 인천/평택 구간에 따라 지역 기점 할증 자동 관리
+    // 2월 운영지침에서는 지역 할증 적용 안 함 → area 할증 id 전체 제거
+    final section = newState.section ?? '';
+    var updatedSurcharges = List<String>.from(newState.surcharges);
+    updatedSurcharges.removeWhere(
+      (id) => id == 'incheon_area' || id == 'pyeongtaek_area',
+    );
+    if (isAprilGuideline(newState.period)) {
+      // 4월 우영지침: 구간에 맞는 지역 기점 할증 자동 선택
+      if (incheonAreaSections.contains(section)) {
+        updatedSurcharges.add('incheon_area');
+      } else if (pyeongtaekAreaSections.contains(section)) {
+        updatedSurcharges.add('pyeongtaek_area');
+      }
+    }
+    // 상태가 실제로 변경된 경우만 copyWith 호출
+    final areaChanged =
+        updatedSurcharges.length != newState.surcharges.length ||
+        !updatedSurcharges.toSet().containsAll(newState.surcharges) ||
+        !newState.surcharges.toSet().containsAll(updatedSurcharges);
+    if (areaChanged) {
+      newState = newState.copyWith(surcharges: updatedSurcharges);
+    }
+
+    // 상태 업데이트 전 할증 결과 재계산
+    // isPeriod2026: 2월/4월 운영지침 모두 2026 할증 옵션 사용
     final surchargeResult = calculateSurcharge(
       selectedCheckboxIds: newState.surcharges,
       weightType: newState.weightType,
       cancellationFee: newState.cancellationFee,
-      is2026Period: newState.period == '2026-01-01~2026-01-31',
+      is2026Period: isPeriod2026(newState.period),
     );
 
     state = newState.copyWith(surchargeResult: surchargeResult);
@@ -54,10 +80,14 @@ class ConditionViewModel extends StateNotifier<Condition> {
 
   Future<void> searchByRegion() async {
     _ref.read(fareResultViewModelProvider.notifier).setLoading();
+
+    // distance-incheon / distance-pyeongtaek 선택 시 API는 section=distance로 호출
+    final routeApiSection = _toRouteApiSection(state.section);
+
     final results = await _repository.searchByRegion(
       period: state.period!,
       type: state.type!,
-      section: state.section!,
+      section: routeApiSection,
       sido: state.sido,
       sigungu: state.sigungu,
       eupmyeondong: state.eupmyeondong,
@@ -94,9 +124,12 @@ class ConditionViewModel extends StateNotifier<Condition> {
 
     _ref.read(fareResultViewModelProvider.notifier).setLoading();
 
+    // distance-incheon / distance-pyeongtaek 선택 시 API는 section=distance로 호출
+    final routeApiSection = _toRouteApiSection(state.section);
+
     // hemdNm non-null
     if (address.hemdNm != null) {
-      // 읍면동 값 추출
+      // 음면동 값 추출
       final hemdNm = address.hemdNm;
       if (hemdNm!.isNotEmpty) {
         final parts = hemdNm.split(' ');
@@ -107,7 +140,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
       results = await _repository.searchByRoadName(
         period: state.period!,
         type: state.type!,
-        section: state.section!,
+        section: routeApiSection,
         sido: sido,
         sigungu: sigungu,
         eupmyeondong: eupmyeondong,
@@ -118,7 +151,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
         results = await _repository.searchByRoadName(
           period: state.period!,
           type: state.type!,
-          section: state.section!,
+          section: routeApiSection,
           sido: sido,
           sigungu: sigungu,
           destinationSearch:
@@ -131,7 +164,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
       results = await _repository.searchByRoadName(
         period: state.period!,
         type: state.type!,
-        section: state.section!,
+        section: routeApiSection,
         sido: sido,
         sigungu: sigungu,
         dong: address.emdNm,
@@ -151,20 +184,32 @@ class ConditionViewModel extends StateNotifier<Condition> {
     _ref.read(fareResultViewModelProvider.notifier).setResults(results);
   }
 
-  /// 할증 관련 값이 바뀔 때 호출
+  /// 할증 관련 값이 바뀌일 때 호출
   void updateSurcharge() {
     final surchargeResult = calculateSurcharge(
       selectedCheckboxIds: state.surcharges,
       weightType: state.weightType,
       cancellationFee: state.cancellationFee,
-      is2026Period: state.period == '2026-01-01~2026-01-31',
+      is2026Period: isPeriod2026(state.period), // 2월/4월 모두 해당
     );
     state = state.copyWith(surchargeResult: surchargeResult);
   }
 
   Future<void> searchOnSidoChange() async {
-    if (state.period == '2026-01-01~2026-01-31') {
+    // 2026년도 두 운영지침 모두 유효
+    if (isPeriod2026(state.period)) {
       await searchByRegion();
     }
+  }
+
+  /// distance-incheon / distance-pyeongtaek 선택 시
+  /// /api/routes 호출에 실제로 사용하는 section 값으로 변환합니다.
+  /// (UI 구간명 → API 파라미터 변환)
+  String _toRouteApiSection(String? section) {
+    if (section == 'distance-incheon' || section == 'distance-pyeongtaek') {
+      // 두 구간 모두 API에는 단순 'distance' section으로 조회
+      return 'distance';
+    }
+    return section ?? '';
   }
 }
