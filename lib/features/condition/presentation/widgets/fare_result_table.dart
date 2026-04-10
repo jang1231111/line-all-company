@@ -44,7 +44,8 @@ class FareResultTable extends ConsumerWidget {
     final condition = ref.watch(conditionViewModelProvider);
     final surchargeRate = condition.surchargeResult.rate; // 비율할증액
     final surchargeFixedAmount = condition.surchargeResult.fixedAmount; // 고정할증액
-    final cancellationFeeAmount = condition.surchargeResult.cancellationFeeAmount;
+    final cancellationFeeAmount =
+        condition.surchargeResult.cancellationFeeAmount;
     final selectedFares = ref.watch(selectedFareProvider);
     final selectedFareNotifier = ref.read(selectedFareProvider.notifier);
 
@@ -117,11 +118,13 @@ class FareResultTable extends ConsumerWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4.w),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center, // 전체 중앙 정렬로 변경
                   children: [
+                    // 1. 타이틀 + COMBINE 행
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // 타이틀 파트
                         Row(
                           children: [
                             Icon(
@@ -140,154 +143,144 @@ class FareResultTable extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        // 할증 버튼 + 지역 배지
+                        // COMBINE 파트
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Material(
-                              key: surchargeTargetKey, // <-- key 전달
-                              color: const Color(0xFFFFF3C2),
-                              borderRadius: BorderRadius.circular(8.r),
-                              child: InkWell(
-                                splashColor: Colors.orange.withOpacity(0.1),
-                                highlightColor: Colors.orange.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(10.r),
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) =>
-                                        const ConditionSurchargeDialog(),
-                                  );
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    border: Border.all(
-                                      color: Colors.orange.shade100,
-                                    ),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 4.h,
-                                    horizontal: 4.w,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.warning_amber_rounded,
-                                        color: Colors.orange[700],
-                                        size: 24.sp,
-                                      ),
-                                      SizedBox(width: 8.w),
-                                      Text(
-                                        '할증 적용',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 15.sp,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                      SizedBox(width: 6.w),
-                                      Text(
-                                        '${(surchargeRate * 100).toStringAsFixed(0)}%',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 15.sp,
-                                          color: Color(0xFFD18A00),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                            Text(
+                              'COMBINE (180%)',
+                              style: TextStyle(
+                                fontSize: 13.sp, // 더 좁은 공간을 위해 약간 축소
+                                fontWeight: FontWeight.bold,
+                                color: Colors.indigo.shade700,
                               ),
                             ),
-                            // 지역 기점 배지 (인천/평택 구간 + 2026 기간)
-                            if (areaBadgeLabel != null) ...[
-                              SizedBox(width: 6.w),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 7.w,
-                                  vertical: 4.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.indigo.shade50,
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  border: Border.all(
-                                    color: Colors.indigo.shade200,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.add,
-                                      size: 12.sp,
-                                      color: Colors.indigo.shade700,
-                                    ),
-                                    SizedBox(width: 2.w),
-                                    Text(
-                                      areaBadgeLabel,
-                                      style: TextStyle(
-                                        fontSize: 12.sp,
-                                        color: Colors.indigo.shade700,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                            SizedBox(width: 4.w),
+                            Tooltip(
+                              message: '동일화주 운송 시 컨테이너 가격의 180%가 적용됩니다.',
+                              triggerMode: TooltipTriggerMode.tap,
+                              child: Icon(
+                                Icons.info_outline,
+                                size: 14.sp,
+                                color: Colors.indigo.shade300,
                               ),
-                            ],
+                            ),
+                            SizedBox(width: 2.w),
+                            Transform.scale(
+                              scale: 0.7, // 공간 확보를 위해 스케일 축소
+                              child: Switch(
+                                value: condition.isCombine,
+                                activeColor: Colors.indigo,
+                                onChanged: (value) {
+                                  ref
+                                      .read(conditionViewModelProvider.notifier)
+                                      .update(condition.copyWith(isCombine: value));
+                                },
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 10.h),
-                    // COMBINE 토글 추가
+                    SizedBox(height: 12.h),
+
+                    // 2. 할증 적용 버튼 + 지역 배지 행
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          'COMBINE 운송 (180%)',
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.indigo.shade700,
-                          ),
-                        ),
-                        SizedBox(width: 6.w),
-                        Tooltip(
-                          message: '동일화주 운송 시 컨테이너 가격의 180%가 적용됩니다.',
-                          child: Icon(
-                            Icons.info_outline,
-                            size: 18.sp,
-                            color: Colors.indigo.shade300,
-                          ),
-                        ),
-                        Transform.scale(
-                          scale: 0.8,
-                          child: Switch(
-                            value: condition.isCombine,
-                            activeColor: Colors.indigo,
-                            onChanged: (value) {
-                              ref
-                                  .read(conditionViewModelProvider.notifier)
-                                  .update(
-                                    condition.copyWith(isCombine: value),
-                                  );
+                        Material(
+                          key: surchargeTargetKey,
+                          color: const Color(0xFFFFF3C2),
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: InkWell(
+                            splashColor: Colors.orange.withOpacity(0.1),
+                            highlightColor: Colors.orange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10.r),
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    const ConditionSurchargeDialog(),
+                              );
                             },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.r),
+                                border: Border.all(
+                                  color: Colors.orange.shade100,
+                                ),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                vertical: 4.h,
+                                horizontal: 10.w,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
+                                    color: Colors.orange[700],
+                                    size: 20.sp,
+                                  ),
+                                  SizedBox(width: 6.w),
+                                  Text(
+                                    '할증 적용',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15.sp,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  SizedBox(width: 6.w),
+                                  Text(
+                                    '${(surchargeRate * 100).toStringAsFixed(0)}%',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15.sp,
+                                      color: Color(0xFFD18A00),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
+                        // 지역 기점 배지
+                        if (areaBadgeLabel != null) ...[
+                          SizedBox(width: 8.w),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 5.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.indigo.shade50,
+                              borderRadius: BorderRadius.circular(8.r),
+                              border: Border.all(color: Colors.indigo.shade200),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  size: 14.sp,
+                                  color: Colors.indigo.shade700,
+                                ),
+                                SizedBox(width: 4.w),
+                                Text(
+                                  areaBadgeLabel,
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    color: Colors.indigo.shade700,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
-                    SizedBox(height: 5.h),
-                    Text(
-                      '컨테이너 사이즈별 가격을 클릭하여 선택하세요.',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: Colors.black54,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    // 이전 3. COMBINE 토글 행 섹션 로직을 위 1번 타이틀 행 우측으로 통합했으므로 제거
                   ],
                 ),
               ),
@@ -366,8 +359,9 @@ class FareResultTable extends ConsumerWidget {
                       itemCount: results.length,
                       itemBuilder: (context, idx) {
                         final row = results[idx];
-                        final combineMultiplier =
-                            condition.isCombine ? 1.8 : 1.0;
+                        final combineMultiplier = condition.isCombine
+                            ? 1.8
+                            : 1.0;
 
                         // ─────────────────────────────────────────────
                         // 2026 기간 + 인천/평택 구간별 기본 운임 계산 분기
@@ -381,8 +375,7 @@ class FareResultTable extends ConsumerWidget {
                             // (routes 값에 20%가 내포되어 있으므로 역산)
                             base20 = ((row.ft20 / 1.2) / 10).round() * 10;
                             base40 = ((row.ft40 / 1.2) / 10).round() * 10;
-                          } else if (type == 'transport' ||
-                              type == 'driver') {
+                          } else if (type == 'transport' || type == 'driver') {
                             // [안전운송/운수사업자]: regional-surcharge 매칭
                             final matched = _findMatchingSurcharge(
                               row.distance,
@@ -391,16 +384,12 @@ class FareResultTable extends ConsumerWidget {
                             if (matched != null) {
                               if (isAreaAdd) {
                                 // distance 구간: base + regional_surcharge 추가
-                                base20 =
-                                    row.ft20 + matched.surchargePrice20ft;
-                                base40 =
-                                    row.ft40 + matched.surchargePrice40ft;
+                                base20 = row.ft20 + matched.surchargePrice20ft;
+                                base40 = row.ft40 + matched.surchargePrice40ft;
                               } else if (isAreaSubtract) {
                                 // 일반 구간: routes - regional_surcharge 차감
-                                base20 =
-                                    row.ft20 - matched.surchargePrice20ft;
-                                base40 =
-                                    row.ft40 - matched.surchargePrice40ft;
+                                base20 = row.ft20 - matched.surchargePrice20ft;
+                                base40 = row.ft40 - matched.surchargePrice40ft;
                               }
                             }
                           }
