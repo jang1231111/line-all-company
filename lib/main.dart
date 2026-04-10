@@ -55,6 +55,14 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: '안전운임제 계산기',
           theme: appTheme(),
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.noScaling,
+              ),
+              child: child!,
+            );
+          },
           home: const SplashScreen(),
           routes: {'/statistics': (context) => const StatisticsPage()},
         );

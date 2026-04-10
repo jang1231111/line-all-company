@@ -20,5 +20,6 @@ abstract class Condition with _$Condition {
     String? specialType, // 활대품 드롭다운 value
     String? cancellationFee, // 취소료 드롭다운 value
     @Default(SurchargeResult()) SurchargeResult surchargeResult, // 기본값 적용
+    @Default(false) bool isCombine, // COMBINE 운송 여부
   }) = _Condition;
 }

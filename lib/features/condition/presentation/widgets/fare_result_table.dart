@@ -160,6 +160,42 @@ class FareResultTable extends ConsumerWidget {
                         ),
                       ],
                     ),
+                    SizedBox(height: 10.h),
+                    // COMBINE 토글 추가
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'COMBINE 운송 (180%)',
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.indigo.shade700,
+                          ),
+                        ),
+                        SizedBox(width: 6.w),
+                        Tooltip(
+                          message: '동일화주 운송 시 컨테이너 가격의 180%가 적용됩니다.',
+                          child: Icon(
+                            Icons.info_outline,
+                            size: 18.sp,
+                            color: Colors.indigo.shade300,
+                          ),
+                        ),
+                        Transform.scale(
+                          scale: 0.8,
+                          child: Switch(
+                            value: condition.isCombine,
+                            activeColor: Colors.indigo,
+                            onChanged: (value) {
+                              ref
+                                  .read(conditionViewModelProvider.notifier)
+                                  .update(condition.copyWith(isCombine: value));
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                     SizedBox(height: 5.h),
                     Text(
                       '컨테이너 사이즈별 가격을 클릭하여 선택하세요.',
@@ -247,21 +283,23 @@ class FareResultTable extends ConsumerWidget {
                       itemCount: results.length,
                       itemBuilder: (context, idx) {
                         final row = results[idx];
+                        final combineMultiplier =
+                            condition.isCombine ? 1.8 : 1.0;
+
                         final ft20WithSurcharge =
-                            (((row.ft20 * (1 + surchargeRate)) *
+                            (((row.ft20 * (1 + surchargeRate) * combineMultiplier) *
                                         cancellationFeeAmount /
                                         100)
                                     .round() *
                                 100) +
                             surchargeFixedAmount;
                         final ft40WithSurcharge =
-                            (((row.ft40 * (1 + surchargeRate)) *
+                            (((row.ft40 * (1 + surchargeRate) * combineMultiplier) *
                                         cancellationFeeAmount /
                                         100)
                                     .round() *
                                 100) +
                             surchargeFixedAmount;
-                        100;
 
                         return Container(
                           margin: EdgeInsets.symmetric(
@@ -301,25 +339,33 @@ class FareResultTable extends ConsumerWidget {
                               ft20WithSurcharge: ft20WithSurcharge,
                               ft40WithSurcharge: ft40WithSurcharge,
                               on20Tap: () {
+                                final labels = List<String>.from(
+                                  condition.surchargeResult.labels,
+                                );
+                                if (condition.isCombine) {
+                                  labels.add('COMBINE 운송');
+                                }
                                 selectedFareNotifier.toggle(
                                   row: row,
                                   type: FareType.ft20,
                                   rate: condition.surchargeResult.rate,
                                   price: ft20WithSurcharge,
-                                  surchargeLabels: List<String>.from(
-                                    condition.surchargeResult.labels,
-                                  ),
+                                  surchargeLabels: labels,
                                 );
                               },
                               on40Tap: () {
+                                final labels = List<String>.from(
+                                  condition.surchargeResult.labels,
+                                );
+                                if (condition.isCombine) {
+                                  labels.add('COMBINE 운송');
+                                }
                                 selectedFareNotifier.toggle(
                                   row: row,
                                   type: FareType.ft40,
                                   rate: condition.surchargeResult.rate,
                                   price: ft40WithSurcharge,
-                                  surchargeLabels: List<String>.from(
-                                    condition.surchargeResult.labels,
-                                  ),
+                                  surchargeLabels: labels,
                                 );
                               },
                             ),

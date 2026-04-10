@@ -19,7 +19,8 @@ mixin _$Condition {
  String? get weightType;// 중량물 드롭다운 value
  String? get specialType;// 활대품 드롭다운 value
  String? get cancellationFee;// 취소료 드롭다운 value
- SurchargeResult get surchargeResult;
+ SurchargeResult get surchargeResult;// 기본값 적용
+ bool get isCombine;
 /// Create a copy of Condition
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +31,16 @@ $ConditionCopyWith<Condition> get copyWith => _$ConditionCopyWithImpl<Condition>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Condition&&(identical(other.period, period) || other.period == period)&&(identical(other.type, type) || other.type == type)&&(identical(other.section, section) || other.section == section)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.sido, sido) || other.sido == sido)&&(identical(other.sigungu, sigungu) || other.sigungu == sigungu)&&(identical(other.eupmyeondong, eupmyeondong) || other.eupmyeondong == eupmyeondong)&&(identical(other.beopjeongdong, beopjeongdong) || other.beopjeongdong == beopjeongdong)&&(identical(other.mode, mode) || other.mode == mode)&&const DeepCollectionEquality().equals(other.surcharges, surcharges)&&(identical(other.dangerType, dangerType) || other.dangerType == dangerType)&&(identical(other.weightType, weightType) || other.weightType == weightType)&&(identical(other.specialType, specialType) || other.specialType == specialType)&&(identical(other.cancellationFee, cancellationFee) || other.cancellationFee == cancellationFee)&&(identical(other.surchargeResult, surchargeResult) || other.surchargeResult == surchargeResult));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Condition&&(identical(other.period, period) || other.period == period)&&(identical(other.type, type) || other.type == type)&&(identical(other.section, section) || other.section == section)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.sido, sido) || other.sido == sido)&&(identical(other.sigungu, sigungu) || other.sigungu == sigungu)&&(identical(other.eupmyeondong, eupmyeondong) || other.eupmyeondong == eupmyeondong)&&(identical(other.beopjeongdong, beopjeongdong) || other.beopjeongdong == beopjeongdong)&&(identical(other.mode, mode) || other.mode == mode)&&const DeepCollectionEquality().equals(other.surcharges, surcharges)&&(identical(other.dangerType, dangerType) || other.dangerType == dangerType)&&(identical(other.weightType, weightType) || other.weightType == weightType)&&(identical(other.specialType, specialType) || other.specialType == specialType)&&(identical(other.cancellationFee, cancellationFee) || other.cancellationFee == cancellationFee)&&(identical(other.surchargeResult, surchargeResult) || other.surchargeResult == surchargeResult)&&(identical(other.isCombine, isCombine) || other.isCombine == isCombine));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,period,type,section,searchQuery,sido,sigungu,eupmyeondong,beopjeongdong,mode,const DeepCollectionEquality().hash(surcharges),dangerType,weightType,specialType,cancellationFee,surchargeResult);
+int get hashCode => Object.hash(runtimeType,period,type,section,searchQuery,sido,sigungu,eupmyeondong,beopjeongdong,mode,const DeepCollectionEquality().hash(surcharges),dangerType,weightType,specialType,cancellationFee,surchargeResult,isCombine);
 
 @override
 String toString() {
-  return 'Condition(period: $period, type: $type, section: $section, searchQuery: $searchQuery, sido: $sido, sigungu: $sigungu, eupmyeondong: $eupmyeondong, beopjeongdong: $beopjeongdong, mode: $mode, surcharges: $surcharges, dangerType: $dangerType, weightType: $weightType, specialType: $specialType, cancellationFee: $cancellationFee, surchargeResult: $surchargeResult)';
+  return 'Condition(period: $period, type: $type, section: $section, searchQuery: $searchQuery, sido: $sido, sigungu: $sigungu, eupmyeondong: $eupmyeondong, beopjeongdong: $beopjeongdong, mode: $mode, surcharges: $surcharges, dangerType: $dangerType, weightType: $weightType, specialType: $specialType, cancellationFee: $cancellationFee, surchargeResult: $surchargeResult, isCombine: $isCombine)';
 }
 
 
@@ -50,7 +51,7 @@ abstract mixin class $ConditionCopyWith<$Res>  {
   factory $ConditionCopyWith(Condition value, $Res Function(Condition) _then) = _$ConditionCopyWithImpl;
 @useResult
 $Res call({
- String? period, String? type, String? section, String? searchQuery, String? sido, String? sigungu, String? eupmyeondong, String? beopjeongdong, String? mode, List<String> surcharges, String? dangerType, String? weightType, String? specialType, String? cancellationFee, SurchargeResult surchargeResult
+ String? period, String? type, String? section, String? searchQuery, String? sido, String? sigungu, String? eupmyeondong, String? beopjeongdong, String? mode, List<String> surcharges, String? dangerType, String? weightType, String? specialType, String? cancellationFee, SurchargeResult surchargeResult, bool isCombine
 });
 
 
@@ -67,7 +68,7 @@ class _$ConditionCopyWithImpl<$Res>
 
 /// Create a copy of Condition
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? period = freezed,Object? type = freezed,Object? section = freezed,Object? searchQuery = freezed,Object? sido = freezed,Object? sigungu = freezed,Object? eupmyeondong = freezed,Object? beopjeongdong = freezed,Object? mode = freezed,Object? surcharges = null,Object? dangerType = freezed,Object? weightType = freezed,Object? specialType = freezed,Object? cancellationFee = freezed,Object? surchargeResult = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? period = freezed,Object? type = freezed,Object? section = freezed,Object? searchQuery = freezed,Object? sido = freezed,Object? sigungu = freezed,Object? eupmyeondong = freezed,Object? beopjeongdong = freezed,Object? mode = freezed,Object? surcharges = null,Object? dangerType = freezed,Object? weightType = freezed,Object? specialType = freezed,Object? cancellationFee = freezed,Object? surchargeResult = null,Object? isCombine = null,}) {
   return _then(_self.copyWith(
 period: freezed == period ? _self.period : period // ignore: cast_nullable_to_non_nullable
 as String?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
@@ -84,7 +85,8 @@ as String?,weightType: freezed == weightType ? _self.weightType : weightType // 
 as String?,specialType: freezed == specialType ? _self.specialType : specialType // ignore: cast_nullable_to_non_nullable
 as String?,cancellationFee: freezed == cancellationFee ? _self.cancellationFee : cancellationFee // ignore: cast_nullable_to_non_nullable
 as String?,surchargeResult: null == surchargeResult ? _self.surchargeResult : surchargeResult // ignore: cast_nullable_to_non_nullable
-as SurchargeResult,
+as SurchargeResult,isCombine: null == isCombine ? _self.isCombine : isCombine // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -169,10 +171,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? period,  String? type,  String? section,  String? searchQuery,  String? sido,  String? sigungu,  String? eupmyeondong,  String? beopjeongdong,  String? mode,  List<String> surcharges,  String? dangerType,  String? weightType,  String? specialType,  String? cancellationFee,  SurchargeResult surchargeResult)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? period,  String? type,  String? section,  String? searchQuery,  String? sido,  String? sigungu,  String? eupmyeondong,  String? beopjeongdong,  String? mode,  List<String> surcharges,  String? dangerType,  String? weightType,  String? specialType,  String? cancellationFee,  SurchargeResult surchargeResult,  bool isCombine)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Condition() when $default != null:
-return $default(_that.period,_that.type,_that.section,_that.searchQuery,_that.sido,_that.sigungu,_that.eupmyeondong,_that.beopjeongdong,_that.mode,_that.surcharges,_that.dangerType,_that.weightType,_that.specialType,_that.cancellationFee,_that.surchargeResult);case _:
+return $default(_that.period,_that.type,_that.section,_that.searchQuery,_that.sido,_that.sigungu,_that.eupmyeondong,_that.beopjeongdong,_that.mode,_that.surcharges,_that.dangerType,_that.weightType,_that.specialType,_that.cancellationFee,_that.surchargeResult,_that.isCombine);case _:
   return orElse();
 
 }
@@ -190,10 +192,10 @@ return $default(_that.period,_that.type,_that.section,_that.searchQuery,_that.si
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? period,  String? type,  String? section,  String? searchQuery,  String? sido,  String? sigungu,  String? eupmyeondong,  String? beopjeongdong,  String? mode,  List<String> surcharges,  String? dangerType,  String? weightType,  String? specialType,  String? cancellationFee,  SurchargeResult surchargeResult)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? period,  String? type,  String? section,  String? searchQuery,  String? sido,  String? sigungu,  String? eupmyeondong,  String? beopjeongdong,  String? mode,  List<String> surcharges,  String? dangerType,  String? weightType,  String? specialType,  String? cancellationFee,  SurchargeResult surchargeResult,  bool isCombine)  $default,) {final _that = this;
 switch (_that) {
 case _Condition():
-return $default(_that.period,_that.type,_that.section,_that.searchQuery,_that.sido,_that.sigungu,_that.eupmyeondong,_that.beopjeongdong,_that.mode,_that.surcharges,_that.dangerType,_that.weightType,_that.specialType,_that.cancellationFee,_that.surchargeResult);case _:
+return $default(_that.period,_that.type,_that.section,_that.searchQuery,_that.sido,_that.sigungu,_that.eupmyeondong,_that.beopjeongdong,_that.mode,_that.surcharges,_that.dangerType,_that.weightType,_that.specialType,_that.cancellationFee,_that.surchargeResult,_that.isCombine);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +212,10 @@ return $default(_that.period,_that.type,_that.section,_that.searchQuery,_that.si
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? period,  String? type,  String? section,  String? searchQuery,  String? sido,  String? sigungu,  String? eupmyeondong,  String? beopjeongdong,  String? mode,  List<String> surcharges,  String? dangerType,  String? weightType,  String? specialType,  String? cancellationFee,  SurchargeResult surchargeResult)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? period,  String? type,  String? section,  String? searchQuery,  String? sido,  String? sigungu,  String? eupmyeondong,  String? beopjeongdong,  String? mode,  List<String> surcharges,  String? dangerType,  String? weightType,  String? specialType,  String? cancellationFee,  SurchargeResult surchargeResult,  bool isCombine)?  $default,) {final _that = this;
 switch (_that) {
 case _Condition() when $default != null:
-return $default(_that.period,_that.type,_that.section,_that.searchQuery,_that.sido,_that.sigungu,_that.eupmyeondong,_that.beopjeongdong,_that.mode,_that.surcharges,_that.dangerType,_that.weightType,_that.specialType,_that.cancellationFee,_that.surchargeResult);case _:
+return $default(_that.period,_that.type,_that.section,_that.searchQuery,_that.sido,_that.sigungu,_that.eupmyeondong,_that.beopjeongdong,_that.mode,_that.surcharges,_that.dangerType,_that.weightType,_that.specialType,_that.cancellationFee,_that.surchargeResult,_that.isCombine);case _:
   return null;
 
 }
@@ -225,7 +227,7 @@ return $default(_that.period,_that.type,_that.section,_that.searchQuery,_that.si
 
 
 class _Condition implements Condition {
-  const _Condition({this.period, this.type, this.section, this.searchQuery, this.sido, this.sigungu, this.eupmyeondong, this.beopjeongdong, this.mode, final  List<String> surcharges = const [], this.dangerType, this.weightType, this.specialType, this.cancellationFee, this.surchargeResult = const SurchargeResult()}): _surcharges = surcharges;
+  const _Condition({this.period, this.type, this.section, this.searchQuery, this.sido, this.sigungu, this.eupmyeondong, this.beopjeongdong, this.mode, final  List<String> surcharges = const [], this.dangerType, this.weightType, this.specialType, this.cancellationFee, this.surchargeResult = const SurchargeResult(), this.isCombine = false}): _surcharges = surcharges;
   
 
 @override final  String? period;
@@ -254,6 +256,8 @@ class _Condition implements Condition {
 @override final  String? cancellationFee;
 // 취소료 드롭다운 value
 @override@JsonKey() final  SurchargeResult surchargeResult;
+// 기본값 적용
+@override@JsonKey() final  bool isCombine;
 
 /// Create a copy of Condition
 /// with the given fields replaced by the non-null parameter values.
@@ -265,16 +269,16 @@ _$ConditionCopyWith<_Condition> get copyWith => __$ConditionCopyWithImpl<_Condit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Condition&&(identical(other.period, period) || other.period == period)&&(identical(other.type, type) || other.type == type)&&(identical(other.section, section) || other.section == section)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.sido, sido) || other.sido == sido)&&(identical(other.sigungu, sigungu) || other.sigungu == sigungu)&&(identical(other.eupmyeondong, eupmyeondong) || other.eupmyeondong == eupmyeondong)&&(identical(other.beopjeongdong, beopjeongdong) || other.beopjeongdong == beopjeongdong)&&(identical(other.mode, mode) || other.mode == mode)&&const DeepCollectionEquality().equals(other._surcharges, _surcharges)&&(identical(other.dangerType, dangerType) || other.dangerType == dangerType)&&(identical(other.weightType, weightType) || other.weightType == weightType)&&(identical(other.specialType, specialType) || other.specialType == specialType)&&(identical(other.cancellationFee, cancellationFee) || other.cancellationFee == cancellationFee)&&(identical(other.surchargeResult, surchargeResult) || other.surchargeResult == surchargeResult));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Condition&&(identical(other.period, period) || other.period == period)&&(identical(other.type, type) || other.type == type)&&(identical(other.section, section) || other.section == section)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.sido, sido) || other.sido == sido)&&(identical(other.sigungu, sigungu) || other.sigungu == sigungu)&&(identical(other.eupmyeondong, eupmyeondong) || other.eupmyeondong == eupmyeondong)&&(identical(other.beopjeongdong, beopjeongdong) || other.beopjeongdong == beopjeongdong)&&(identical(other.mode, mode) || other.mode == mode)&&const DeepCollectionEquality().equals(other._surcharges, _surcharges)&&(identical(other.dangerType, dangerType) || other.dangerType == dangerType)&&(identical(other.weightType, weightType) || other.weightType == weightType)&&(identical(other.specialType, specialType) || other.specialType == specialType)&&(identical(other.cancellationFee, cancellationFee) || other.cancellationFee == cancellationFee)&&(identical(other.surchargeResult, surchargeResult) || other.surchargeResult == surchargeResult)&&(identical(other.isCombine, isCombine) || other.isCombine == isCombine));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,period,type,section,searchQuery,sido,sigungu,eupmyeondong,beopjeongdong,mode,const DeepCollectionEquality().hash(_surcharges),dangerType,weightType,specialType,cancellationFee,surchargeResult);
+int get hashCode => Object.hash(runtimeType,period,type,section,searchQuery,sido,sigungu,eupmyeondong,beopjeongdong,mode,const DeepCollectionEquality().hash(_surcharges),dangerType,weightType,specialType,cancellationFee,surchargeResult,isCombine);
 
 @override
 String toString() {
-  return 'Condition(period: $period, type: $type, section: $section, searchQuery: $searchQuery, sido: $sido, sigungu: $sigungu, eupmyeondong: $eupmyeondong, beopjeongdong: $beopjeongdong, mode: $mode, surcharges: $surcharges, dangerType: $dangerType, weightType: $weightType, specialType: $specialType, cancellationFee: $cancellationFee, surchargeResult: $surchargeResult)';
+  return 'Condition(period: $period, type: $type, section: $section, searchQuery: $searchQuery, sido: $sido, sigungu: $sigungu, eupmyeondong: $eupmyeondong, beopjeongdong: $beopjeongdong, mode: $mode, surcharges: $surcharges, dangerType: $dangerType, weightType: $weightType, specialType: $specialType, cancellationFee: $cancellationFee, surchargeResult: $surchargeResult, isCombine: $isCombine)';
 }
 
 
@@ -285,7 +289,7 @@ abstract mixin class _$ConditionCopyWith<$Res> implements $ConditionCopyWith<$Re
   factory _$ConditionCopyWith(_Condition value, $Res Function(_Condition) _then) = __$ConditionCopyWithImpl;
 @override @useResult
 $Res call({
- String? period, String? type, String? section, String? searchQuery, String? sido, String? sigungu, String? eupmyeondong, String? beopjeongdong, String? mode, List<String> surcharges, String? dangerType, String? weightType, String? specialType, String? cancellationFee, SurchargeResult surchargeResult
+ String? period, String? type, String? section, String? searchQuery, String? sido, String? sigungu, String? eupmyeondong, String? beopjeongdong, String? mode, List<String> surcharges, String? dangerType, String? weightType, String? specialType, String? cancellationFee, SurchargeResult surchargeResult, bool isCombine
 });
 
 
@@ -302,7 +306,7 @@ class __$ConditionCopyWithImpl<$Res>
 
 /// Create a copy of Condition
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? period = freezed,Object? type = freezed,Object? section = freezed,Object? searchQuery = freezed,Object? sido = freezed,Object? sigungu = freezed,Object? eupmyeondong = freezed,Object? beopjeongdong = freezed,Object? mode = freezed,Object? surcharges = null,Object? dangerType = freezed,Object? weightType = freezed,Object? specialType = freezed,Object? cancellationFee = freezed,Object? surchargeResult = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? period = freezed,Object? type = freezed,Object? section = freezed,Object? searchQuery = freezed,Object? sido = freezed,Object? sigungu = freezed,Object? eupmyeondong = freezed,Object? beopjeongdong = freezed,Object? mode = freezed,Object? surcharges = null,Object? dangerType = freezed,Object? weightType = freezed,Object? specialType = freezed,Object? cancellationFee = freezed,Object? surchargeResult = null,Object? isCombine = null,}) {
   return _then(_Condition(
 period: freezed == period ? _self.period : period // ignore: cast_nullable_to_non_nullable
 as String?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
@@ -319,7 +323,8 @@ as String?,weightType: freezed == weightType ? _self.weightType : weightType // 
 as String?,specialType: freezed == specialType ? _self.specialType : specialType // ignore: cast_nullable_to_non_nullable
 as String?,cancellationFee: freezed == cancellationFee ? _self.cancellationFee : cancellationFee // ignore: cast_nullable_to_non_nullable
 as String?,surchargeResult: null == surchargeResult ? _self.surchargeResult : surchargeResult // ignore: cast_nullable_to_non_nullable
-as SurchargeResult,
+as SurchargeResult,isCombine: null == isCombine ? _self.isCombine : isCombine // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
