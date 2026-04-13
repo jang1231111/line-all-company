@@ -199,7 +199,7 @@ class RegionSelectors extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final condition = ref.watch(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
-    final isSpecialPeriod = condition.period == '2026-01-01~2026-01-31';
+    final isSpecialPeriod = isPeriod2026(condition.period);
 
     final regionAsync = ref.watch(regionHierarchyProvider);
 

@@ -16,7 +16,7 @@ const kPeriod2026Apr = '2026-01-01~2026-01-31-apr';
 bool isPeriod2026(String? period) =>
     period == kPeriod2026Feb || period == kPeriod2026Apr;
 
-/// 4월 운영지침인지 여부 (지역 기점 할증 계산 로직 활성화 여부)    
+/// 4월 운영지침인지 여부 (지역 기점 할증 계산 로직 활성화 여부)
 bool isAprilGuideline(String? period) => period == kPeriod2026Apr;
 
 /// [드롭다운 옵션 클래스]
@@ -37,7 +37,7 @@ const periodOptions = [
   // ─── 2026년 02월 공시 (두 가지 운영지침) ───
   DropdownOption(
     value: kPeriod2026Apr, // 4월 운영지침: 첫 번째 = 앱 실행 시 기본 선택
-    label: '2026년 02월 (02월 01일 ~ 진행중) 4월 운영지침 적용',
+    label: '2026년 02월 (02월 01일 ~ 진행중) 4월 운영지침',
   ),
   DropdownOption(
     value: kPeriod2026Feb, // 2월 운영지침: 기존 계산 방식
