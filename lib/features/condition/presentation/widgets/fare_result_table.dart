@@ -390,53 +390,30 @@ class FareResultTable extends ConsumerWidget {
                               (isPyeongtaekSection && (surchargeRate - 0.18).abs() < 0.001);
 
                           if (isOnlyRegionalRate) {
-                            // [스위칭 룰 1] 오직 인천/평택 단독 할증일 때
-                            appliedSurchargeRate = 0.0; // 수학적 % 연산을 무효화시켜 기본값(routes) 사용 유도
-                            
-                            if (type == 'safe') {
-                              // 안전위탁: 기점/거리 상관없이 공시 수치(routes) 그대로 사용.
-                              percentSurchargeBase20 = row.ft20;
-                              percentSurchargeBase40 = row.ft40;
-                              regionalFixedExtra20 = 0;
-                              regionalFixedExtra40 = 0;
-                            } else {
-                              // 안전운송/운수 
-                              percentSurchargeBase20 = row.ft20;
-                              percentSurchargeBase40 = row.ft40;
-                              if (isOriginBaseSection) {
-                                // 기점: routes 그대로
-                                regionalFixedExtra20 = 0;
-                                regionalFixedExtra40 = 0;
-                              } else {
-                                // 거리: routes + regional 
-                                final matched = _findMatchingSurcharge(row.distance, regionalSurchargeList);
-                                if (matched != null) {
-                                  regionalFixedExtra20 = matched.surchargePrice20ft;
-                                  regionalFixedExtra40 = matched.surchargePrice40ft;
-                                }
-                              }
-                            }
+                            // [스위칭 룰 1] 단독 모드: 안전위탁, 안전운송, 운수 기점/거리 상관없이
+                            // 무조건 공시 운임(routes)을 최종 기본값으로 사용
+                            appliedSurchargeRate = 0.0;
+                            percentSurchargeBase20 = row.ft20;
+                            percentSurchargeBase40 = row.ft40;
+                            regionalFixedExtra20 = 0;
+                            regionalFixedExtra40 = 0;
                           } else {
-                            // [스위칭 룰 2] 다른 할증이 혼입되었을 때
-                            appliedSurchargeRate = surchargeRate; // Top-3 룰에 따른 실 결괏값 복원
+                            // [스위칭 룰 2] 다른 할증 혼합 모드: 지역 고정액 소멸 및 새로운 Base 세팅
+                            appliedSurchargeRate = surchargeRate; 
                             regionalFixedExtra20 = 0;
                             regionalFixedExtra40 = 0;
 
                             if (type == 'safe') {
-                              // 안전위탁: 기점/거리 상관없이 역산(/1.2 후 반올림)으로 Base 산출
+                              // 안전위탁: 모든 구간 역산(/1.2 후 반올림)으로 Base 산출
                               percentSurchargeBase20 = ((row.ft20 / divRate) / 10).round() * 10;
                               percentSurchargeBase40 = ((row.ft40 / divRate) / 10).round() * 10;
                             } else {
-                              // 안전운송/운수
-                              if (isOriginBaseSection) {
-                                // 기점: routes - regional
-                                final matched = _findMatchingSurcharge(row.distance, regionalSurchargeList);
-                                if (matched != null) {
-                                  percentSurchargeBase20 = row.ft20 - matched.surchargePrice20ft;
-                                  percentSurchargeBase40 = row.ft40 - matched.surchargePrice40ft;
-                                }
+                              // 안전운송/운수: 모든 구간 (routes - regional)을 Base로 산출
+                              final matched = _findMatchingSurcharge(row.distance, regionalSurchargeList);
+                              if (matched != null) {
+                                percentSurchargeBase20 = row.ft20 - matched.surchargePrice20ft;
+                                percentSurchargeBase40 = row.ft40 - matched.surchargePrice40ft;
                               } else {
-                                // 거리: routes
                                 percentSurchargeBase20 = row.ft20;
                                 percentSurchargeBase40 = row.ft40;
                               }
