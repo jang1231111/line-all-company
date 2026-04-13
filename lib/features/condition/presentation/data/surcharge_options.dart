@@ -25,7 +25,7 @@ const surcharge2026Options = [
   ),
   // 지역 기점 할증 - 자동 적용 (UI 체크박스에 미표시)
   CheckboxOption(id: 'incheon_area', label: '인천 기점 20%', rate: 0.2),
-  CheckboxOption(id: 'pyeongtaek_area', label: '평택 기점 20%', rate: 0.2),
+  CheckboxOption(id: 'pyeongtaek_area', label: '평택 기점 18%', rate: 0.18),
 ];
 
 class SurchargeDropdownOption {
@@ -135,10 +135,16 @@ const cancellationFeeOptions = [
 ];
 
 // ============================================================
-// 지역 기점 할증 관련 상수 (인천/평택 구간 자동 적용)
+// 지역 기점 할증 관련 상수 (인천/평택 구간)
 // ============================================================
 
-/// 인천 관련 구간 - 끝 'incheon_area' 할증이 자동 적용ۋ는 구간 목록
+/// 인천 기점 할증 역산율 (routes = net × 1.2 → net = routes / 1.2)
+const kIncheonDivRate = 1.2;
+
+/// 평택 기점 할증 역산율 (routes = net × 1.18 → net = routes / 1.18)
+const kPyeongtaekDivRate = 1.18;
+
+/// 인천 관련 구간 목록 (areaSubtract + areaAdd 모두 포함)
 const incheonAreaSections = [
   'incheon',
   'incheon-new',
@@ -146,16 +152,18 @@ const incheonAreaSections = [
   'distance-incheon',
 ];
 
-/// 평택 관련 구간 - 'pyeongtaek_area' 할증이 자동 적용되는 구간 목록
+/// 평택 관련 구간 목록 (areaSubtract + areaAdd 모두 포함)
 const pyeongtaekAreaSections = ['pyeongtaek', 'distance-pyeongtaek'];
 
-/// regional-surcharge 요금을 routes 값에서 차감하는 구간 (routes에 20%가 내포)
-const areaSubtractSections = ['incheon', 'incheon-new', 'incheon-intl', 'pyeongtaek'];
+/// regional-surcharge 요금을 routes 값에서 차감하는 기점 구간
+/// (routes에 인천/평택 할증이 내포되어 있으므로 차감 후 기본값 산출)
+const originBaseSections = ['incheon', 'incheon-new', 'incheon-intl', 'pyeongtaek'];
 
-/// regional-surcharge 요금을 distance base에 더하는 구간 (distance는 20% 미포함)
-const areaAddSections = ['distance-incheon', 'distance-pyeongtaek'];
+/// regional-surcharge 요금을 distance base에 더하는 거리별 구간
+/// (distance 운임에는 인천/평택 할증 미포함 → 별도 가산)
+const distanceBaseSections = ['distance-incheon', 'distance-pyeongtaek'];
 
-/// 구간 코드를 regional-surcharge 지역으로 변환
+/// 구간 코드를 regional-surcharge 지역명으로 변환
 /// 반환: 'incheon' | 'pyeongtaek' | ''
 String regionForSection(String section) {
   if (incheonAreaSections.contains(section)) return 'incheon';

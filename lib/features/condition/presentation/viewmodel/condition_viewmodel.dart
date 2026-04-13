@@ -42,22 +42,25 @@ class ConditionViewModel extends StateNotifier<Condition> {
       }
     }
 
-    // [4월 운영지침일 때만] 인천/평택 구간에 따라 지역 기점 할증 자동 관리
-    // 2월 운영지침에서는 지역 할증 적용 안 함 → area 할증 id 전체 제거
+    // [인천/평택 지역 기점 할증 - surchargeRate(%) 포함 방식]
+    // 인천(20%)/평택(18%)은 top-3 할증 계산에 항상 포함되는 % 할증
+    // 단, 실제 적용 base는 fare_result_table에서 구간별로 다르게 처리:
+    //   - areaSubtract: surchargeBase = routes - regional (운송/운수) 또는 round(routes/divRate, 10) (안전위탁)
+    //   - areaAdd     : surchargeBase = routes(거리별), areaAddon(regional 또는 routes/divRate)별도 가산
     final section = newState.section ?? '';
     var updatedSurcharges = List<String>.from(newState.surcharges);
+    // 먼저 기존 area 할증 제거 후 재판단
     updatedSurcharges.removeWhere(
       (id) => id == 'incheon_area' || id == 'pyeongtaek_area',
     );
     if (isAprilGuideline(newState.period)) {
-      // 4월 우영지침: 구간에 맞는 지역 기점 할증 자동 선택
+      // 4월 운영지침: 구간에 따라 인천(20%) 또는 평택(18%) 할증 자동 추가
       if (incheonAreaSections.contains(section)) {
-        updatedSurcharges.add('incheon_area');
+        updatedSurcharges.add('incheon_area'); // 20%
       } else if (pyeongtaekAreaSections.contains(section)) {
-        updatedSurcharges.add('pyeongtaek_area');
+        updatedSurcharges.add('pyeongtaek_area'); // 18%
       }
     }
-    // 상태가 실제로 변경된 경우만 copyWith 호출
     final areaChanged =
         updatedSurcharges.length != newState.surcharges.length ||
         !updatedSurcharges.toSet().containsAll(newState.surcharges) ||

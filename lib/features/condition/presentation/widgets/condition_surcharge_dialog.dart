@@ -50,7 +50,7 @@ class _ConditionSurchargeDialogState
     final bool isAreaBadgeVisible =
         isAprilGuideline(condition.period) && (isIncheonSection || isPyeongtaekSection);
     final String? areaBadgeLabel = isAreaBadgeVisible
-        ? (isIncheonSection ? '인천 기점(20%)' : '평택 기점(20%)')
+        ? (isIncheonSection ? '인천 기점(20%)' : '평택 기점(18%)')
         : null;
 
     final options = is2026Period ? surcharge2026Options : surchargeCheckboxOptions;

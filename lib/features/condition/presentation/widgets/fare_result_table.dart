@@ -57,12 +57,13 @@ class FareResultTable extends ConsumerWidget {
     final isIncheonSection = incheonAreaSections.contains(section);
     final isPyeongtaekSection = pyeongtaekAreaSections.contains(section);
     final isAreaSection = isIncheonSection || isPyeongtaekSection;
-    final isAreaSubtract = areaSubtractSections.contains(section);
-    final isAreaAdd = areaAddSections.contains(section);
+    final isOriginBaseSection = originBaseSections.contains(section);
+    final isDistanceBaseSection = distanceBaseSections.contains(section);
 
     // 지역 기점 배지 (4월 운영지침 + 인천/평택 구간일 때만 표시)
+    // 인천 20% / 평택 18% 는 areaAddon으로 포함되며, 배지는 정보성 표시용
     final String? areaBadgeLabel = (isAprilGuidelinePeriod && isAreaSection)
-        ? (isIncheonSection ? '인천 기점(20%)' : '평택 기점(20%)')
+        ? (isIncheonSection ? '인천 기점(20%)' : '평택 기점(18%)')
         : null;
 
     // regional-surcharge 데이터 (1회 fetch 후 캐시)
@@ -363,56 +364,110 @@ class FareResultTable extends ConsumerWidget {
                             ? 1.8
                             : 1.0;
 
-                        // ─────────────────────────────────────────────
-                        // 2026 기간 + 인천/평택 구간별 기본 운임 계산 분기
-                        // ─────────────────────────────────────────────
-                        int base20 = row.ft20;
-                        int base40 = row.ft40;
+                        // 인천(1.2) / 평택(1.18) 역산율
+                        final divRate =
+                            isIncheonSection ? kIncheonDivRate : kPyeongtaekDivRate;
+
+                        // ─────────────────────────────────────────────────────
+                        // 2026 4월 운영지침 × 인천/평택 구간 스위칭(Switching) 룰
+                        //
+                        // 1. 단독 모드: 타 할증 없이 인천/평택만 있을 때
+                        //    -> 수학적 % 계산 무효화. 기점구간(routes), 거리구간(routes+regional) 사용
+                        // 2. 혼합 모드: 타 할증(탱크 30% 등)이 추가되었을 때
+                        //    -> regional 고정액 소멸. Base를 (routes-regional) 등 역산하여 Top-3 순수 % 계산
+                        // ─────────────────────────────────────────────────────
+                        int percentSurchargeBase20 = row.ft20;
+                        int percentSurchargeBase40 = row.ft40;
+                        int regionalFixedExtra20 = 0;
+                        int regionalFixedExtra40 = 0;
+                        double appliedSurchargeRate = surchargeRate; // 실제 연산에 최종 곱해질 % 할증률
 
                         if (isAprilGuidelinePeriod && isAreaSection) {
-                          if (type == 'safe') {
-                            // [안전위탁운임]: routes / 1.2 → 10의 자리 반올림
-                            // (routes 값에 20%가 내포되어 있으므로 역산)
-                            base20 = ((row.ft20 / 1.2) / 10).round() * 10;
-                            base40 = ((row.ft40 / 1.2) / 10).round() * 10;
-                          } else if (type == 'transport' || type == 'driver') {
-                            // [안전운송/운수사업자]: regional-surcharge 매칭
-                            final matched = _findMatchingSurcharge(
-                              row.distance,
-                              regionalSurchargeList,
-                            );
-                            if (matched != null) {
-                              if (isAreaAdd) {
-                                // distance 구간: base + regional_surcharge 추가
-                                base20 = row.ft20 + matched.surchargePrice20ft;
-                                base40 = row.ft40 + matched.surchargePrice40ft;
-                              } else if (isAreaSubtract) {
-                                // 일반 구간: routes - regional_surcharge 차감
-                                base20 = row.ft20 - matched.surchargePrice20ft;
-                                base40 = row.ft40 - matched.surchargePrice40ft;
+                          // 인천(0.20) 또는 평택(0.18)만 단독으로 들어있는지 판단
+                          // (Top-3 룰에 의해 타 할증이 붙으면 surchargeRate는 무조건 이 값보다 커짐)
+                          final bool isOnlyRegionalRate = 
+                              (isIncheonSection && (surchargeRate - 0.20).abs() < 0.001) ||
+                              (isPyeongtaekSection && (surchargeRate - 0.18).abs() < 0.001);
+
+                          if (isOnlyRegionalRate) {
+                            // [스위칭 룰 1] 오직 인천/평택 단독 할증일 때
+                            appliedSurchargeRate = 0.0; // 수학적 % 연산을 무효화시켜 기본값(routes) 사용 유도
+                            
+                            if (type == 'safe') {
+                              // 안전위탁: 기점/거리 상관없이 공시 수치(routes) 그대로 사용.
+                              percentSurchargeBase20 = row.ft20;
+                              percentSurchargeBase40 = row.ft40;
+                              regionalFixedExtra20 = 0;
+                              regionalFixedExtra40 = 0;
+                            } else {
+                              // 안전운송/운수 
+                              percentSurchargeBase20 = row.ft20;
+                              percentSurchargeBase40 = row.ft40;
+                              if (isOriginBaseSection) {
+                                // 기점: routes 그대로
+                                regionalFixedExtra20 = 0;
+                                regionalFixedExtra40 = 0;
+                              } else {
+                                // 거리: routes + regional 
+                                final matched = _findMatchingSurcharge(row.distance, regionalSurchargeList);
+                                if (matched != null) {
+                                  regionalFixedExtra20 = matched.surchargePrice20ft;
+                                  regionalFixedExtra40 = matched.surchargePrice40ft;
+                                }
+                              }
+                            }
+                          } else {
+                            // [스위칭 룰 2] 다른 할증이 혼입되었을 때
+                            appliedSurchargeRate = surchargeRate; // Top-3 룰에 따른 실 결괏값 복원
+                            regionalFixedExtra20 = 0;
+                            regionalFixedExtra40 = 0;
+
+                            if (type == 'safe') {
+                              // 안전위탁: 기점/거리 상관없이 역산(/1.2 후 반올림)으로 Base 산출
+                              percentSurchargeBase20 = ((row.ft20 / divRate) / 10).round() * 10;
+                              percentSurchargeBase40 = ((row.ft40 / divRate) / 10).round() * 10;
+                            } else {
+                              // 안전운송/운수
+                              if (isOriginBaseSection) {
+                                // 기점: routes - regional
+                                final matched = _findMatchingSurcharge(row.distance, regionalSurchargeList);
+                                if (matched != null) {
+                                  percentSurchargeBase20 = row.ft20 - matched.surchargePrice20ft;
+                                  percentSurchargeBase40 = row.ft40 - matched.surchargePrice40ft;
+                                }
+                              } else {
+                                // 거리: routes
+                                percentSurchargeBase20 = row.ft20;
+                                percentSurchargeBase40 = row.ft40;
                               }
                             }
                           }
                         }
 
+                        // 최종 가격 계산
+                        // 공식: percentSurchargeBase × (1 + appliedSurchargeRate) × combineMultiplier × cancellationRate
+                        //          + surchargeFixedAmount + regionalFixedExtra
+                        // 참고: regionalFixedExtra는 단독 모드 거리구간에서만 발생
                         final ft20WithSurcharge =
-                            (((base20 *
-                                            (1 + surchargeRate) *
+                            (((percentSurchargeBase20 *
+                                            (1 + appliedSurchargeRate) *
                                             combineMultiplier) *
                                         cancellationFeeAmount /
                                         100)
                                     .round() *
                                 100) +
-                            surchargeFixedAmount;
+                            surchargeFixedAmount +
+                            regionalFixedExtra20; // 스위칭 룰에 따른 추가액
                         final ft40WithSurcharge =
-                            (((base40 *
-                                            (1 + surchargeRate) *
+                            (((percentSurchargeBase40 *
+                                            (1 + appliedSurchargeRate) *
                                             combineMultiplier) *
                                         cancellationFeeAmount /
                                         100)
                                     .round() *
                                 100) +
-                            surchargeFixedAmount;
+                            surchargeFixedAmount +
+                            regionalFixedExtra40;
 
                         return Container(
                           margin: EdgeInsets.symmetric(

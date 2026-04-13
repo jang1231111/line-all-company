@@ -2,8 +2,8 @@
 /// 인천/평택 지역의 거리별 할증 금액을 나타냅니다.
 /// distance_range는 정확한 거리(km) 정수값입니다. (예: 37, 370, 371)
 class RegionalSurcharge {
-  final String regionName;    // 'incheon' | 'pyeongtaek'
-  final int distanceRange;    // 거리(km) 정수값 - /api/routes의 distance와 직접 비교
+  final String regionName; // 'incheon' | 'pyeongtaek'
+  final int distanceRange; // 거리(km) 정수값 - /api/routes의 distance와 직접 비교
   final int surchargePrice20ft; // 20FT 컨테이너 할증액 (원)
   final int surchargePrice40ft; // 40FT 컨테이너 할증액 (원)
 
