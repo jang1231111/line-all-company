@@ -84,13 +84,10 @@ class ConditionViewModel extends StateNotifier<Condition> {
   Future<void> searchByRegion() async {
     _ref.read(fareResultViewModelProvider.notifier).setLoading();
 
-    // distance-incheon / distance-pyeongtaek 선택 시 API는 section=distance로 호출
-    final routeApiSection = _toRouteApiSection(state.section);
-
     final results = await _repository.searchByRegion(
       period: state.period!,
       type: state.type!,
-      section: routeApiSection,
+      section: state.section ?? '',
       sido: state.sido,
       sigungu: state.sigungu,
       eupmyeondong: state.eupmyeondong,
@@ -127,9 +124,6 @@ class ConditionViewModel extends StateNotifier<Condition> {
 
     _ref.read(fareResultViewModelProvider.notifier).setLoading();
 
-    // distance-incheon / distance-pyeongtaek 선택 시 API는 section=distance로 호출
-    final routeApiSection = _toRouteApiSection(state.section);
-
     // hemdNm non-null
     if (address.hemdNm != null) {
       // 음면동 값 추출
@@ -143,7 +137,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
       results = await _repository.searchByRoadName(
         period: state.period!,
         type: state.type!,
-        section: routeApiSection,
+        section: state.section ?? '',
         sido: sido,
         sigungu: sigungu,
         eupmyeondong: eupmyeondong,
@@ -154,7 +148,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
         results = await _repository.searchByRoadName(
           period: state.period!,
           type: state.type!,
-          section: routeApiSection,
+          section: state.section ?? '',
           sido: sido,
           sigungu: sigungu,
           destinationSearch:
@@ -167,7 +161,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
       results = await _repository.searchByRoadName(
         period: state.period!,
         type: state.type!,
-        section: routeApiSection,
+        section: state.section ?? '',
         sido: sido,
         sigungu: sigungu,
         dong: address.emdNm,
@@ -203,16 +197,5 @@ class ConditionViewModel extends StateNotifier<Condition> {
     if (isPeriod2026(state.period)) {
       await searchByRegion();
     }
-  }
-
-  /// distance-incheon / distance-pyeongtaek 선택 시
-  /// /api/routes 호출에 실제로 사용하는 section 값으로 변환합니다.
-  /// (UI 구간명 → API 파라미터 변환)
-  String _toRouteApiSection(String? section) {
-    if (section == 'distance-incheon' || section == 'distance-pyeongtaek') {
-      // 두 구간 모두 API에는 단순 'distance' section으로 조회
-      return 'distance';
-    }
-    return section ?? '';
   }
 }
