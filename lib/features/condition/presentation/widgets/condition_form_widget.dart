@@ -112,8 +112,12 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                                 label: Text('지역 검색', style: TextStyle(fontSize: 13.sp)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.indigo,
+                                  disabledBackgroundColor: Colors.indigo.withOpacity(0.35),
+                                  foregroundColor: Colors.white,
+                                  disabledForegroundColor: Colors.white70,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
                                   minimumSize: Size(double.infinity, 44.h), // 고정 높이
+                                  elevation: isFullySelected ? 2 : 0,
                                 ),
                                 onPressed: isFullySelected
                                     ? () {
@@ -137,8 +141,12 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                                 label: Text('도로명, 지번 검색', style: TextStyle(fontSize: 13.sp)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
+                                  disabledBackgroundColor: Colors.green.withOpacity(0.35),
+                                  foregroundColor: Colors.white,
+                                  disabledForegroundColor: Colors.white70,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
-                                  minimumSize: Size(double.infinity, 44.h),
+                                  minimumSize: Size(double.infinity, 44.h), // 고정 높이
+                                  elevation: isFullySelected ? 2 : 0,
                                 ),
                                 onPressed: isFullySelected
                                     ? () async {
