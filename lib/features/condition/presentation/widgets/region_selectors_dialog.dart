@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_all/common/widgets/dropdown_field.dart';
+import 'package:line_all/features/condition/presentation/data/condition_options.dart';
 import 'package:line_all/features/condition/presentation/providers/condition_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../domain/models/fare_result.dart';

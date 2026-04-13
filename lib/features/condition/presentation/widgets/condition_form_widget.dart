@@ -32,80 +32,15 @@ class ConditionFormWidget extends ConsumerStatefulWidget {
 
 class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
   final _formKey = GlobalKey<FormState>();
-  final _periodFocusNode = FocusNode();
-  final _typeFocusNode = FocusNode();
-  final _sectionFocusNode = FocusNode();
-
-  bool _periodError = false;
-  bool _typeError = false;
-  bool _sectionError = false;
-
-  @override
-  void dispose() {
-    _periodFocusNode.dispose();
-    _typeFocusNode.dispose();
-    _sectionFocusNode.dispose();
-    super.dispose();
-  }
-
-  Future<void> _focusAndScroll(
-    GlobalKey key,
-    FocusNode focusNode,
-    String message,
-  ) async {
-    // focusNode.requestFocus();
-    // await Scrollable.ensureVisible(
-    //   key.currentContext!,
-    //   duration: const Duration(milliseconds: 200),
-    //   curve: Curves.easeInOut,
-    //   alignment: 0.2,
-    // );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: TextStyle(fontSize: 18.sp)),
-      ),
-    );
-  }
-
-  void _validateAndHandleSearchType(Function onValid) async {
-    final condition = ref.read(conditionViewModelProvider);
-    setState(() {
-      _periodError = condition.period == null || condition.period!.isEmpty;
-      _typeError = condition.type == null || condition.type!.isEmpty;
-      _sectionError = condition.section == null || condition.section!.isEmpty;
-    });
-
-    if (_periodError) {
-      await _focusAndScroll(
-        widget.periodTargetKey,
-        _periodFocusNode,
-        '기간을 선택해주세요.',
-      );
-      return;
-    }
-    if (_typeError) {
-      await _focusAndScroll(
-        widget.typeTargetKey,
-        _typeFocusNode,
-        '유형을 선택해주세요.',
-      );
-      return;
-    }
-    if (_sectionError) {
-      await _focusAndScroll(
-        widget.sectionTargetKey,
-        _sectionFocusNode,
-        '구간을 선택해주세요.',
-      );
-      return;
-    }
-    onValid();
-  }
 
   @override
   Widget build(BuildContext context) {
     final condition = ref.watch(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
+
+    final isFullySelected = condition.period?.isNotEmpty == true &&
+        condition.type?.isNotEmpty == true &&
+        condition.section?.isNotEmpty == true;
 
     return Center(
       child: ConstrainedBox(
@@ -159,9 +94,6 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       key: widget.periodTargetKey,
                       typeKey: widget.typeTargetKey,
                       sectionKey: widget.sectionTargetKey,
-                      periodFocusNode: _periodFocusNode,
-                      typeFocusNode: _typeFocusNode,
-                      sectionFocusNode: _sectionFocusNode,
                     ),
                     SizedBox(height: 4.h),
                     // 검색 버튼들을 인라인으로 두어 개별 키 부여
@@ -183,14 +115,14 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
                                   minimumSize: Size(double.infinity, 44.h), // 고정 높이
                                 ),
-                                onPressed: () {
-                                  _validateAndHandleSearchType(() {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => const RegionSelectorsDialog(),
-                                    );
-                                  });
-                                },
+                                onPressed: isFullySelected
+                                    ? () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => const RegionSelectorsDialog(),
+                                        );
+                                      }
+                                    : null,
                               ),
                             ),
                           ),
@@ -208,17 +140,17 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
                                   minimumSize: Size(double.infinity, 44.h),
                                 ),
-                                onPressed: () {
-                                  _validateAndHandleSearchType(() async {
-                                    RoadNameAddress? result = await showDialog(
-                                      context: context,
-                                      builder: (context) => const RoadNameSearchDialog(),
-                                    );
-                                    if (result != null) {
-                                      await viewModel.searchByRoadName(result);
-                                    }
-                                  });
-                                },
+                                onPressed: isFullySelected
+                                    ? () async {
+                                        RoadNameAddress? result = await showDialog(
+                                          context: context,
+                                          builder: (context) => const RoadNameSearchDialog(),
+                                        );
+                                        if (result != null) {
+                                          await viewModel.searchByRoadName(result);
+                                        }
+                                      }
+                                    : null,
                               ),
                             ),
                           ),

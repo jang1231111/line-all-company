@@ -78,7 +78,24 @@ class ConditionViewModel extends StateNotifier<Condition> {
       is2026Period: isPeriod2026(newState.period),
     );
 
+    final wasFullySelected = state.period?.isNotEmpty == true &&
+        state.type?.isNotEmpty == true &&
+        state.section?.isNotEmpty == true;
+    final isFullySelected = newState.period?.isNotEmpty == true &&
+        newState.type?.isNotEmpty == true &&
+        newState.section?.isNotEmpty == true;
+    final conditionChanged = state.period != newState.period ||
+        state.type != newState.type ||
+        state.section != newState.section;
+
     state = newState.copyWith(surchargeResult: surchargeResult);
+
+    // 기간/유형/구간 모두 선택 시 자동 API 호출
+    if (isFullySelected && conditionChanged) {
+      Future.microtask(() => searchByRegion());
+    } else if (!isFullySelected && wasFullySelected) {
+      Future.microtask(() => _ref.read(fareResultViewModelProvider.notifier).clear());
+    }
   }
 
   Future<void> searchByRegion() async {
