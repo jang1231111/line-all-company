@@ -105,11 +105,54 @@ class FareResultTable extends ConsumerWidget {
               ),
             ),
           ),
-          error: (err, stack) => Center(
-            child: Text(
-              '오류가 발생했습니다.\n$err',
-              style: TextStyle(fontSize: 14.sp, color: Colors.red),
-              textAlign: TextAlign.center,
+          error: (err, stack) => Container(
+            padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 20.w),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.wifi_off_rounded,
+                  color: Colors.redAccent.shade200,
+                  size: 46.sp,
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  '네트워크 통신 오류',
+                  style: TextStyle(
+                    color: Colors.red.shade900,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  '서버와 연결할 수 없거나 데이터를 불러오지 못했습니다.\n잠시 후 다시 시도해주세요.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14.sp,
+                    height: 1.4,
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // 제일 무난한 전체 다시 조회
+                    ref.read(conditionViewModelProvider.notifier).searchByRegion();
+                  },
+                  icon: Icon(Icons.refresh, size: 18.sp),
+                  label: Text('다시 시도하기', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           data: (results) => Column(
