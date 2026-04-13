@@ -81,7 +81,7 @@ class FareResultRow extends StatelessWidget {
                   SizedBox(width: 6.w),
                   Expanded(
                     child: Text(
-                      '운행 거리: ${row.distance} km',
+                      '거리: ${row.distance} km',
                       style: TextStyle(
                         fontSize: 18.sp, // +1 폰트
                         color: Colors.black87,

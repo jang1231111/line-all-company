@@ -106,49 +106,70 @@ class FareResultTable extends ConsumerWidget {
             ),
           ),
           error: (err, stack) => Container(
+            width: double.infinity,
             padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 20.w),
-            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFCFBFF),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: Colors.indigo.shade50),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.wifi_off_rounded,
-                  color: Colors.redAccent.shade200,
-                  size: 46.sp,
+                Container(
+                  padding: EdgeInsets.all(16.w),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.cloud_off_rounded,
+                    color: Colors.redAccent.shade200,
+                    size: 38.sp,
+                  ),
                 ),
-                SizedBox(height: 16.h),
+                SizedBox(height: 20.h),
                 Text(
-                  '네트워크 통신 오류',
+                  '네트워크 수신 오류',
                   style: TextStyle(
-                    color: Colors.red.shade900,
+                    color: const Color(0xFF2D3748),
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 10.h),
                 Text(
-                  '서버와 연결할 수 없거나 데이터를 불러오지 못했습니다.\n잠시 후 다시 시도해주세요.',
+                  '서버와 연결할 수 없거나 데이터를 불러오지 못했습니다.\n네트워크 상태를 확인하고 잠시 후 다시 시도해주세요.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.grey.shade600,
+                    color: const Color(0xFF718096),
                     fontSize: 14.sp,
-                    height: 1.4,
+                    height: 1.5,
                   ),
                 ),
-                SizedBox(height: 24.h),
+                SizedBox(height: 28.h),
                 ElevatedButton.icon(
                   onPressed: () {
                     // 제일 무난한 전체 다시 조회
                     ref.read(conditionViewModelProvider.notifier).searchByRegion();
                   },
-                  icon: Icon(Icons.refresh, size: 18.sp),
-                  label: Text('다시 시도하기', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                  icon: Icon(Icons.refresh_rounded, size: 20.sp),
+                  label: Text(
+                    '결과 다시 불러오기', 
+                    style: TextStyle(
+                      fontSize: 15.sp, 
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.3,
+                    )
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.indigo,
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                    padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 14.h),
+                    elevation: 0, // 플랫하고 모던한 느낌
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
                 ),

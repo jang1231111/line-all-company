@@ -39,10 +39,11 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
     final condition = ref.watch(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
 
-    final isFullySelected = condition.period?.isNotEmpty == true &&
+    final isFullySelected =
+        condition.period?.isNotEmpty == true &&
         condition.type?.isNotEmpty == true &&
         condition.section?.isNotEmpty == true;
-        
+
     final isDistanceBase = distanceBaseSections.contains(condition.section);
     final isButtonEnabled = isFullySelected && !isDistanceBase;
 
@@ -109,25 +110,35 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                             flex: 5,
                             child: MediaQuery(
                               // 버튼 내부 텍스트/레이아웃의 시스템 textScaleFactor 영향을 차단
-                              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                              data: MediaQuery.of(
+                                context,
+                              ).copyWith(textScaleFactor: 1.0),
                               child: ElevatedButton.icon(
                                 key: widget.regionButtonKey,
                                 icon: Icon(Icons.search, size: 18.sp),
-                                label: Text('지역 검색', style: TextStyle(fontSize: 13.sp)),
+                                label: Text(
+                                  '지역 검색',
+                                  style: TextStyle(fontSize: 13.sp),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.indigo,
-                                  disabledBackgroundColor: Colors.indigo.withOpacity(0.35),
+                                  disabledBackgroundColor: Colors.indigo
+                                      .withOpacity(0.35),
                                   foregroundColor: Colors.white,
                                   disabledForegroundColor: Colors.white70,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
-                                  minimumSize: Size(double.infinity, 44.h), // 고정 높이
+                                  minimumSize: Size(
+                                    double.infinity,
+                                    44.h,
+                                  ), // 고정 높이
                                   elevation: isButtonEnabled ? 2 : 0,
                                 ),
                                 onPressed: isButtonEnabled
                                     ? () {
                                         showDialog(
                                           context: context,
-                                          builder: (context) => const RegionSelectorsDialog(),
+                                          builder: (context) =>
+                                              const RegionSelectorsDialog(),
                                         );
                                       }
                                     : null,
@@ -138,28 +149,41 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                           Expanded(
                             flex: 6,
                             child: MediaQuery(
-                              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                              data: MediaQuery.of(
+                                context,
+                              ).copyWith(textScaleFactor: 1.0),
                               child: ElevatedButton.icon(
                                 key: widget.roadButtonKey,
                                 icon: Icon(Icons.place, size: 18.sp),
-                                label: Text('도로명, 지번 검색', style: TextStyle(fontSize: 13.sp)),
+                                label: Text(
+                                  '도로명, 지번 검색',
+                                  style: TextStyle(fontSize: 13.sp),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
-                                  disabledBackgroundColor: Colors.green.withOpacity(0.35),
+                                  disabledBackgroundColor: Colors.green
+                                      .withOpacity(0.35),
                                   foregroundColor: Colors.white,
                                   disabledForegroundColor: Colors.white70,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
-                                  minimumSize: Size(double.infinity, 44.h), // 고정 높이
+                                  minimumSize: Size(
+                                    double.infinity,
+                                    44.h,
+                                  ), // 고정 높이
                                   elevation: isButtonEnabled ? 2 : 0,
                                 ),
                                 onPressed: isButtonEnabled
                                     ? () async {
-                                        RoadNameAddress? result = await showDialog(
-                                          context: context,
-                                          builder: (context) => const RoadNameSearchDialog(),
-                                        );
+                                        RoadNameAddress? result =
+                                            await showDialog(
+                                              context: context,
+                                              builder: (context) =>
+                                                  const RoadNameSearchDialog(),
+                                            );
                                         if (result != null) {
-                                          await viewModel.searchByRoadName(result);
+                                          await viewModel.searchByRoadName(
+                                            result,
+                                          );
                                         }
                                       }
                                     : null,
