@@ -555,6 +555,7 @@ class FareResultTable extends ConsumerWidget {
                             ),
                             child: FareResultRow(
                               row: row,
+                              isCombine: condition.isCombine,
                               is20Selected: selectedFareNotifier.isSelected(
                                 row,
                                 FareType.ft20,

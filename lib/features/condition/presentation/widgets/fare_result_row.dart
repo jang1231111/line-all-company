@@ -8,6 +8,7 @@ import '../../domain/models/fare_result.dart';
 
 class FareResultRow extends StatelessWidget {
   final FareResult row;
+  final bool isCombine;
   final bool is20Selected;
   final bool is40Selected;
   final int ft20WithSurcharge;
@@ -18,6 +19,7 @@ class FareResultRow extends StatelessWidget {
   const FareResultRow({
     super.key,
     required this.row,
+    this.isCombine = false,
     required this.is20Selected,
     required this.is40Selected,
     required this.ft20WithSurcharge,
@@ -112,30 +114,44 @@ class FareResultRow extends StatelessWidget {
 
         SizedBox(height: 10.h),
 
-        // 가격 선택 버튼들 (20FT / 40FT)
-        Row(
-          children: [
-            Expanded(
-              child: _PricePill(
-                label: '20FT',
-                price: priceFmt.format(ft20WithSurcharge),
-                selected: is20Selected,
-                selectedColor: Colors.indigo.shade700,
-                onTap: on20Tap,
+        // 가격 선택 버튼들 (20FT / 40FT / COMBINE)
+        isCombine
+            ? Row(
+                children: [
+                  Expanded(
+                    child: _PricePill(
+                      label: 'COMBINE',
+                      price: priceFmt.format(ft20WithSurcharge),
+                      selected: is20Selected,
+                      selectedColor: Colors.indigo.shade700,
+                      onTap: on20Tap,
+                    ),
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  Expanded(
+                    child: _PricePill(
+                      label: '20FT',
+                      price: priceFmt.format(ft20WithSurcharge),
+                      selected: is20Selected,
+                      selectedColor: Colors.indigo.shade700,
+                      onTap: on20Tap,
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: _PricePill(
+                      label: '40FT',
+                      price: priceFmt.format(ft40WithSurcharge),
+                      selected: is40Selected,
+                      selectedColor: Colors.deepOrange.shade400,
+                      onTap: on40Tap,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: _PricePill(
-                label: '40FT',
-                price: priceFmt.format(ft40WithSurcharge),
-                selected: is40Selected,
-                selectedColor: Colors.deepOrange.shade400,
-                onTap: on40Tap,
-              ),
-            ),
-          ],
-        ),
       ],
     );
   }
