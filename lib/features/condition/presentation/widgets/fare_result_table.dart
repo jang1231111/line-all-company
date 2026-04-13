@@ -107,7 +107,7 @@ class FareResultTable extends ConsumerWidget {
           ),
           error: (err, stack) => Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 20.w),
+            padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
             decoration: BoxDecoration(
               color: const Color(0xFFFCFBFF),
               borderRadius: BorderRadius.circular(16.r),
@@ -140,7 +140,7 @@ class FareResultTable extends ConsumerWidget {
                 ),
                 SizedBox(height: 10.h),
                 Text(
-                  '서버와 연결할 수 없거나 데이터를 불러오지 못했습니다.\n네트워크 상태를 확인하고 잠시 후 다시 시도해주세요.',
+                  '네트워크 상태를 확인하고 잠시 후 다시 시도해주세요.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: const Color(0xFF718096),
@@ -152,21 +152,26 @@ class FareResultTable extends ConsumerWidget {
                 ElevatedButton.icon(
                   onPressed: () {
                     // 제일 무난한 전체 다시 조회
-                    ref.read(conditionViewModelProvider.notifier).searchByRegion();
+                    ref
+                        .read(conditionViewModelProvider.notifier)
+                        .searchByRegion();
                   },
                   icon: Icon(Icons.refresh_rounded, size: 20.sp),
                   label: Text(
-                    '결과 다시 불러오기', 
+                    '결과 다시 불러오기',
                     style: TextStyle(
-                      fontSize: 15.sp, 
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.3,
-                    )
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.indigo,
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 14.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 28.w,
+                      vertical: 14.h,
+                    ),
                     elevation: 0, // 플랫하고 모던한 느낌
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.r),
@@ -238,7 +243,9 @@ class FareResultTable extends ConsumerWidget {
                                 onChanged: (value) {
                                   ref
                                       .read(conditionViewModelProvider.notifier)
-                                      .update(condition.copyWith(isCombine: value));
+                                      .update(
+                                        condition.copyWith(isCombine: value),
+                                      );
                                 },
                               ),
                             ),
@@ -429,8 +436,9 @@ class FareResultTable extends ConsumerWidget {
                             : 1.0;
 
                         // 인천(1.2) / 평택(1.18) 역산율
-                        final divRate =
-                            isIncheonSection ? kIncheonDivRate : kPyeongtaekDivRate;
+                        final divRate = isIncheonSection
+                            ? kIncheonDivRate
+                            : kPyeongtaekDivRate;
 
                         // ─────────────────────────────────────────────────────
                         // 2026 4월 운영지침 × 인천/평택 구간 스위칭(Switching) 룰
@@ -444,14 +452,17 @@ class FareResultTable extends ConsumerWidget {
                         int percentSurchargeBase40 = row.ft40;
                         int regionalFixedExtra20 = 0;
                         int regionalFixedExtra40 = 0;
-                        double appliedSurchargeRate = surchargeRate; // 실제 연산에 최종 곱해질 % 할증률
+                        double appliedSurchargeRate =
+                            surchargeRate; // 실제 연산에 최종 곱해질 % 할증률
 
                         if (isAprilGuidelinePeriod && isAreaSection) {
                           // 인천(0.20) 또는 평택(0.18)만 단독으로 들어있는지 판단
                           // (Top-3 룰에 의해 타 할증이 붙으면 surchargeRate는 무조건 이 값보다 커짐)
-                          final bool isOnlyRegionalRate = 
-                              (isIncheonSection && (surchargeRate - 0.20).abs() < 0.001) ||
-                              (isPyeongtaekSection && (surchargeRate - 0.18).abs() < 0.001);
+                          final bool isOnlyRegionalRate =
+                              (isIncheonSection &&
+                                  (surchargeRate - 0.20).abs() < 0.001) ||
+                              (isPyeongtaekSection &&
+                                  (surchargeRate - 0.18).abs() < 0.001);
 
                           if (isOnlyRegionalRate) {
                             // [스위칭 룰 1] 단독 모드: 안전위탁, 안전운송, 운수 기점/거리 상관없이
@@ -463,20 +474,27 @@ class FareResultTable extends ConsumerWidget {
                             regionalFixedExtra40 = 0;
                           } else {
                             // [스위칭 룰 2] 다른 할증 혼합 모드: 지역 고정액 소멸 및 새로운 Base 세팅
-                            appliedSurchargeRate = surchargeRate; 
+                            appliedSurchargeRate = surchargeRate;
                             regionalFixedExtra20 = 0;
                             regionalFixedExtra40 = 0;
 
                             if (type == 'safe') {
                               // 안전위탁: 모든 구간 역산(/1.2 후 반올림)으로 Base 산출
-                              percentSurchargeBase20 = ((row.ft20 / divRate) / 10).round() * 10;
-                              percentSurchargeBase40 = ((row.ft40 / divRate) / 10).round() * 10;
+                              percentSurchargeBase20 =
+                                  ((row.ft20 / divRate) / 10).round() * 10;
+                              percentSurchargeBase40 =
+                                  ((row.ft40 / divRate) / 10).round() * 10;
                             } else {
                               // 안전운송/운수: 모든 구간 (routes - regional)을 Base로 산출
-                              final matched = _findMatchingSurcharge(row.distance, regionalSurchargeList);
+                              final matched = _findMatchingSurcharge(
+                                row.distance,
+                                regionalSurchargeList,
+                              );
                               if (matched != null) {
-                                percentSurchargeBase20 = row.ft20 - matched.surchargePrice20ft;
-                                percentSurchargeBase40 = row.ft40 - matched.surchargePrice40ft;
+                                percentSurchargeBase20 =
+                                    row.ft20 - matched.surchargePrice20ft;
+                                percentSurchargeBase40 =
+                                    row.ft40 - matched.surchargePrice40ft;
                               } else {
                                 percentSurchargeBase20 = row.ft20;
                                 percentSurchargeBase40 = row.ft40;
