@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_all/features/condition/presentation/data/condition_options.dart';
+import 'package:line_all/features/condition/presentation/data/surcharge_options.dart';
 
 import '../../domain/models/fare_result.dart';
 
@@ -52,43 +53,62 @@ class FareResultRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            Row(
-              children: [
-                Icon(Icons.route, size: 15.sp, color: Colors.black87),
-                SizedBox(width: 2.w),
-                Text(
-                  '${row.distance}km',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF666666),
+            if (!distanceBaseSections.contains(row.section))
+              Row(
+                children: [
+                  Icon(Icons.route, size: 15.sp, color: Colors.black87),
+                  SizedBox(width: 2.w),
+                  Text(
+                    '${row.distance}km',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF666666),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
 
         SizedBox(height: 8.h),
 
         // 서브 위치(작게)
-        Row(
-          children: [
-            Icon(Icons.place, size: 18.sp, color: Colors.green.shade700),
-            SizedBox(width: 6.w),
-            Expanded(
-              child: Text(
-                '${row.sido} > ${row.sigungu} > ${row.eupmyeondong}',
-                style: TextStyle(
-                  fontSize: 18.sp, // +1 폰트
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                ),
-                overflow: TextOverflow.ellipsis,
+        distanceBaseSections.contains(row.section)
+            ? Row(
+                children: [
+                  Icon(Icons.route, size: 18.sp, color: Colors.green.shade700),
+                  SizedBox(width: 6.w),
+                  Expanded(
+                    child: Text(
+                      '운행 거리: ${row.distance} km',
+                      style: TextStyle(
+                        fontSize: 18.sp, // +1 폰트
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  Icon(Icons.place, size: 18.sp, color: Colors.green.shade700),
+                  SizedBox(width: 6.w),
+                  Expanded(
+                    child: Text(
+                      '${row.sido} > ${row.sigungu} > ${row.eupmyeondong}',
+                      style: TextStyle(
+                        fontSize: 18.sp, // +1 폰트
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
 
         SizedBox(height: 10.h),
 

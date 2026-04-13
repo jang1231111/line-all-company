@@ -6,6 +6,7 @@ import 'package:line_all/features/condition/presentation/providers/condition_pro
 import 'package:line_all/features/condition/presentation/widgets/period_dropdown_row.dart';
 import 'package:line_all/features/condition/presentation/widgets/region_selectors_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/road_name_search_dialog.dart';
+import 'package:line_all/features/condition/presentation/data/surcharge_options.dart';
 
 class ConditionFormWidget extends ConsumerStatefulWidget {
   final GlobalKey periodTargetKey;
@@ -41,6 +42,9 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
     final isFullySelected = condition.period?.isNotEmpty == true &&
         condition.type?.isNotEmpty == true &&
         condition.section?.isNotEmpty == true;
+        
+    final isDistanceBase = distanceBaseSections.contains(condition.section);
+    final isButtonEnabled = isFullySelected && !isDistanceBase;
 
     return Center(
       child: ConstrainedBox(
@@ -117,9 +121,9 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                                   disabledForegroundColor: Colors.white70,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
                                   minimumSize: Size(double.infinity, 44.h), // 고정 높이
-                                  elevation: isFullySelected ? 2 : 0,
+                                  elevation: isButtonEnabled ? 2 : 0,
                                 ),
-                                onPressed: isFullySelected
+                                onPressed: isButtonEnabled
                                     ? () {
                                         showDialog(
                                           context: context,
@@ -146,9 +150,9 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                                   disabledForegroundColor: Colors.white70,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
                                   minimumSize: Size(double.infinity, 44.h), // 고정 높이
-                                  elevation: isFullySelected ? 2 : 0,
+                                  elevation: isButtonEnabled ? 2 : 0,
                                 ),
-                                onPressed: isFullySelected
+                                onPressed: isButtonEnabled
                                     ? () async {
                                         RoadNameAddress? result = await showDialog(
                                           context: context,

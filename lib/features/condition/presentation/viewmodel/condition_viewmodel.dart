@@ -111,14 +111,20 @@ class ConditionViewModel extends StateNotifier<Condition> {
         eupmyeondong: state.eupmyeondong,
       );
 
-      // 가나다(오름차순) 정렬: sido > sigungu > eupmyeondong
-      results.sort((a, b) {
-        final sidoComp = a.sido.compareTo(b.sido);
-        if (sidoComp != 0) return sidoComp;
-        final sigunguComp = a.sigungu.compareTo(b.sigungu);
-        if (sigunguComp != 0) return sigunguComp;
-        return a.eupmyeondong.compareTo(b.eupmyeondong);
-      });
+      // 정렬 처리
+      if (distanceBaseSections.contains(state.section)) {
+        // 거리별 구간일 경우: 1km, 2km, 3km 등 거리(distance) 오름차순
+        results.sort((a, b) => a.distance.compareTo(b.distance));
+      } else {
+        // 단거리/일반 구간일 경우: 가나다(오름차순) 정렬 (sido > sigungu > eupmyeondong)
+        results.sort((a, b) {
+          final sidoComp = a.sido.compareTo(b.sido);
+          if (sidoComp != 0) return sidoComp;
+          final sigunguComp = a.sigungu.compareTo(b.sigungu);
+          if (sigunguComp != 0) return sigunguComp;
+          return a.eupmyeondong.compareTo(b.eupmyeondong);
+        });
+      }
 
       // 결과를 FareResultViewModel에 저장
       _ref.read(fareResultViewModelProvider.notifier).setResults(results);
@@ -190,14 +196,19 @@ class ConditionViewModel extends StateNotifier<Condition> {
         );
       }
 
-      // 가나다(오름차순) 정렬: sido > sigungu > eupmyeondong
-      results.sort((a, b) {
-        final sidoComp = a.sido.compareTo(b.sido);
-        if (sidoComp != 0) return sidoComp;
-        final sigunguComp = a.sigungu.compareTo(b.sigungu);
-        if (sigunguComp != 0) return sigunguComp;
-        return a.eupmyeondong.compareTo(b.eupmyeondong);
-      });
+      // 정렬 처리
+      if (distanceBaseSections.contains(state.section)) {
+        results.sort((a, b) => a.distance.compareTo(b.distance));
+      } else {
+        // 가나다(오름차순) 정렬: sido > sigungu > eupmyeondong
+        results.sort((a, b) {
+          final sidoComp = a.sido.compareTo(b.sido);
+          if (sidoComp != 0) return sidoComp;
+          final sigunguComp = a.sigungu.compareTo(b.sigungu);
+          if (sigunguComp != 0) return sigunguComp;
+          return a.eupmyeondong.compareTo(b.eupmyeondong);
+        });
+      }
 
       // 결과를 FareResultViewModel에 저장
       _ref.read(fareResultViewModelProvider.notifier).setResults(results);
