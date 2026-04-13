@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_all/features/condition/presentation/widgets/surcharge_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/send_mail_flow_button.dart';
 import '../data/condition_options.dart';
+import '../data/surcharge_options.dart';
 import '../models/selected_fare.dart';
 
 class StatisticsPage extends ConsumerStatefulWidget {
@@ -1312,7 +1313,9 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      '${fare.row.sido}>${fare.row.sigungu}>${fare.row.eupmyeondong}',
+                      distanceBaseSections.contains(fare.row.section)
+                          ? '${fare.row.distance}km'
+                          : '${fare.row.sido}>${fare.row.sigungu}>${fare.row.eupmyeondong}',
                       style: TextStyle(
                         fontSize: 16.sp,
                         color: Colors.black87,
