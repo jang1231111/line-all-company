@@ -161,7 +161,7 @@ const originBaseSections = ['incheon', 'incheon-new', 'incheon-intl', 'pyeongtae
 
 /// regional-surcharge 요금을 distance base에 더하는 거리별 구간
 /// (distance 운임에는 인천/평택 할증 미포함 → 별도 가산)
-const distanceBaseSections = ['distance-incheon', 'distance-pyeongtaek'];
+const distanceBaseSections = ['distance', 'distance-incheon', 'distance-pyeongtaek'];
 
 /// 구간 코드를 regional-surcharge 지역명으로 변환
 /// 반환: 'incheon' | 'pyeongtaek' | ''
