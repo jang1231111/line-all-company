@@ -8,6 +8,7 @@ import 'package:line_all/features/condition/presentation/widgets/save_consignor_
 import 'package:line_all/features/condition/presentation/widgets/surcharge_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/send_mail_flow_button.dart';
 import '../data/condition_options.dart';
+import '../data/surcharge_options.dart';
 import '../providers/selected_fare_result_provider.dart';
 import 'send_fare_input_dialog.dart';
 
@@ -228,7 +229,9 @@ class SelectedFareDialog extends ConsumerWidget {
                                   SizedBox(height: 8.h),
                                   // location + price + surcharge
                                   Text(
-                                    '${fare.row.sido} > ${fare.row.sigungu} > ${fare.row.eupmyeondong}',
+                                    distanceBaseSections.contains(fare.row.section)
+                                        ? '거리: ${fare.row.distance} km'
+                                        : '${fare.row.sido} > ${fare.row.sigungu} > ${fare.row.eupmyeondong}',
                                     style: TextStyle(
                                       fontSize: 17.sp,
                                       color: Colors.black87,

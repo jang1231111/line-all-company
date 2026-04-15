@@ -21,3 +21,27 @@ List<String> getBeopjeongdongs(
 ) => (sido != null && sigungu != null)
     ? withLabel(map['${sido}_$sigungu'], '법정동 선택')
     : ['법정동 선택'];
+
+// 2026년 특별 로직: API 결과(FareResult)에서 직접 목록 생성
+List<String> getSigungusFromResults(List<FareResult> results, String? sido) {
+  if (sido == null) return ['시군구 선택'];
+  final sigungus = results
+      .where((r) => r.sido == sido)
+      .map((r) => r.sigungu)
+      .toSet()
+      .toList()
+    ..sort();
+  return withLabel(sigungus, '시군구 선택');
+}
+
+List<String> getEupmyeondongsFromResults(
+    List<FareResult> results, String? sido, String? sigungu) {
+  if (sido == null || sigungu == null) return ['읍면동 선택'];
+  final eupmyeondongs = results
+      .where((r) => r.sido == sido && r.sigungu == sigungu)
+      .map((r) => r.eupmyeondong)
+      .toSet()
+      .toList()
+    ..sort();
+  return withLabel(eupmyeondongs, '읍면동 선택');
+}

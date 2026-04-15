@@ -6,6 +6,7 @@ import 'package:line_all/features/condition/presentation/providers/condition_pro
 import 'package:line_all/features/condition/presentation/widgets/period_dropdown_row.dart';
 import 'package:line_all/features/condition/presentation/widgets/region_selectors_dialog.dart';
 import 'package:line_all/features/condition/presentation/widgets/road_name_search_dialog.dart';
+import 'package:line_all/features/condition/presentation/data/surcharge_options.dart';
 
 class ConditionFormWidget extends ConsumerStatefulWidget {
   final GlobalKey periodTargetKey;
@@ -32,80 +33,19 @@ class ConditionFormWidget extends ConsumerStatefulWidget {
 
 class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
   final _formKey = GlobalKey<FormState>();
-  final _periodFocusNode = FocusNode();
-  final _typeFocusNode = FocusNode();
-  final _sectionFocusNode = FocusNode();
-
-  bool _periodError = false;
-  bool _typeError = false;
-  bool _sectionError = false;
-
-  @override
-  void dispose() {
-    _periodFocusNode.dispose();
-    _typeFocusNode.dispose();
-    _sectionFocusNode.dispose();
-    super.dispose();
-  }
-
-  Future<void> _focusAndScroll(
-    GlobalKey key,
-    FocusNode focusNode,
-    String message,
-  ) async {
-    // focusNode.requestFocus();
-    // await Scrollable.ensureVisible(
-    //   key.currentContext!,
-    //   duration: const Duration(milliseconds: 200),
-    //   curve: Curves.easeInOut,
-    //   alignment: 0.2,
-    // );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: TextStyle(fontSize: 18.sp)),
-      ),
-    );
-  }
-
-  void _validateAndHandleSearchType(Function onValid) async {
-    final condition = ref.read(conditionViewModelProvider);
-    setState(() {
-      _periodError = condition.period == null || condition.period!.isEmpty;
-      _typeError = condition.type == null || condition.type!.isEmpty;
-      _sectionError = condition.section == null || condition.section!.isEmpty;
-    });
-
-    if (_periodError) {
-      await _focusAndScroll(
-        widget.periodTargetKey,
-        _periodFocusNode,
-        '기간을 선택해주세요.',
-      );
-      return;
-    }
-    if (_typeError) {
-      await _focusAndScroll(
-        widget.typeTargetKey,
-        _typeFocusNode,
-        '유형을 선택해주세요.',
-      );
-      return;
-    }
-    if (_sectionError) {
-      await _focusAndScroll(
-        widget.sectionTargetKey,
-        _sectionFocusNode,
-        '구간을 선택해주세요.',
-      );
-      return;
-    }
-    onValid();
-  }
 
   @override
   Widget build(BuildContext context) {
     final condition = ref.watch(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
+
+    final isFullySelected =
+        condition.period?.isNotEmpty == true &&
+        condition.type?.isNotEmpty == true &&
+        condition.section?.isNotEmpty == true;
+
+    final isDistanceBase = distanceBaseSections.contains(condition.section);
+    final isButtonEnabled = isFullySelected && !isDistanceBase;
 
     return Center(
       child: ConstrainedBox(
@@ -159,9 +99,6 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       key: widget.periodTargetKey,
                       typeKey: widget.typeTargetKey,
                       sectionKey: widget.sectionTargetKey,
-                      periodFocusNode: _periodFocusNode,
-                      typeFocusNode: _typeFocusNode,
-                      sectionFocusNode: _sectionFocusNode,
                     ),
                     SizedBox(height: 4.h),
                     // 검색 버튼들을 인라인으로 두어 개별 키 부여
@@ -170,53 +107,86 @@ class _ConditionFormWidgetState extends ConsumerState<ConditionFormWidget> {
                       child: Row(
                         children: [
                           Expanded(
+                            flex: 5,
                             child: MediaQuery(
                               // 버튼 내부 텍스트/레이아웃의 시스템 textScaleFactor 영향을 차단
-                              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                              data: MediaQuery.of(
+                                context,
+                              ).copyWith(textScaleFactor: 1.0),
                               child: ElevatedButton.icon(
                                 key: widget.regionButtonKey,
                                 icon: Icon(Icons.search, size: 18.sp),
-                                label: Text('지역 검색', style: TextStyle(fontSize: 14.sp)),
+                                label: Text(
+                                  '지역 검색',
+                                  style: TextStyle(fontSize: 13.sp),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.indigo,
+                                  disabledBackgroundColor: Colors.indigo
+                                      .withOpacity(0.35),
+                                  foregroundColor: Colors.white,
+                                  disabledForegroundColor: Colors.white70,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
-                                  minimumSize: Size(double.infinity, 44.h), // 고정 높이
+                                  minimumSize: Size(
+                                    double.infinity,
+                                    44.h,
+                                  ), // 고정 높이
+                                  elevation: isButtonEnabled ? 2 : 0,
                                 ),
-                                onPressed: () {
-                                  _validateAndHandleSearchType(() {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => const RegionSelectorsDialog(),
-                                    );
-                                  });
-                                },
+                                onPressed: isButtonEnabled
+                                    ? () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                              const RegionSelectorsDialog(),
+                                        );
+                                      }
+                                    : null,
                               ),
                             ),
                           ),
                           SizedBox(width: 8.w),
                           Expanded(
+                            flex: 6,
                             child: MediaQuery(
-                              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                              data: MediaQuery.of(
+                                context,
+                              ).copyWith(textScaleFactor: 1.0),
                               child: ElevatedButton.icon(
                                 key: widget.roadButtonKey,
                                 icon: Icon(Icons.place, size: 18.sp),
-                                label: Text('도로명 검색', style: TextStyle(fontSize: 14.sp)),
+                                label: Text(
+                                  '도로명, 지번 검색',
+                                  style: TextStyle(fontSize: 13.sp),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
+                                  disabledBackgroundColor: Colors.green
+                                      .withOpacity(0.35),
+                                  foregroundColor: Colors.white,
+                                  disabledForegroundColor: Colors.white70,
                                   padding: EdgeInsets.symmetric(vertical: 12.h),
-                                  minimumSize: Size(double.infinity, 44.h),
+                                  minimumSize: Size(
+                                    double.infinity,
+                                    44.h,
+                                  ), // 고정 높이
+                                  elevation: isButtonEnabled ? 2 : 0,
                                 ),
-                                onPressed: () {
-                                  _validateAndHandleSearchType(() async {
-                                    RoadNameAddress? result = await showDialog(
-                                      context: context,
-                                      builder: (context) => const RoadNameSearchDialog(),
-                                    );
-                                    if (result != null) {
-                                      await viewModel.searchByRoadName(result);
-                                    }
-                                  });
-                                },
+                                onPressed: isButtonEnabled
+                                    ? () async {
+                                        RoadNameAddress? result =
+                                            await showDialog(
+                                              context: context,
+                                              builder: (context) =>
+                                                  const RoadNameSearchDialog(),
+                                            );
+                                        if (result != null) {
+                                          await viewModel.searchByRoadName(
+                                            result,
+                                          );
+                                        }
+                                      }
+                                    : null,
                               ),
                             ),
                           ),

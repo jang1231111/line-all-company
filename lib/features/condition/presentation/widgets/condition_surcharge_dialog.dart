@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:line_all/features/condition/presentation/data/condition_options.dart'; // isPeriod2026, isAprilGuideline
 import 'package:line_all/features/condition/presentation/data/surcharge_calculator.dart';
+import 'package:line_all/features/condition/presentation/data/surcharge_options.dart';
 import 'package:line_all/features/condition/presentation/providers/selected_fare_result_provider.dart';
 
 import '../providers/condition_provider.dart';
@@ -38,13 +40,46 @@ class _ConditionSurchargeDialogState
   Widget build(BuildContext context) {
     final condition = ref.read(conditionViewModelProvider);
     final viewModel = ref.read(conditionViewModelProvider.notifier);
+    final is2026Period = isPeriod2026(condition.period); // 2월/4월 모두 2026 옵션 사용
+    final isOneWay = condition.section?.endsWith('-oneway') ?? false;
+    final section = condition.section ?? '';
+
+    // 지역 기점 배지는 4월 운영지침일 때만 표시
+    final bool isIncheonSection = incheonAreaSections.contains(section);
+    final bool isPyeongtaekSection = pyeongtaekAreaSections.contains(section);
+    final bool isAreaBadgeVisible =
+        isAprilGuideline(condition.period) && (isIncheonSection || isPyeongtaekSection);
+    final String? areaBadgeLabel = isAreaBadgeVisible
+        ? (isIncheonSection ? '인천 기점(20%)' : '평택 기점(18%)')
+        : null;
+
+    final options = is2026Period ? surcharge2026Options : surchargeCheckboxOptions;
+
+    // 편도일 경우 냉동/냉장 옵션 비활성화 + 지역 기점 할증은 체크박스에서 제외
+    final processedOptions = options
+        .where(
+          (opt) => opt.id != 'incheon_area' && opt.id != 'pyeongtaek_area',
+        )
+        .map((opt) {
+          if (isOneWay && opt.id == 'refrigerated') {
+            return CheckboxOption(
+              id: opt.id,
+              label: opt.label,
+              rate: opt.rate,
+              isFixed: opt.isFixed,
+              isDivider: opt.isDivider,
+              disabled: true,
+            );
+          }
+          return opt;
+        })
+        .toList();
 
     final surchargeResult = calculateSurcharge(
       selectedCheckboxIds: surcharges,
-      dangerType: dangerType,
       weightType: weightType,
-      specialType: specialType,
       cancellationFee: cancellationFee,
+      is2026Period: is2026Period,
     );
 
     return Dialog(
@@ -89,9 +124,7 @@ class _ConditionSurchargeDialogState
                       ),
                       SizedBox(width: 10.w),
                       Text(
-                        surchargeResult != null
-                            ? '${(surchargeResult.rate * 100).toStringAsFixed(2)}%'
-                            : '0.00%',
+                        '${(surchargeResult.rate * 100).toStringAsFixed(2)}%',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16.sp,
@@ -104,6 +137,47 @@ class _ConditionSurchargeDialogState
               ),
 
               SizedBox(height: 8.h),
+
+              // 지역 기점 할증 배지 (4월 운영지침 + 인천/평택 구간일 때만)
+              if (areaBadgeLabel != null) ...[
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  margin: EdgeInsets.only(bottom: 6.h),
+                  decoration: BoxDecoration(
+                    color: Colors.indigo.shade50,
+                    borderRadius: BorderRadius.circular(10.r),
+                    border: Border.all(color: Colors.indigo.shade200),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.lock_outline,
+                        size: 15.sp,
+                        color: Colors.indigo.shade600,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        areaBadgeLabel,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.indigo.shade700,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        '자동 적용',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.indigo.shade400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
 
               // 초기화 버튼 (작게)
               Row(
@@ -128,7 +202,13 @@ class _ConditionSurchargeDialogState
                         borderRadius: BorderRadius.circular(10.r),
                         onTap: () {
                           setState(() {
-                            surcharges = [];
+                            // 지역 기점 할증(incheon_area/pyeongtaek_area)은
+                            // 구간 선택 시 자동 적용되므로 초기화 시에도 유지
+                            final areaIds = ['incheon_area', 'pyeongtaek_area'];
+                            surcharges =
+                                surcharges
+                                    .where((id) => areaIds.contains(id))
+                                    .toList();
                             dangerType = '';
                             weightType = '';
                             specialType = '';
@@ -180,48 +260,62 @@ class _ConditionSurchargeDialogState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        ...surchargeCheckboxOptions.map((opt) {
-                          if (opt.isDivider) return Divider(height: 12.h);
-                          final checked = surcharges.contains(opt.id);
+                        ...processedOptions.map((opt) {
+                          if (opt.isDivider) return Divider();
+                          final isDisabled = opt.disabled;
+                          final checked =
+                              surcharges.contains(opt.id) && !isDisabled;
                           return Container(
                             margin: EdgeInsets.only(bottom: 10.h),
                             padding: EdgeInsets.symmetric(horizontal: 8.w),
                             decoration: BoxDecoration(
-                              color: checked ? Colors.orange[50] : Colors.white,
-                              borderRadius: BorderRadius.circular(8.r),
+                              color: isDisabled
+                                  ? Colors.grey[100]
+                                  : (checked
+                                        ? Colors.orange[50]
+                                        : Colors.white),
+                              borderRadius: BorderRadius.circular(10.r),
                               border: Border.all(
-                                color: checked
-                                    ? Colors.orange.shade200
-                                    : Colors.orange.shade50,
-                                width: checked ? 1.5 : 1,
+                                color: isDisabled
+                                    ? Colors.grey.shade300
+                                    : (checked
+                                          ? Colors.orange
+                                          : Colors.orange.shade100),
+                                width: checked ? 2 : 1,
                               ),
                             ),
-                            child: CheckboxListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                opt.label,
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: checked
-                                      ? Colors.orange[800]
-                                      : Colors.black87,
-                                  fontWeight: checked
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
+                            child: Opacity(
+                              opacity: isDisabled ? 0.5 : 1.0,
+                              child: CheckboxListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: Text(
+                                  opt.label,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: checked
+                                        ? Colors.orange[800]
+                                        : Colors.black87,
+                                    fontWeight: checked
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
                                 ),
+                                value: checked,
+                                activeColor: Colors.orange,
+                                onChanged: isDisabled
+                                    ? null
+                                    : (v) {
+                                        setState(() {
+                                          if (v == true) {
+                                            if (!surcharges.contains(opt.id)) {
+                                              surcharges.add(opt.id);
+                                            }
+                                          } else {
+                                            surcharges.remove(opt.id);
+                                          }
+                                        });
+                                      },
                               ),
-                              value: checked,
-                              activeColor: Colors.orange,
-                              onChanged: (v) {
-                                setState(() {
-                                  if (v == true) {
-                                    if (!surcharges.contains(opt.id))
-                                      surcharges.add(opt.id);
-                                  } else {
-                                    surcharges.remove(opt.id);
-                                  }
-                                });
-                              },
                             ),
                           );
                         }),

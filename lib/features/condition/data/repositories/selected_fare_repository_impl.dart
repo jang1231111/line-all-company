@@ -15,6 +15,7 @@ import 'package:image/image.dart' as img;
 import 'package:line_all/features/condition/domain/repositories/selected_fare_repository.dart';
 import 'package:line_all/features/condition/presentation/models/selected_fare.dart';
 import 'package:line_all/features/condition/presentation/data/condition_options.dart';
+import 'package:line_all/features/condition/presentation/data/surcharge_options.dart';
 
 class SelectedFareRepositoryImpl implements SelectedFareRepository {
   SelectedFareRepositoryImpl();
@@ -217,8 +218,10 @@ class SelectedFareRepositoryImpl implements SelectedFareRepository {
         build: (pw.Context ctx) {
           final headers = ['No', '항구', '지역', '규격', '할증률', '가격(원)', '비고(할증)'];
           final data = fares.map<List<String>>((f) {
-            final region =
-                '${f.row.sido}${f.row.sigungu.isNotEmpty ? ' ${f.row.sigungu}' : ''}${f.row.eupmyeondong.isNotEmpty ? ' ${f.row.eupmyeondong}' : ''}';
+            final isDistance = distanceBaseSections.contains(f.row.section);
+            final region = isDistance
+                ? '${f.row.distance}km'
+                : '${f.row.sido}${f.row.sigungu.isNotEmpty ? ' ${f.row.sigungu}' : ''}${f.row.eupmyeondong.isNotEmpty ? ' ${f.row.eupmyeondong}' : ''}';
             final surcharge = f.surchargeLabels.isNotEmpty
                 ? f.surchargeLabels.join(', ')
                 : '';

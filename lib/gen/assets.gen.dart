@@ -27,6 +27,9 @@ class $LibAssetsGen {
   /// Directory path: lib/assets/fonts
   $LibAssetsFontsGen get fonts => const $LibAssetsFontsGen();
 
+  /// Directory path: lib/assets/icon
+  $LibAssetsIconGen get icon => const $LibAssetsIconGen();
+
   /// File path: lib/assets/lax_logo.png
   AssetGenImage get laxLogo => const AssetGenImage('lib/assets/lax_logo.png');
 
@@ -89,6 +92,17 @@ class $LibAssetsFontsGen {
 
   /// List of all assets
   List<String> get values => [notoSansKRRegular];
+}
+
+class $LibAssetsIconGen {
+  const $LibAssetsIconGen();
+
+  /// File path: lib/assets/icon/app_icon.png
+  AssetGenImage get appIcon =>
+      const AssetGenImage('lib/assets/icon/app_icon.png');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [appIcon];
 }
 
 class Assets {

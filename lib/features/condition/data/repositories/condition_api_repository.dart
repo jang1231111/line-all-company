@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:line_all/features/condition/domain/models/fare_result.dart';
+import 'package:line_all/features/condition/domain/models/regional_surcharge.dart';
+import 'package:line_all/features/condition/presentation/data/condition_options.dart'; // kPeriod2026Apr
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 // import '../../domain/models/condition.dart';
@@ -45,8 +47,11 @@ class ConditionApiRepository implements ConditionRepository {
     int? unnotice,
     String? mode,
   }) async {
+    // API에는 항상 순수 기간 값으로 전달
+    // 4월 운영지침 내부 구분자('-apr')를 제거
+    final apiPeriod = period.replaceAll(kPeriod2026Apr.substring(kPeriod2026Feb.length), '');
     final queryParameters = {
-      'period': period,
+      'period': apiPeriod,
       'type': type,
       'section': section,
       if (sido != null && sido.isNotEmpty) 'sido': sido,
@@ -100,8 +105,10 @@ class ConditionApiRepository implements ConditionRepository {
     String? destinationSearch,
     String? dong,
   }) async {
+    // API에는 항상 순수 기간 값으로 전달
+    final apiPeriod = period.replaceAll(kPeriod2026Apr.substring(kPeriod2026Feb.length), '');
     final queryParameters = {
-      'period': period,
+      'period': apiPeriod,
       'type': type,
       'section': section,
       'sido': sido,
@@ -123,6 +130,41 @@ class ConditionApiRepository implements ConditionRepository {
                 (item) => FareResult.fromApiJson(
                   Map<String, dynamic>.from(item as Map<String, dynamic>),
                   type,
+                ),
+              )
+              .toList();
+        } else {
+          throw Exception('API 데이터 형식 오류');
+        }
+      } else {
+        throw Exception(
+          'API 오류: ${response.statusCode} ${response.statusMessage}',
+        );
+      }
+    } on DioException catch (e) {
+      throw Exception('Dio 오류: ${e.message}');
+    }
+  }
+
+  /// [GET] /api/regional-surcharge
+  /// 인천/평택 지역별 거리 구간 할증 데이터를 가져옵니다.
+  /// 앱 시작 시 캐싱되어 재사용됩니다.
+  @override
+  Future<List<RegionalSurcharge>> getRegionalSurcharge({
+    required String region,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/regional-surcharge',
+        queryParameters: {'region': region},
+      );
+      if (response.statusCode == 200) {
+        final data = response.data['data'];
+        if (data is List) {
+          return data
+              .map(
+                (item) => RegionalSurcharge.fromJson(
+                  Map<String, dynamic>.from(item as Map),
                 ),
               )
               .toList();

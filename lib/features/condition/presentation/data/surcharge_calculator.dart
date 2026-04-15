@@ -5,36 +5,46 @@ class SurchargeResult {
   final double rate; // 예: 0.55 (55%)
   final double cancellationFeeAmount; // 배차 취소료
   final List<String> labels; // 적용된 항목 라벨
+  final int fixedAmount; // 고정 금액 합계
 
   const SurchargeResult({
     this.rate = 0.0,
     this.cancellationFeeAmount = 1.0,
     this.labels = const [],
+    this.fixedAmount = 0,
   });
 }
 
 /// 할증률 계산 함수
+
 SurchargeResult calculateSurcharge({
   required List<String> selectedCheckboxIds,
-  String? dangerType,
   String? weightType,
-  String? specialType,
   String? cancellationFee,
+  bool is2026Period = false,
 }) {
-  final rates = <double>[];
+  final rateItems = <({double rate, String label})>[];
   final labels = <String>[];
 
-  // 체크박스 할증률 (고정금액 무시)
+  int fixedAmount = 0;
+
+  final options = is2026Period
+      ? surcharge2026Options
+      : surchargeCheckboxOptions;
+  // 체크박스 할증률 및 고정금액
   for (final id in selectedCheckboxIds) {
-    final opt = surchargeCheckboxOptions.firstWhere(
+    final opt = options.firstWhere(
       (o) => o.id == id,
       orElse: () => CheckboxOption(id: '', label: ''),
     );
     if (opt.id.isNotEmpty) {
-      if (opt.rate != null && !opt.isFixed) {
-        rates.add(opt.rate!);
+      if (opt.isFixed) {
+        if (opt.id == 'xray') fixedAmount += 100000;
+        if (opt.id == 'incheon') fixedAmount += 40000;
+        labels.add(opt.label);
+      } else if (opt.rate != null) {
+        rateItems.add((rate: opt.rate!, label: opt.label));
       }
-      labels.add(opt.label);
     }
   }
 
@@ -46,8 +56,7 @@ SurchargeResult calculateSurcharge({
         orElse: () => SurchargeDropdownOption(value: '', label: ''),
       );
       if (opt.value.isNotEmpty && opt.rate != null) {
-        rates.add(opt.rate!);
-        labels.add(opt.label);
+        rateItems.add((rate: opt.rate!, label: opt.label));
       }
     }
   }
@@ -69,12 +78,20 @@ SurchargeResult calculateSurcharge({
     }
   }
 
-  // 할증률 계산 (가장 높은 할증률 100% + 나머지 50%)
+  // 할증률 계산 (가장 높은 할증률 100% + 나머지 상위 2개 50%) - 최대 상위 3개만 적용
   double finalRate = 0;
-  if (rates.isNotEmpty) {
-    rates.sort((a, b) => b.compareTo(a));
-    final maxRate = rates.first;
-    final rest = rates.skip(1).fold(0.0, (sum, r) => sum + r * 0.5);
+  if (rateItems.isNotEmpty) {
+    // 할증률 기준 내림차순 정렬
+    rateItems.sort((a, b) => b.rate.compareTo(a.rate));
+
+    // 상위 3개만 추출
+    final top3Items = rateItems.take(3).toList();
+
+    // 상위 3개 항목의 라벨을 추가
+    labels.addAll(top3Items.map((e) => e.label));
+
+    final maxRate = top3Items.first.rate;
+    final rest = top3Items.skip(1).fold(0.0, (sum, r) => sum + r.rate * 0.5);
     finalRate = maxRate + rest;
     finalRate = double.parse(finalRate.toStringAsFixed(6)); // 소수점 6자리
   }
@@ -83,5 +100,6 @@ SurchargeResult calculateSurcharge({
     rate: finalRate,
     cancellationFeeAmount: cancellationFeeAmount,
     labels: labels,
+    fixedAmount: fixedAmount,
   );
 }
