@@ -6,7 +6,17 @@ import 'package:line_all/features/condition/presentation/widgets/condition_form_
 void main() {
   testWidgets('기간 미입력시 에러 메시지 노출', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: Scaffold(body: ConditionFormWidget()))),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: ConditionFormWidget(
+              periodTargetKey: GlobalKey(),
+              typeTargetKey: GlobalKey(),
+              sectionTargetKey: GlobalKey(),
+            ),
+          ),
+        ),
+      ),
     );
     // 저장 버튼 클릭
     final saveBtn = find.widgetWithText(ElevatedButton, '저장');
@@ -18,7 +28,17 @@ void main() {
 
   testWidgets('기간 입력 후 저장 성공 메시지', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: Scaffold(body: ConditionFormWidget()))),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: ConditionFormWidget(
+              periodTargetKey: GlobalKey(),
+              typeTargetKey: GlobalKey(),
+              sectionTargetKey: GlobalKey(),
+            ),
+          ),
+        ),
+      ),
     );
     // 기간 입력
   final periodField = find.byType(TextFormField).first;
