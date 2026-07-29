@@ -54,7 +54,6 @@ flutter:
     - .env
     - lib/assets/icon/app_icon.png
     - lib/assets/fonts/NotoSansKR-Regular.ttf
-    - lib/assets/destination_hierarchy.json
     - lib/assets/loading.json
     - lib/assets/lax_logo.png
     - lib/assets/lineall_logo.png

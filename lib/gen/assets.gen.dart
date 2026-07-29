@@ -21,8 +21,6 @@ class $LibGen {
 class $LibAssetsGen {
   const $LibAssetsGen();
 
-  /// File path: lib/assets/destination_hierarchy.json
-  String get destinationHierarchy => 'lib/assets/destination_hierarchy.json';
 
   /// Directory path: lib/assets/fonts
   $LibAssetsFontsGen get fonts => const $LibAssetsFontsGen();
@@ -70,7 +68,6 @@ class $LibAssetsGen {
 
   /// List of all assets
   List<dynamic> get values => [
-    destinationHierarchy,
     laxLogo,
     laxgpLogo,
     laxgpLogo2,

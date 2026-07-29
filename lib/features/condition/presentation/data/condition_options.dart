@@ -122,28 +122,6 @@ const sectionOptions = [
   ),
 ];
 
-/// 시도 리스트 (destination_hierarchy.json 참고)
-const sidoOptions = [
-  '서울특별시',
-  '부산광역시',
-  '대구광역시',
-  '인천광역시',
-  '광주광역시',
-  '대전광역시',
-  '울산광역시',
-  '경기도',
-  '강원도',
-  '충청북도',
-  '충청남도',
-  '전라북도',
-  '전라남도',
-  '경상북도',
-  '경상남도',
-  '세종특별자치시',
-];
-
-// 시군구, 읍면동, 법정동 등은 json에서 동적으로 파싱해서 사용 권장
-
 // section label 가져오기 함수
 String getSectionLabel(String value) {
   final option = sectionOptions.firstWhere(
