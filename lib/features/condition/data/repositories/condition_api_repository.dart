@@ -180,4 +180,58 @@ class ConditionApiRepository implements ConditionRepository {
       throw Exception('Dio 오류: ${e.message}');
     }
   }
+
+  /// /api/routes 엔드포인트를 호출하여 mode('sido', 'sigungu', 'eupmyeondong')별 지역 목록을 가져옵니다.
+  /// 서버에서 반환한 응답 데이터를 파싱하고 중복을 제거 및 정렬하여 드롭다운 항목으로 제공합니다.
+  @override
+  Future<List<String>> fetchRegions({
+    required String mode,
+    required String period,
+    required String section,
+    String? sido,
+    String? sigungu,
+  }) async {
+    final queryParameters = {
+      'mode': mode,
+      'period': period,
+      'section': section,
+      'type': 'safe',
+      if (sido != null && sido.isNotEmpty) 'sido': sido,
+      if (sigungu != null && sigungu.isNotEmpty) 'sigungu': sigungu,
+    };
+    try {
+      final response = await _dio.get(
+        '/api/routes',
+        queryParameters: queryParameters,
+      );
+      if (response.statusCode == 200) {
+        final data = response.data['data'];
+        if (data is List) {
+          final List<String> list = [];
+          for (final item in data) {
+            if (item is String) {
+              if (item.isNotEmpty) list.add(item);
+            } else if (item is Map<String, dynamic>) {
+              final val = item[mode] ??
+                  item['sido'] ??
+                  item['sigungu'] ??
+                  item['eupmyeondong'] ??
+                  item['name'];
+              if (val != null && val.toString().isNotEmpty) {
+                list.add(val.toString());
+              }
+            }
+          }
+          return list.toSet().toList()..sort();
+        }
+        return [];
+      } else {
+        throw Exception(
+          'API 오류: ${response.statusCode} ${response.statusMessage}',
+        );
+      }
+    } on DioException catch (e) {
+      throw Exception('Dio 오류: ${e.message}');
+    }
+  }
 }
