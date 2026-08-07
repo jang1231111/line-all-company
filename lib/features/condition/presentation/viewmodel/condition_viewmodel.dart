@@ -22,6 +22,20 @@ class ConditionViewModel extends StateNotifier<Condition> {
   final ConditionRepository _repository;
   final Ref _ref;
 
+  /// 배차취소료 선택 여부에 따라 검색용 구간(Section) 파라미터 변환
+  /// 
+  /// [의도]: 배차취소료가 선택된 경우 편도 지역(*-oneway)도 왕복 단가 기준 금액을 가져와서
+  /// 계산해야 한다는 비즈니스 규칙에 따라, 편도 구간을 대응하는 왕복 구간 파라미터로 대체합니다.
+  String _getEffectiveSection(String? section, String? cancellationFee) {
+    if (section == null) return '';
+    final hasCancellationFee =
+        cancellationFee != null && cancellationFee.isNotEmpty;
+    if (hasCancellationFee && section.endsWith('-oneway')) {
+      return section.replaceAll('-oneway', '');
+    }
+    return section;
+  }
+
   void reset() {
     // 초기 상태로 리셋 (period는 기본값으로 설정)
     state = Condition(period: periodOptions.first.value);
@@ -84,13 +98,21 @@ class ConditionViewModel extends StateNotifier<Condition> {
     final isFullySelected = newState.period?.isNotEmpty == true &&
         newState.type?.isNotEmpty == true &&
         newState.section?.isNotEmpty == true;
+
+    // 배차취소료 선택 상태 변경에 따라 실제 조회 대상 구간(effectiveSection)이 바뀔 수 있음
+    final wasEffectiveSection =
+        _getEffectiveSection(state.section, state.cancellationFee);
+    final isEffectiveSection =
+        _getEffectiveSection(newState.section, newState.cancellationFee);
+
     final conditionChanged = state.period != newState.period ||
         state.type != newState.type ||
-        state.section != newState.section;
+        state.section != newState.section ||
+        wasEffectiveSection != isEffectiveSection;
 
     state = newState.copyWith(surchargeResult: surchargeResult);
 
-    // 기간/유형/구간 모두 선택 시 자동 API 호출
+    // 기간/유형/구간 모두 선택 시 또는 배차취소료 선택으로 유효 구간이 변경된 경우 자동 API 호출
     if (isFullySelected && conditionChanged) {
       Future.microtask(() => searchByRegion());
     } else if (!isFullySelected && wasFullySelected) {
@@ -102,17 +124,19 @@ class ConditionViewModel extends StateNotifier<Condition> {
     _ref.read(fareResultViewModelProvider.notifier).setLoading();
 
     try {
+      final effectiveSection =
+          _getEffectiveSection(state.section, state.cancellationFee);
       final results = await _repository.searchByRegion(
         period: state.period!,
         type: state.type!,
-        section: state.section ?? '',
+        section: effectiveSection,
         sido: state.sido,
         sigungu: state.sigungu,
         eupmyeondong: state.eupmyeondong,
       );
 
       // 정렬 처리
-      if (distanceBaseSections.contains(state.section)) {
+      if (distanceBaseSections.contains(effectiveSection)) {
         // 거리별 구간일 경우: 1km, 2km, 3km 등 거리(distance) 오름차순
         results.sort((a, b) => a.distance.compareTo(b.distance));
       } else {
@@ -152,6 +176,9 @@ class ConditionViewModel extends StateNotifier<Condition> {
     _ref.read(fareResultViewModelProvider.notifier).setLoading();
 
     try {
+      final effectiveSection =
+          _getEffectiveSection(state.section, state.cancellationFee);
+
       // hemdNm non-null
       if (address.hemdNm != null) {
         // 음면동 값 추출
@@ -165,7 +192,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
         results = await _repository.searchByRoadName(
           period: state.period!,
           type: state.type!,
-          section: state.section ?? '',
+          section: effectiveSection,
           sido: sido,
           sigungu: sigungu,
           eupmyeondong: eupmyeondong,
@@ -176,7 +203,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
           results = await _repository.searchByRoadName(
             period: state.period!,
             type: state.type!,
-            section: state.section ?? '',
+            section: effectiveSection,
             sido: sido,
             sigungu: sigungu,
             destinationSearch:
@@ -189,7 +216,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
         results = await _repository.searchByRoadName(
           period: state.period!,
           type: state.type!,
-          section: state.section ?? '',
+          section: effectiveSection,
           sido: sido,
           sigungu: sigungu,
           dong: address.emdNm,
@@ -197,7 +224,7 @@ class ConditionViewModel extends StateNotifier<Condition> {
       }
 
       // 정렬 처리
-      if (distanceBaseSections.contains(state.section)) {
+      if (distanceBaseSections.contains(effectiveSection)) {
         results.sort((a, b) => a.distance.compareTo(b.distance));
       } else {
         // 가나다(오름차순) 정렬: sido > sigungu > eupmyeondong
