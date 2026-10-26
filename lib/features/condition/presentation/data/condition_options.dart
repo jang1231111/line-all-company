@@ -4,6 +4,9 @@
 // 2026년도 기간 상수 및 헬퍼
 // ─────────────────────────────────────────
 
+/// 2026년 11월 운영지침 기간 값
+const kPeriod2026Nov = '2026-11-01~2026-11-30';
+
 /// 2026년 8월 운영지침 기간 값
 const kPeriod2026Aug = '2026-08-01~2026-08-31';
 
@@ -15,8 +18,7 @@ const kPeriod2026Feb = '2026-01-01~2026-01-31';
 const kPeriod2026Apr = '2026-01-01~2026-01-31-apr';
 
 /// 2026 기간 여부 (할증 옵션 및 2026 로직 적용 대상)
-bool isPeriod2026(String? period) =>
-    period?.startsWith('2026') ?? false;
+bool isPeriod2026(String? period) => period?.startsWith('2026') ?? false;
 
 /// 4월 운영지침인지 여부 (지역 기점 할증 계산 로직 활성화 여부)
 bool isAprilGuideline(String? period) => period == kPeriod2026Apr;
@@ -36,10 +38,8 @@ class DropdownOption {
 
 // 드롭다운 옵션들
 const periodOptions = [
-  DropdownOption(
-    value: kPeriod2026Aug,
-    label: '2026년 08월 (08월 01일 ~ 진행중)',
-  ),
+  DropdownOption(value: kPeriod2026Nov, label: '2026년 11월 (11월 01일 ~ 진행중)'),
+  DropdownOption(value: kPeriod2026Aug, label: '2026년 08월 (08월 01일 ~ 10월 31일)'),
   // ─── 2026년 02월 공시 (두 가지 운영지침) ───
   // DropdownOption(
   //   value: kPeriod2026Apr, // 4월 운영지침: 첫 번째 = 앱 실행 시 기본 선택
